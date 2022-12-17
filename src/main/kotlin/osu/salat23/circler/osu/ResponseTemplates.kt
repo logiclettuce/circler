@@ -79,5 +79,6 @@ object ResponseTemplates {
         """.trimIndent()
     }
 
+    fun osuUserNotDefined() = "No nickname was defined"
     fun osuUserNotFound(identifier: String) = "User $identifier was not found"
 }

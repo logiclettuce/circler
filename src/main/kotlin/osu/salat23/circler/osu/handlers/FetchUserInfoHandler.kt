@@ -8,14 +8,14 @@ import osu.salat23.circler.osu.api.domain.models.OsuUser
 import osu.salat23.circler.osu.api.exceptions.OsuUserNotFoundException
 import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.osu.ResponseTemplates
+import osu.salat23.circler.service.ChatService
 import osu.salat23.circler.service.OsuService
 
 @Component
-class FetchUserInfoHandler(val osuService: OsuService) : ChainHandler() {
-
+class FetchUserInfoHandler(val osuService: OsuService, val chatService: ChatService) : ChainHandler() {
+    // todo refactor these classes as the extension of GeneralChainHandler with getting identifier inside parent and provided services as is
     override fun handleUpdate(command: Command, client: Client, userContext: UserContext) {
-        var identifier = command.options.actor
-        if (identifier.isEmpty()) identifier = "salat23"
+        val identifier = getIdentifier(command, userContext, chatService, client)
 
         val osuApi = osuService.getOsuApiByServer(command.server)
         val user: OsuUser
@@ -26,14 +26,16 @@ class FetchUserInfoHandler(val osuService: OsuService) : ChainHandler() {
                     .chatId(userContext.chatId)
                     .userId(userContext.userId)
                     .text(ResponseTemplates.osuUserTemplate(user, command))
-                    .build())
+                    .build()
+            )
         } catch (exception: OsuUserNotFoundException) {
             client.send(
                 ClientEntity.Builder()
                     .chatId(userContext.chatId)
                     .userId(userContext.userId)
                     .text(ResponseTemplates.osuUserNotFound(identifier))
-                    .build())
+                    .build()
+            )
         }
     }
 

@@ -56,7 +56,7 @@ class Bancho (
         }
     }
 
-    private inline fun <reified T> makeRequest(request: Request): T {
+    private inline fun <reified T> makeRequest(request: Request, printResult: Boolean = false): T {
         if (tokenData == null) initToken()
         val newRequest = request.newBuilder().addHeader("Authorization", "${tokenData!!.token_type} ${tokenData!!.access_token}").build()
 
@@ -65,6 +65,7 @@ class Bancho (
             else if (!response.isSuccessful) throw IOException("Unexpected code $response")
 
             val jsonBody = response.body?.string()
+            if (printResult) logger.info(jsonBody)
             return mapper.readValue(jsonBody, T::class.java)
         }
     }
@@ -91,8 +92,7 @@ class Bancho (
             .url(BanchoEndpoints.scoresUrl(user.id, type, osuGameMode, pageSize, pageNumber, showFailed))
             .get()
             .build()
-        val osuScores: Array<OsuScore> = makeRequest(request);
-        return osuScores
+        return makeRequest(request, true)
     }
 
     override fun beatmapAttributes(

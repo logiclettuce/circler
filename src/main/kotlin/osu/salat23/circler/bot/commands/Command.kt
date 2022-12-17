@@ -35,6 +35,12 @@ class Command private constructor(
                 "r", "recent",
                 "к", "кусуте"
             )
+        ),
+        SET_USER_SERVER_IDENTIFIER(
+            arrayOf(
+                "n", "nick",
+                "т", "тшсл"
+            )
         )
     }
 
@@ -72,7 +78,7 @@ class Command private constructor(
 
         fun build() = Command(server, action, options)
         fun from(input: String): Builder {
-            val commandArguments = ArrayDeque(input.split((" ")))
+            val commandArguments = ArrayDeque(input.split(" "))
 
             if (commandArguments.isEmpty()) throw NotABotCommandException()
             val server = commandArguments.removeFirst()
@@ -84,15 +90,16 @@ class Command private constructor(
             if (commandArguments.isEmpty()) throw NotABotCommandException()//WrongCommandFormatException(input, "Action is not specified")
             val action = commandArguments.removeFirst().lowercase()
 
-            this.action = when {
-                Action.USER_GENERAL.identifiers.contains(action) -> Action.USER_GENERAL
-                Action.USER_TOP_SCORES.identifiers.contains(action) -> Action.USER_TOP_SCORES
-                Action.USER_RECENT_SCORES.identifiers.contains(action) -> Action.USER_RECENT_SCORES
-                // todo automate action type
-                else -> throw NotABotCommandException()//WrongCommandFormatException(input, "No such action: $action")
+            // determine action type for a command
+            var actionType: Action? = null
+            for (type in Action.values()) {
+                if (type.identifiers.contains(action)) actionType = type
             }
+            if (actionType == null) throw NotABotCommandException()
+            this.action = actionType
 
             options = parseOptions(
+                // specify default options for concrete action here
                 input, when {
                     this.action == Action.USER_RECENT_SCORES -> Options.Builder().pageSize(1).build()
                     else -> null

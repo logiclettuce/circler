@@ -12,12 +12,13 @@ import osu.salat23.circler.osu.api.OsuApi
 import osu.salat23.circler.osu.api.OsuGameMode
 import osu.salat23.circler.osu.api.domain.models.OsuBeatmapAttributes
 import osu.salat23.circler.osu.api.domain.models.OsuScore
+import osu.salat23.circler.service.ChatService
 import osu.salat23.circler.service.OsuService
 import java.util.Collections
 
 
 @Component
-class FetchUserTopScoresHandler(val osuService: OsuService) : ChainHandler() {
+class FetchUserTopScoresHandler(val osuService: OsuService, val chatService: ChatService) : ChainHandler() {
 
     private fun getScoresWithBeatmapAttributes(scores: Array<OsuScore>, osuApi: OsuApi): List<Pair<OsuScore, OsuBeatmapAttributes>> {
         val pairs = Collections.synchronizedList(mutableListOf<Pair<OsuScore, OsuBeatmapAttributes>>())
@@ -33,8 +34,7 @@ class FetchUserTopScoresHandler(val osuService: OsuService) : ChainHandler() {
     }
 
     override fun handleUpdate(command: Command, client: Client, userContext: UserContext) {
-        var identifier = command.options.actor
-        if (identifier.isEmpty()) identifier = "salat23"
+        val identifier = getIdentifier(command, userContext, chatService, client)
 
         val osuApi = osuService.getOsuApiByServer(command.server)
         val user = osuApi.user(identifier)

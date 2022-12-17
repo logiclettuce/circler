@@ -7,15 +7,15 @@ import osu.salat23.circler.bot.client.ClientEntity
 import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.osu.ResponseTemplates
 import osu.salat23.circler.osu.api.domain.models.OsuScore
+import osu.salat23.circler.osu.api.exceptions.UserNotDefinedException
+import osu.salat23.circler.service.ChatService
 import osu.salat23.circler.service.OsuService
 
 @Component
-class FetchUserRecentScoresHandler(val osuService: OsuService) : ChainHandler() {
+class FetchUserRecentScoresHandler(val osuService: OsuService, val chatService: ChatService) : ChainHandler() {
 
     override fun handleUpdate(command: Command, client: Client, userContext: UserContext) {
-        var identifier = command.options.actor
-        if (identifier.isEmpty()) identifier = "salat23"
-
+        val identifier = getIdentifier(command, userContext, chatService, client)
         val osuApi = osuService.getOsuApiByServer(command.server)
         val user = osuApi.user(identifier)
         val scores = osuApi.userScores(identifier, OsuScore.Type.Recent, command.options.pageSize, command.options.pageNumber)
