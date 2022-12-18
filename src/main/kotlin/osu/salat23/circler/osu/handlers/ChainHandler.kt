@@ -28,7 +28,7 @@ abstract class ChainHandler {
             var identifier = command.options.actor
             if (identifier.isEmpty()) {
                 val persistedIdentifier =
-                    chatService.getChatMemberServerPlayerIdentifier(
+                    chatService.getPlayerIdentifier(
                         userContext.userId,
                         userContext.userId,
                         command.server,

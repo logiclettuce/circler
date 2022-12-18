@@ -11,7 +11,7 @@ import osu.salat23.circler.service.OsuService
 class SetChatMemberIdentifier(val osuService: OsuService, val chatService: ChatService) : ChainHandler() {
 
     override fun handleUpdate(command: Command, client: Client, userContext: UserContext) {
-        chatService.
+        chatService.se
     }
 
     override fun canHandle(command: Command, userContext: UserContext): Boolean {

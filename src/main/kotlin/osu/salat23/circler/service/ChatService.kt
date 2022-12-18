@@ -11,14 +11,14 @@ class ChatService(
     private val serverIdentifierRepository: ServerIdentifierRepository,
     private val chatMemberRepository: ChatMemberRepository,
 ) {
-    fun getChatMemberServerPlayerIdentifier(userId: String, chatId: String, server: Command.Server, clientType: ClientType): String? {
+    fun getPlayerIdentifier(userId: String, chatId: String, server: Command.Server, clientType: ClientType): String? {
         val chatId = "${clientType.name}_$chatId"
         val userId = "${clientType.name}_$userId"
         // todo change to correct method
         return serverIdentifierRepository.getPlayerIdentifier(userId, chatId, server)
     }
 
-    fun setChatMemberServerPlayerIdentifier(userId: String, chatId: String, server: Command.Server, clientType: ClientType) {
+    fun setPlayerIdentifier(userId: String, chatId: String, server: Command.Server, clientType: ClientType) {
         serverIdentifierRepository.setPlayerIdentifier()
     }
 }
