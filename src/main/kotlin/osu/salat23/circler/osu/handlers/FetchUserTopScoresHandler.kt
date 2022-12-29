@@ -8,10 +8,10 @@ import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientEntity
 import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.osu.ResponseTemplates
-import osu.salat23.circler.osu.api.OsuApi
-import osu.salat23.circler.osu.api.OsuGameMode
-import osu.salat23.circler.osu.api.domain.models.OsuBeatmapAttributes
-import osu.salat23.circler.osu.api.domain.models.OsuScore
+import osu.salat23.circler.api.osu.OsuApi
+import osu.salat23.circler.api.osu.OsuGameMode
+import osu.salat23.circler.api.osu.bancho.dto.BanchoBeatmapAttributes
+import osu.salat23.circler.api.osu.bancho.dto.OsuScore
 import osu.salat23.circler.service.ChatService
 import osu.salat23.circler.service.OsuService
 import java.util.Collections
@@ -19,19 +19,6 @@ import java.util.Collections
 
 @Component
 class FetchUserTopScoresHandler(val osuService: OsuService, val chatService: ChatService) : ChainHandler() {
-
-    private fun getScoresWithBeatmapAttributes(scores: Array<OsuScore>, osuApi: OsuApi): List<Pair<OsuScore, OsuBeatmapAttributes>> {
-        val pairs = Collections.synchronizedList(mutableListOf<Pair<OsuScore, OsuBeatmapAttributes>>())
-        runBlocking {
-            for (score in scores) {
-                launch {
-                    val attributes = osuApi.beatmapAttributes(score.beatmap.id, 0, OsuGameMode.UserDefault)
-                    pairs.add(Pair(score, attributes))
-                }
-            }
-        }
-        return pairs
-    }
 
     override fun handleUpdate(command: Command, client: Client, userContext: UserContext) {
         val identifier = getIdentifier(command, userContext, chatService, client)

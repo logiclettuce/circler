@@ -1,4 +1,4 @@
-package osu.salat23.circler.osu.api
+package osu.salat23.circler.api.osu
 
 enum class OsuGameMode(val value: String, val rulesetId: Int) {
     Standard("osu", 0),

@@ -1,4 +1,4 @@
-package osu.salat23.circler.osu.api.exceptions
+package osu.salat23.circler.osu.exceptions
 
 class UserNotDefinedException : RuntimeException() {
 

@@ -4,6 +4,9 @@ import api.longpoll.bots.LongPollBot
 import api.longpoll.bots.exceptions.VkApiResponseException
 import api.longpoll.bots.model.events.Update
 import api.longpoll.bots.model.events.messages.MessageNew
+import api.longpoll.bots.model.objects.media.Attachment
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.stereotype.Component
@@ -22,18 +25,27 @@ class Vk(
     val osuCommandHandler: OsuCommandHandler,
 ) : LongPollBot(), Client, ApplicationRunner {
 
+    private val logger: Logger = LoggerFactory.getLogger(Vk::class.java)
+
     override fun handle(updates: MutableList<Update>?) {
         updates!!.forEach { update ->
             lateinit var text: String
             lateinit var chatId: String
             lateinit var userId: String
             when (update.type) {
-                 Update.Type.MESSAGE_NEW -> {
+                Update.Type.MESSAGE_NEW -> {
                     val messageNew = update.`object` as MessageNew
+                    logger.info(messageNew.toString())
                     text = VkTextParsingTools.tryRemovePing(messageNew.message.text)
+                    for (attachment in messageNew.message.attachments) {
+                        if (attachment.type == Attachment.Type.LINK) {
+                            text += " ${attachment.link.url}"
+                        }
+                    }
                     chatId = messageNew.message.peerId.toString()
                     userId = messageNew.message.fromId.toString()
                 }
+
                 else -> return
             }
             val command: Command
@@ -58,7 +70,7 @@ class Vk(
                 .setPeerId(clientEntity.chatId!!.toInt())
                 .setMessage(clientEntity.text)
             sendMessage.execute()
-        } catch(exception: VkApiResponseException) {
+        } catch (exception: VkApiResponseException) {
             exception.printStackTrace()
         }
     }

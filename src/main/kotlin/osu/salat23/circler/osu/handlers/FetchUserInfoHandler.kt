@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component
 import osu.salat23.circler.bot.UserContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientEntity
-import osu.salat23.circler.osu.api.domain.models.OsuUser
-import osu.salat23.circler.osu.api.exceptions.OsuUserNotFoundException
+import osu.salat23.circler.api.osu.bancho.dto.OsuUser
+import osu.salat23.circler.api.osu.exceptions.OsuUserNotFoundException
 import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.osu.ResponseTemplates
 import osu.salat23.circler.service.ChatService

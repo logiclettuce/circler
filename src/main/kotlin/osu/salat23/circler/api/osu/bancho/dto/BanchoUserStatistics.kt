@@ -1,4 +1,4 @@
-package osu.salat23.circler.osu.api.domain.models
+package osu.salat23.circler.api.osu.bancho.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty

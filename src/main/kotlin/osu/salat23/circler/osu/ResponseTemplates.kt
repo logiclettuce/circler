@@ -1,10 +1,10 @@
 package osu.salat23.circler.osu
 
 import osu.salat23.circler.bot.commands.Command
-import osu.salat23.circler.osu.api.domain.models.OsuUser
+import osu.salat23.circler.api.osu.bancho.dto.OsuUser
 import osu.salat23.circler.capitalize
-import osu.salat23.circler.osu.api.domain.models.OsuBeatmapAttributes
-import osu.salat23.circler.osu.api.domain.models.OsuScore
+import osu.salat23.circler.api.osu.bancho.dto.OsuScore
+import osu.salat23.circler.osu.domain.Beatmap
 import osu.salat23.circler.utility.Time
 import java.time.ZonedDateTime
 
@@ -62,7 +62,7 @@ object ResponseTemplates {
                     Result: ${it.score}
                     PP: ${it.pp.toInt()}
                 """.trimIndent()
-            ) // todo make od somehow?
+            ) // todo make od somehow? - half done
             stringBuilder.append("\n")
         }
         return headerString + stringBuilder.toString().trim()
@@ -79,6 +79,16 @@ object ResponseTemplates {
         """.trimIndent()
     }
 
-    fun osuUserNotDefined() = "No nickname was defined"
-    fun osuUserNotFound(identifier: String) = "User $identifier was not found"
+    fun beatmapInfo(beatmap: Beatmap): String {
+        if (beatmap.beatmapSet == null) return couldNotExtractBeatmapInfo()
+        return """
+            ${beatmap.beatmapSet.artist} - ${beatmap.beatmapSet.title}
+            created by ${beatmap.beatmapSet.creator}
+            BPM: ${beatmap.speedNoteCount} Difficulty: ${beatmap.difficultyRating}
+        """.trimIndent()
+    }
+
+    fun couldNotExtractBeatmapInfo() = "Could not extract information about beatmap!"
+    fun osuUserNotDefined() = "No nickname was defined!"
+    fun osuUserNotFound(identifier: String) = "User $identifier was not found!"
 }

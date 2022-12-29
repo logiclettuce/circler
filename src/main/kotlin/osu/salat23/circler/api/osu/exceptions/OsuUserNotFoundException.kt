@@ -1,4 +1,4 @@
-package osu.salat23.circler.osu.api.exceptions
+package osu.salat23.circler.api.osu.exceptions
 
 class OsuUserNotFoundException : OsuApiException() {
 

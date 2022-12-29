@@ -5,7 +5,7 @@ import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientEntity
 import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.osu.ResponseTemplates
-import osu.salat23.circler.osu.api.exceptions.UserNotDefinedException
+import osu.salat23.circler.osu.exceptions.UserNotDefinedException
 import osu.salat23.circler.service.ChatService
 
 abstract class ChainHandler {
@@ -15,7 +15,9 @@ abstract class ChainHandler {
     fun checkAndHandle(command: Command, client: Client, userContext: UserContext) {
         val handleCheck = canHandle(command, userContext)
         if (!handleCheck) return
-        handleUpdate(command, client, userContext)
+        try {
+            handleUpdate(command, client, userContext)
+        } catch (_: UserNotDefinedException) {}
     }
 
     companion object {
@@ -30,9 +32,9 @@ abstract class ChainHandler {
                 val persistedIdentifier =
                     chatService.getPlayerIdentifier(
                         userContext.userId,
-                        userContext.userId,
+                        userContext.chatId,
                         command.server,
-                        userContext.chatType
+                        userContext.clientType
                     )
                 if (persistedIdentifier == null) {
                     client.send(

@@ -12,13 +12,24 @@ class ChatService(
     private val chatMemberRepository: ChatMemberRepository,
 ) {
     fun getPlayerIdentifier(userId: String, chatId: String, server: Command.Server, clientType: ClientType): String? {
-        val chatId = "${clientType.name}_$chatId"
-        val userId = "${clientType.name}_$userId"
         // todo change to correct method
+        println("$userId, $chatId, $server")
         return serverIdentifierRepository.getPlayerIdentifier(userId, chatId, server)
     }
 
-    fun setPlayerIdentifier(userId: String, chatId: String, server: Command.Server, clientType: ClientType) {
-        serverIdentifierRepository.setPlayerIdentifier()
+    fun setPlayerIdentifier(
+        identifier: String,
+        userId: String,
+        chatId: String,
+        server: Command.Server,
+        clientType: ClientType
+    ) {
+        serverIdentifierRepository.setPlayerIdentifier(
+            identifier = identifier,
+            userId = userId,
+            chatId = chatId,
+            server = server,
+            clientType = clientType
+        )
     }
 }

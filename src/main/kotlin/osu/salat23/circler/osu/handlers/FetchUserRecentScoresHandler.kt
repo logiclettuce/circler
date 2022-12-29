@@ -6,8 +6,7 @@ import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientEntity
 import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.osu.ResponseTemplates
-import osu.salat23.circler.osu.api.domain.models.OsuScore
-import osu.salat23.circler.osu.api.exceptions.UserNotDefinedException
+import osu.salat23.circler.api.osu.bancho.dto.OsuScore
 import osu.salat23.circler.service.ChatService
 import osu.salat23.circler.service.OsuService
 

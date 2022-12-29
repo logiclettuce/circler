@@ -1,6 +1,6 @@
-package osu.salat23.circler.osu.api
+package osu.salat23.circler.api.osu
 
-import osu.salat23.circler.osu.api.domain.models.OsuScore
+import osu.salat23.circler.api.osu.bancho.dto.OsuScore
 
 object BanchoEndpoints {
     const val TOKEN_URL: String = "https://osu.ppy.sh/oauth/token"
@@ -11,6 +11,7 @@ object BanchoEndpoints {
     fun usersUrl(identifier: String, mode: OsuGameMode = OsuGameMode.UserDefault) =
         "$OSU_API_BASE_V2/users/${identifier}/${mode.value}"
 
+    fun beatmap(id: String) = "$OSU_API_BASE_V2/beatmaps/$id"
     fun scoresUrl(identifier: String, type: OsuScore.Type, mode: OsuGameMode = OsuGameMode.UserDefault, limit: Int = 5, offset: Int = 0, showFailed: Boolean = false): String {
         val queryParams = mutableListOf(
             if (mode.value.isNotEmpty()) "mode=${mode.value}" else "",
@@ -22,6 +23,6 @@ object BanchoEndpoints {
         return "$OSU_API_BASE_V2/users/${identifier}/scores/${type.name.lowercase()}?"+queryParams.filter{ it.isNotEmpty() }.joinToString(separator = "&")
     }
 
-    fun beatmapAttributesUrl(beatmapId: Long, mods: Int = 0): String = "$OSU_API_BASE_V2/beatmaps/$beatmapId/attributes"
+    fun beatmapAttributesUrl(beatmapId: Long): String = "$OSU_API_BASE_V2/beatmaps/$beatmapId/attributes"
 
 }

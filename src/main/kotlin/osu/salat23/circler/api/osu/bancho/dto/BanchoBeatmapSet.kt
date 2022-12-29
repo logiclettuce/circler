@@ -1,26 +1,26 @@
-package osu.salat23.circler.osu.api.domain.models
+package osu.salat23.circler.api.osu.bancho.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Covers(
-    val cover: String,
+    val cover: String?,
     @JsonProperty("cover@2x")
-    val cover2x: String,
-    val card: String,
+    val cover2x: String?,
+    val card: String?,
     @JsonProperty("card@2x")
-    val card2x: String,
-    val list: String,
+    val card2x: String?,
+    val list: String?,
     @JsonProperty("list@2x")
-    val list2x: String,
-    val slimCover: String,
+    val list2x: String?,
+    val slimCover: String?,
     @JsonProperty("slimcover@2x")
-    val slimCover2x: String,
+    val slimCover2x: String?,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class OsuBeatmapSet(
+data class BanchoBeatmapSet(
     val artist: String,
     @JsonProperty("artist_unicode")
     val artistUnicode: String,

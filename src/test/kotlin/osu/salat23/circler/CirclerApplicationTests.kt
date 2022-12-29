@@ -23,7 +23,7 @@ class CirclerApplicationTests() {
 
     @Test
     fun contextLoads() {
-        Assertions.assertEquals("11285100", osuService.getUserData("11285100"))
+
     }
 
 }

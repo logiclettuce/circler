@@ -1,4 +1,4 @@
-package osu.salat23.circler.osu.api.domain.models
+package osu.salat23.circler.api.osu.bancho.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -11,7 +11,7 @@ data class OsuHighestRank(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class Country(
+data class BanchoCountry(
     val code: String,
     val name: String
 )
@@ -28,7 +28,7 @@ data class OsuUser(
     val coverUrl: String,
     @JsonProperty("avatar_url")
     val avatarUrl: String,
-    val country: Country,
+    val country: BanchoCountry,
     @JsonProperty("has_supported")
     val hasSupported: Boolean,
     val playstyle: Array<String>?,
