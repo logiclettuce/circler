@@ -34,6 +34,8 @@ data class OsuUser(
     val playstyle: Array<String>?,
     @JsonProperty("join_date")
     val joinDate: String,
+//    @JsonProperty("last_visit")
+//    val lastVisit: String,
     @JsonProperty("max_blocks")
     val maxBlocks: Long,
     @JsonProperty("max_friends")

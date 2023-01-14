@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Profile</title>
+</head>
+<body>
+<style>
+    :root {
+        --width: |width|px;
+        --height: |height|px;
+        @import url('https://fonts.googleapis.com/css2?family=Sofia+Sans&display=swap');
+        font-family: 'Sofia Sans', sans-serif;
+        font-size: 30px;
+    }
+
+    * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    .background {
+        position: relative;
+    }
+    .image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        object-fit: cover;
+        width: var(--width);
+        height: var(--height);
+    }
+    .content {
+        top: 0;
+        left: 0;
+        position: absolute;
+        backdrop-filter: blur(15px);
+        height: var(--height);
+        width: var(--width);
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1;
+    }
+    .topbar {
+        display: flex;
+        align-content: center;
+        justify-content: space-between;
+        padding: 60px;
+        color: white;
+        background: rgb(46, 45, 45);
+    }
+
+    .stats {
+        padding: 10px;
+        display: flex;
+        gap: 40px;
+        color: white;
+    }
+    .stats .avatar {
+        height: 280px;
+        aspect-ratio: 1/1;
+        object-fit: contain;
+    }
+    .stats .main_stats {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 10px;
+    }
+</style>
+
+<div class="background">
+    <img class="image" src="|background_src|">
+    <div class="content">
+        <div class="topbar">
+        <div>Server: |server|</div>
+        <div>Mode: |mode|</div>
+        </div>
+        <div class="stats">
+            <img class="avatar" src="|avatar_src|">
+            <div class="main_stats">
+                <div>|acc|% acc</div>
+                <div>|pp| pp</div>
+                <div>|playcount| playcount</div>
+                <div>|max_combo| maximum combo</div>
+                <div>|playtime| playtime</div>
+                <div>joined |joined_date|</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

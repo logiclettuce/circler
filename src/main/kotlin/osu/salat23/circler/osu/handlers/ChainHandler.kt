@@ -3,6 +3,7 @@ package osu.salat23.circler.osu.handlers
 import osu.salat23.circler.bot.UserContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientEntity
+import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.osu.ResponseTemplates
 import osu.salat23.circler.osu.exceptions.UserNotDefinedException
@@ -17,7 +18,8 @@ abstract class ChainHandler {
         if (!handleCheck) return
         try {
             handleUpdate(command, client, userContext)
-        } catch (_: UserNotDefinedException) {}
+        } catch (_: UserNotDefinedException) {
+        }
     }
 
     companion object {
@@ -38,11 +40,11 @@ abstract class ChainHandler {
                     )
                 if (persistedIdentifier == null) {
                     client.send(
-                        ClientEntity.Builder()
-                            .chatId(userContext.chatId)
-                            .userId(userContext.userId)
-                            .text(ResponseTemplates.osuUserNotDefined())
-                            .build()
+                        ClientMessage(
+                            chatId = userContext.chatId,
+                            userId = userContext.userId,
+                            text = ResponseTemplates.osuUserNotDefined()
+                        )
                     )
                     throw UserNotDefinedException()
                 }

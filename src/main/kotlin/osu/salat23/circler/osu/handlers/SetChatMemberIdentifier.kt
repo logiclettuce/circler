@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component
 import osu.salat23.circler.bot.UserContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientEntity
+import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.service.ChatService
 import osu.salat23.circler.service.OsuService
@@ -23,20 +24,20 @@ class SetChatMemberIdentifier(val osuService: OsuService, val chatService: ChatS
                 server = command.server
             )
             client.send(
-                ClientEntity.Builder()
-                    .chatId(userContext.chatId)
-                    .userId(userContext.userId)
-                    .text("Nickname has been set ${command.options.actor}")
-                    .build()
+                ClientMessage(
+                    chatId = userContext.chatId,
+                    userId = userContext.userId,
+                    text = "Nickname has been set ${command.options.actor}"
+                )
             )
             return
         }
         client.send(
-            ClientEntity.Builder()
-                .chatId(userContext.chatId)
-                .userId(userContext.userId)
-                .text("User does not exist ${command.options.actor}")
-                .build()
+            ClientMessage(
+                chatId = userContext.chatId,
+                userId = userContext.userId,
+                text = "User does not exist ${command.options.actor}"
+            )
         )
     }
 

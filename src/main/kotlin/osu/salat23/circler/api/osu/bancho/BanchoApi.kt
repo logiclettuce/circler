@@ -13,15 +13,15 @@ import osu.salat23.circler.api.osu.OsuGameMode
 import osu.salat23.circler.api.osu.bancho.dto.*
 import osu.salat23.circler.api.osu.exceptions.RequestFailedException
 import osu.salat23.circler.api.osu.exceptions.UnexpectedException
-import osu.salat23.circler.osu.domain.Beatmap
-import osu.salat23.circler.osu.domain.Mod
-import osu.salat23.circler.osu.domain.Mode
+import osu.salat23.circler.osu.domain.*
+import osu.salat23.circler.osu.formula.performance.PerformanceCalculator
 import osu.salat23.circler.properties.OsuProperties
 import java.io.IOException
 
 @Component
 class BanchoApi(
     private val properties: OsuProperties,
+    private val performanceCalculator: PerformanceCalculator
 ) : OsuApi {
 
     data class TokenData(
@@ -69,9 +69,9 @@ class BanchoApi(
         }
     }
 
-    override fun user(username: String, osuGameMode: OsuGameMode, key: String?): OsuUser {
+    override fun user(username: String, osuGameMode: OsuGameMode, key: String?): User {
         val request = Request.Builder().url(BanchoEndpoints.usersUrl(key ?: username)).get().build();
-        return makeRequest(request)
+        return Converter.convert(makeRequest<OsuUser>(request))
     }
 
     override fun userScores(
@@ -82,37 +82,51 @@ class BanchoApi(
         osuGameMode: OsuGameMode,
         showFailed: Boolean,
         key: String?
-    ): Array<OsuScore> {
+    ): Array<Score> {
         val user = user(username, osuGameMode, key)
         val request = Request.Builder()
             .url(BanchoEndpoints.scoresUrl(user.id, type, osuGameMode, pageSize, pageNumber, showFailed)).get().build()
-        return makeRequest(request)
+        val scoresBancho = makeRequest<Array<OsuScore>>(request)
+        val scores = scoresBancho.map { banchoScore ->
+            val banchoBeatmap = banchoBeatmap(banchoScore.beatmap.id.toString(), Mod.fromStringArray(banchoScore.mods))
+            val banchoBeatmapAttributes = banchoBeatmapAttributes(banchoScore.beatmap.id.toString(), Mod.fromStringArray(banchoScore.mods))
+            val beatmap = Converter.convert(banchoBeatmap, banchoBeatmapAttributes, banchoBeatmap.beatmapset)
+            val score = Converter.convert(banchoScore, beatmap, performanceCalculator)
+            return@map score
+        }
+        return scores.toTypedArray()
     }
 
     override fun beatmap(
         id: String,
         mods: Array<Mod>
     ): Beatmap {
-        val request = Request.Builder()
-            .url(BanchoEndpoints.beatmap(id)).build()
-        val banchoBeatmap: BanchoBeatmap = makeRequest(request)
-        val banchoBeatmapAttributes = beatmapAttributes(banchoBeatmap.id, mods,/*todo: Gamemode here*/)
+        val banchoBeatmap: BanchoBeatmap = banchoBeatmap(id, mods)
+        val banchoBeatmapAttributes = banchoBeatmapAttributes(banchoBeatmap.id.toString(), mods,/*todo: Gamemode here*/)
         return Converter.convert(banchoBeatmap, banchoBeatmapAttributes, banchoBeatmap.beatmapset)
     }
 
-    private fun beatmapAttributes(
-        beatmapId: Long,
+    private fun banchoBeatmap(
+        id: String,
+        mods: Array<Mod>
+    ): BanchoBeatmap {
+        val request = Request.Builder()
+            .url(BanchoEndpoints.beatmap(id)).build()
+        return makeRequest(request)
+    }
+
+    private fun banchoBeatmapAttributes(
+        beatmapId: String,
         mods: Array<Mod>,
         osuGameMode: Mode = Mode.Default
     ): BanchoBeatmapAttributes {
-        val jsonBody = """
-            {
-                "mods": ${JSONArray(mods)},
-                ${if (osuGameMode != Mode.Default) "mode: ${osuGameMode.alternativeName}" else ""}
-            }
-        """.trimIndent()
+        // ${JSONArray(mods.map { mod -> mod.alternativeName })}
+        val modsValue = if (mods.size > 0) mods.map { mod -> mod.id }.reduce { acc, id -> acc.or(id) } else 0
+        val bodyParameters: RequestBody = FormBody.Builder()
+            .add("mods", "${modsValue}")
+            .build()
         val request = Request.Builder().url(BanchoEndpoints.beatmapAttributesUrl(beatmapId)).post(
-            jsonBody.toRequestBody()
+            bodyParameters
         ).build()
         return makeRequest<BanchoBeatmapAttributesWrapper>(request).banchoBeatmapAttributes
     }

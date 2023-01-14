@@ -12,7 +12,8 @@ object BanchoEndpoints {
         "$OSU_API_BASE_V2/users/${identifier}/${mode.value}"
 
     fun beatmap(id: String) = "$OSU_API_BASE_V2/beatmaps/$id"
-    fun scoresUrl(identifier: String, type: OsuScore.Type, mode: OsuGameMode = OsuGameMode.UserDefault, limit: Int = 5, offset: Int = 0, showFailed: Boolean = false): String {
+    // todo make parameters more standardized. e.g. this function should not have default parameters or otherwise with the osuapi interface
+    fun scoresUrl(identifier: String, type: OsuScore.Type, mode: OsuGameMode = OsuGameMode.UserDefault, limit: Int = 5, offset: Int = 0, showFailed: Boolean = true): String {
         val queryParams = mutableListOf(
             if (mode.value.isNotEmpty()) "mode=${mode.value}" else "",
             "limit=${limit}",
@@ -23,6 +24,6 @@ object BanchoEndpoints {
         return "$OSU_API_BASE_V2/users/${identifier}/scores/${type.name.lowercase()}?"+queryParams.filter{ it.isNotEmpty() }.joinToString(separator = "&")
     }
 
-    fun beatmapAttributesUrl(beatmapId: Long): String = "$OSU_API_BASE_V2/beatmaps/$beatmapId/attributes"
+    fun beatmapAttributesUrl(beatmapId: String): String = "$OSU_API_BASE_V2/beatmaps/$beatmapId/attributes"
 
 }

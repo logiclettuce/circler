@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component
 import osu.salat23.circler.bot.UserContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientEntity
+import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.osu.ResponseTemplates
 import osu.salat23.circler.service.OsuService
@@ -14,11 +15,13 @@ class FetchBeatmapHandler(val osuService: OsuService) : ChainHandler() {
         val osuApi = osuService.getOsuApiByServer(command.server)
         val beatmap = osuApi.beatmap(command.options.beatmapId)
 
-        client.send(ClientEntity.Builder()
-            .chatId(userContext.chatId)
-            .userId(userContext.userId)
-            .text(ResponseTemplates.beatmapInfo(beatmap))
-            .build())
+        client.send(
+            ClientMessage(
+                chatId = userContext.chatId,
+                userId = userContext.userId,
+                text = ResponseTemplates.beatmapInfo(beatmap)
+            )
+        )
     }
 
     override fun canHandle(command: Command, userContext: UserContext): Boolean {

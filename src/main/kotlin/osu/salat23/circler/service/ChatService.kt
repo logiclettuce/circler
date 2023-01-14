@@ -24,6 +24,8 @@ class ChatService(
         server: Command.Server,
         clientType: ClientType
     ) {
+        println("Userid: " + userId)
+        println("chatid: " + chatId)
         serverIdentifierRepository.setPlayerIdentifier(
             identifier = identifier,
             userId = userId,

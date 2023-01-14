@@ -9,26 +9,35 @@ class Command private constructor(
     val action: Action,
     val options: Options
 ) {
+    companion object {
+        const val NON_SERVER_SPECIFIC_COMMAND_PREFIX = "!"
+    }
 
     enum class Server(
         val identifiers: Array<String>,
+        val displayName: String,
         val beatmapsetUrl: Regex) {
         Bancho(
             arrayOf(
                 "b", "s", "bancho", "standard", "std",
                 "и", "ы", "ифтсрщ", "ыефтвфкв", "ыев"
             ),
+            "Bancho",
             Regex("https?:\\/\\/osu.ppy.sh\\/beatmapsets\\/[\\d]+(#[\\w]+)?\\/[\\d]+")
         ),
-        None(arrayOf(), Regex(""))
+        None(arrayOf(), "None", Regex(""))
     }
 
-    enum class Action(val identifiers: Array<String>, val implicitArgument: Options.ArgumentIdentifiers? = null) {
+    enum class Action(val identifiers: Array<String>,
+                      val displayedName: String,
+                      val implicitArgument: Options.ArgumentIdentifiers? = null,
+                      val nonServerSpecific: Boolean = false) {
         USER_GENERAL(
             arrayOf(
                 "u", "user",
                 "г", "гыук"
             ),
+            "User info",
             Options.ArgumentIdentifiers.ACTOR
         ),
         USER_TOP_SCORES(
@@ -36,6 +45,7 @@ class Command private constructor(
                 "t", "top",
                 "е", "ещз"
             ),
+            "User top scores",
             Options.ArgumentIdentifiers.ACTOR
         ),
         USER_RECENT_SCORES(
@@ -43,6 +53,7 @@ class Command private constructor(
                 "r", "recent",
                 "к", "кусуте"
             ),
+            "User recent scores",
             Options.ArgumentIdentifiers.ACTOR
         ),
         SET_USER_SERVER_IDENTIFIER(
@@ -50,16 +61,26 @@ class Command private constructor(
                 "n", "nick",
                 "т", "тшсл"
             ),
+            "Set server identifier",
             Options.ArgumentIdentifiers.ACTOR
         ),
         FUN(
             arrayOf(
                 "f", "fun",
                 "а", "агт"
-            )
+            ),
+            "Fun",
+            nonServerSpecific = true
+        ),
+        HELP(
+            arrayOf("help", "h",
+                    "рудз", "р"),
+            "Help",
+            nonServerSpecific = true
         ),
         BEATMAP_LOOKUP(
-            arrayOf()
+            arrayOf(),
+            "Beatmap lookup"
         )
 
         // todo make recommend map option
@@ -73,12 +94,14 @@ class Command private constructor(
         val pageNumber: Int,
         val pageSize: Int,
         val actor: String,
-        val beatmapId: String
+        val beatmapId: String,
+        val pictureMode: Boolean
     ) {
         enum class ArgumentIdentifiers(val identifiers: Array<String>) {
             PAGE_NUMBER(arrayOf("p", "page", "з", "зфпу")),
             PAGE_SIZE(arrayOf("s", "size", "ы", "ышяу")),
             ACTOR(arrayOf("n", "nick", "nickname", "player", "т", "тшсл", "тшслтфьу", "здфнук")),
+            PICTURE_MODE(arrayOf("pic", "picture", "img", "image", "зшс", "шьп", "зшсегку", "шьфпу"))
             // BEATMAP_ID
         }
 
@@ -87,17 +110,20 @@ class Command private constructor(
             private var pageSize: Int = defaultOptions?.pageSize ?: 5
             private var actor: String = defaultOptions?.actor ?: ""
             private var beatmapId: String = ""
+            private var pictureMode: Boolean = false
             fun build() = Options(
                 pageNumber,
                 pageSize,
                 actor,
-                beatmapId
+                beatmapId,
+                pictureMode
             )
 
             fun pageNumber(pageNumber: Int) = this.apply { this.pageNumber = pageNumber }
             fun pageSize(pageSize: Int) = this.apply { this.pageSize = pageSize }
             fun actor(actor: String) = this.apply { this.actor = actor }
             fun beatmapId(id: String) = this.apply { this.beatmapId = id }
+            fun pictureMode(state: Boolean) = this.apply { this.pictureMode = state }
         }
     }
 
@@ -159,21 +185,41 @@ class Command private constructor(
 
             if (commandArguments.isEmpty()) throw NotABotCommandException()
             val server = commandArguments.removeFirst()
+            var actionAlreadySpecified = false;
             this.server = when {
                 Server.Bancho.identifiers.contains(server.lowercase()) -> Server.Bancho
-                else -> throw NotABotCommandException()//WrongCommandFormatException(input, "Not a bot command: $server")
+                else -> {
+                    // if the action specified is actually a non-server specific command
+                    val nonServerSpecificCommand = server
+
+                    for (action in Action.values()) {
+                        if (action.nonServerSpecific
+                            && nonServerSpecificCommand.startsWith(NON_SERVER_SPECIFIC_COMMAND_PREFIX)
+                            && action.identifiers.contains(nonServerSpecificCommand.substring(1))) {
+
+                            this.action = action
+                            actionAlreadySpecified = true
+                            break
+                        }
+                    }
+                    if (!actionAlreadySpecified) throw NotABotCommandException()
+                    Server.None
+                }
             }
 
-            if (commandArguments.isEmpty()) throw NotABotCommandException()//WrongCommandFormatException(input, "Action is not specified")
-            val action = commandArguments.removeFirst().lowercase()
+            if (commandArguments.isEmpty() && !actionAlreadySpecified) throw NotABotCommandException()
+            if (!actionAlreadySpecified) {
 
-            // determine action type for a command
-            var actionType: Action? = null
-            for (type in Action.values()) {
-                if (type.identifiers.contains(action)) actionType = type
+                val action = commandArguments.removeFirst().lowercase()
+
+                // determine action type for a command
+                var actionType: Action? = null
+                for (type in Action.values()) {
+                    if (type.identifiers.contains(action)) actionType = type
+                }
+                if (actionType == null) throw NotABotCommandException()
+                this.action = actionType
             }
-            if (actionType == null) throw NotABotCommandException()
-            this.action = actionType
 
             var implicitArgument: String? = null
             if (commandArguments.size != 0 && commandArguments.first()[0] != '-') implicitArgument =
@@ -216,10 +262,10 @@ class Command private constructor(
 
         private fun parseOptions(input: String, defaultOptions: Options?): Options {
 
-            val matcher = Pattern.compile("-[\\w\\u0400-\\u04FF]+ [\\w\\u0400-\\u04FF%]*").matcher(input)
+            val valueArgumentsMatcher = Pattern.compile("-[\\w\\u0400-\\u04FF]+ *[\\w\\u0400-\\u04FF%]*").matcher(input)
             val args = mutableListOf<String>()
-            while (matcher.find()) {
-                args.add(matcher.group())
+            while (valueArgumentsMatcher.find()) {
+                args.add(valueArgumentsMatcher.group())
             }
 
             val optionsBuilder = Options.Builder(defaultOptions)
@@ -239,11 +285,21 @@ class Command private constructor(
                         if (!parts[1].matches(Regex("\\d+"))) continue
                         optionsBuilder.pageSize(parts[1].toInt())
                     }
-
+                    // todo refactor all of this shit
                     check(Options.ArgumentIdentifiers.ACTOR, identifier) -> {
                         if (parts.size <= 1) continue
                         if (!parts[1].matches(Regex("[\\w\\u0400-\\u04FF%]+"))) continue // todo create constants for argument types just in case
                         optionsBuilder.actor(parts[1])
+                    }
+
+                    check(Options.ArgumentIdentifiers.PICTURE_MODE, identifier) -> {
+                        if (parts.isEmpty()) continue
+                        if (parts.size == 1) {
+                            optionsBuilder.pictureMode(true)
+                            continue
+                        }
+                        if (!parts[1].matches(Regex("1")) || !parts[1].matches(Regex("true"))) continue // todo create constants for argument types just in case
+                        optionsBuilder.pictureMode(true)
                     }
                 }
             }

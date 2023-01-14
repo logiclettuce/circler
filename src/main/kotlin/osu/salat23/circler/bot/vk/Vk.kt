@@ -14,6 +14,8 @@ import osu.salat23.circler.bot.ClientType
 import osu.salat23.circler.bot.UserContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientEntity
+import osu.salat23.circler.bot.client.ClientImage
+import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.bot.commands.NotABotCommandException
 import osu.salat23.circler.osu.OsuCommandHandler
@@ -44,6 +46,7 @@ class Vk(
                     }
                     chatId = messageNew.message.peerId.toString()
                     userId = messageNew.message.fromId.toString()
+                    logger.info("ChatId: $chatId, userId: $userId")
                 }
 
                 else -> return
@@ -54,7 +57,11 @@ class Vk(
             } catch (exception: NotABotCommandException) {
                 return
             }
-            osuCommandHandler.handle(command, this, UserContext(chatId, userId, ClientType.VK))
+            try {
+                osuCommandHandler.handle(command, this, UserContext(chatId, userId, ClientType.VK))
+            } catch (exception: Exception) {
+                exception.printStackTrace()
+            }
         }
     }
 
@@ -66,10 +73,23 @@ class Vk(
 
     override fun send(clientEntity: ClientEntity) {
         try {
-            val sendMessage = vk.messages.send()
-                .setPeerId(clientEntity.chatId!!.toInt())
-                .setMessage(clientEntity.text)
-            sendMessage.execute()
+
+            when (clientEntity) {
+                is ClientImage -> {
+                    val sendImage = vk.messages.send()
+                        .setPeerId(clientEntity.chatId.toInt())
+                        .setMessage(clientEntity.text)
+                        .addPhoto(clientEntity.image, "preview.png")
+                    sendImage.execute()
+                }
+
+                is ClientMessage -> {
+                    val sendMessage = vk.messages.send()
+                        .setPeerId(clientEntity.chatId.toInt())
+                        .setMessage(clientEntity.text)
+                    sendMessage.execute()
+                }
+            }
         } catch (exception: VkApiResponseException) {
             exception.printStackTrace()
         }

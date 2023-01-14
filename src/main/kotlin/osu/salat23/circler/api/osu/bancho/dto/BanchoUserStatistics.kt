@@ -29,7 +29,7 @@ data class OsuUserStatistics(
     @JsonProperty("ranked_score")
     val rankedScore: Long,
     @JsonProperty("hit_accuracy")
-    val hitAccuracy: Float,
+    val hitAccuracy: Double,
     @JsonProperty("play_count")
     val playCount: Long,
     @JsonProperty("play_time")

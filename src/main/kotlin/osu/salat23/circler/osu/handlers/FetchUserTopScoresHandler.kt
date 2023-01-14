@@ -12,6 +12,7 @@ import osu.salat23.circler.api.osu.OsuApi
 import osu.salat23.circler.api.osu.OsuGameMode
 import osu.salat23.circler.api.osu.bancho.dto.BanchoBeatmapAttributes
 import osu.salat23.circler.api.osu.bancho.dto.OsuScore
+import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.service.ChatService
 import osu.salat23.circler.service.OsuService
 import java.util.Collections
@@ -25,16 +26,17 @@ class FetchUserTopScoresHandler(val osuService: OsuService, val chatService: Cha
 
         val osuApi = osuService.getOsuApiByServer(command.server)
         val user = osuApi.user(identifier)
-        val scores = osuApi.userScores(identifier, OsuScore.Type.Best, command.options.pageSize, command.options.pageNumber)
-            //val scoresWithBeatmapAttributes =  getScoresWithBeatmapAttributes(scores, osuApi)
+        val scores =
+            osuApi.userScores(identifier, OsuScore.Type.Best, command.options.pageSize, command.options.pageNumber)
+        //val scoresWithBeatmapAttributes =  getScoresWithBeatmapAttributes(scores, osuApi)
 
         val text = ResponseTemplates.osuUserTopScores(user, command, scores)
         client.send(
-            ClientEntity.Builder()
-                .chatId(userContext.chatId)
-                .userId(userContext.userId)
-                .text(text)
-                .build()
+            ClientMessage(
+                chatId = userContext.chatId,
+                userId = userContext.userId,
+                text = text
+            )
         )
     }
 

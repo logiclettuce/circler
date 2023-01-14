@@ -7,10 +7,12 @@ data class User(
     val username: String,
     val isOnline: Boolean,
     val hasSupporter: Boolean,
+    val playMode: Mode,
     val avatarUrl: String,
+    val coverUrl: String,
     val country: Country,
     val joinDate: LocalDate,
-    val lastVisit: LocalDate,
+    //val lastVisit: LocalDate,
     val performance: Long,
     val globalRank: Long,
     val countryRank: Long,
@@ -23,4 +25,6 @@ data class User(
     val rankedScore: Long,
     val totalScore: Long,
     val totalHits: Long,
+    val highestRank: Long,
+    val highestRankDate: LocalDate
 )

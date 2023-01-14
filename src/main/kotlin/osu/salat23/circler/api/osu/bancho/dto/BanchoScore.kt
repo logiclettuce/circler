@@ -1,15 +1,16 @@
 package osu.salat23.circler.api.osu.bancho.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class OsuScoreStatistics(
-    val count_50: Int,
-    val count_100: Int,
-    val count_300: Int,
-    val count_geki: Int,
-    val count_katu: Int,
-    val count_miss: Int,
+    val count_50: Long,
+    val count_100: Long,
+    val count_300: Long,
+    val count_geki: Long,
+    val count_katu: Long,
+    val count_miss: Long,
 ) {
 
 }
@@ -25,14 +26,20 @@ data class OsuScore(
     val best_id: String?,
     val created_at: String,
     val id: String,
-    val max_combo: Long,
+    @JsonProperty("max_combo")
+    val maxCombo: Long,
     val mode: String,
-    val mode_int: Int,
+    val mode_int: Long,
     val mods: Array<String>,
 // todo hash code for mods and other fields
     val passed: Boolean,
     val perfect: Boolean,
+
     val pp: Double,
+    @JsonProperty("rank_global")
+    val rankGlobal: Long,
+    @JsonProperty("rank_country")
+    val rankCountry: Long,
     val rank: String,
     val replay: Boolean,
     val score: Long,

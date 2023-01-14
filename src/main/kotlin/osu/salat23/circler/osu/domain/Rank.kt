@@ -1,8 +1,8 @@
 package osu.salat23.circler.osu.domain
 
 enum class Rank {
-    XX,
-    X,
+    SSH,
+    SH,
     SS,
     S,
     A,

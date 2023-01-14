@@ -4,11 +4,15 @@ import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.DefaultBotOptions
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto
+import org.telegram.telegrambots.meta.api.objects.InputFile
 import org.telegram.telegrambots.meta.api.objects.Update
 import osu.salat23.circler.bot.ClientType
 import osu.salat23.circler.bot.UserContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientEntity
+import osu.salat23.circler.bot.client.ClientImage
+import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.bot.commands.NotABotCommandException
 import osu.salat23.circler.osu.OsuCommandHandler
@@ -51,12 +55,24 @@ class Telegram(
 
     override fun send(clientEntity: ClientEntity) {
         try {
-            val sendMessage = SendMessage.builder()
-                .chatId(clientEntity.chatId!!.toLong())
-                .text(clientEntity.text!!)
-                .build()
-            execute(sendMessage)
-        } catch(exception: Exception) {
+            when (clientEntity) {
+                is ClientImage -> {
+                    val sendPhoto = SendPhoto.builder()
+                        .chatId(clientEntity.chatId)
+                        .photo(InputFile(clientEntity.image, "preview.png"))
+                        .build()
+                    execute(sendPhoto)
+                }
+
+                is ClientMessage -> {
+                    val sendMessage = SendMessage.builder()
+                        .chatId(clientEntity.chatId)
+                        .text(clientEntity.text)
+                        .build()
+                    execute(sendMessage)
+                }
+            }
+        } catch (exception: Exception) {
             exception.printStackTrace()
         }
     }

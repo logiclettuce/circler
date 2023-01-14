@@ -28,6 +28,9 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("com.github.yvasyliev:java-vk-bots-longpoll-api:3.5.3")
     implementation("org.telegram:telegrambots-spring-boot-starter:6.3.0")
+    implementation(files("libs/html2image.jar")) // todo remove
+    implementation("com.microsoft.playwright:driver-bundle:1.28.1")
+    implementation("com.microsoft.playwright:playwright:1.28.1")
 
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

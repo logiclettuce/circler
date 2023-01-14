@@ -1,13 +1,13 @@
 package osu.salat23.circler.osu.formula.performance
 
+import org.springframework.stereotype.Component
+import osu.salat23.circler.clamp
 import osu.salat23.circler.osu.domain.Beatmap
 import osu.salat23.circler.osu.domain.Mod
 import osu.salat23.circler.osu.domain.Score
-import kotlin.math.log10
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.pow
 
+@Component
 class PerformanceCalculatorV1 : PerformanceCalculator {
 
     companion object {
@@ -45,24 +45,31 @@ class PerformanceCalculatorV1 : PerformanceCalculator {
         var effectiveMissCount = calculateEffectiveMissCount(beatmap, scoreAttributes)
 
         var multiplier = PERFORMANCE_BASE_MULTIPLIER
+
         if (score.mods.contains(Mod.NoFail)) {
-            multiplier *= max(0.90, 1.0 - 0.02 * effectiveMissCount)
+            multiplier *= Math.max(0.90, 1.0 - 0.02 * effectiveMissCount);
         }
         if (score.mods.contains(Mod.SpunOut) && totalHits > 0) {
-            multiplier *= (beatmap.spinnerCount.toDouble() / totalHits).pow(0.85)
+            multiplier *= 1.0 - Math.pow(beatmap.spinnerCount.toDouble() / totalHits, 0.85)
         }
         if (score.mods.contains(Mod.Relax)) {
-            val okMultiplier = max(
+            val okMultiplier = Math.max(
                 0.0,
-                if (beatmap.overallDifficulty > 0) (1 - (beatmap.overallDifficulty / 13.33).pow(1.8)) else 1.0
+                if (beatmap.overallDifficulty > 0.0) 1 - Math.pow(
+                    beatmap.overallDifficulty / 13.33,
+                    1.8
+                ) else 1.0
             )
-            val mehMultiplier = max(
+            val mehMultiplier = Math.max(
                 0.0,
-                if (beatmap.overallDifficulty > 0) (1 - (beatmap.overallDifficulty / 13.33).pow(5)) else 1.0
+                if (beatmap.overallDifficulty > 0.0) 1 - Math.pow(
+                    beatmap.overallDifficulty / 13.33,
+                    5.0
+                ) else 1.0
             )
 
-            effectiveMissCount = min(
-                effectiveMissCount + scoreAttributes.countOk * okMultiplier + scoreAttributes.countMeh,
+            effectiveMissCount = Math.min(
+                effectiveMissCount + scoreAttributes.countOk * okMultiplier + scoreAttributes.countMeh * mehMultiplier,
                 totalHits.toDouble()
             )
         }
@@ -75,12 +82,12 @@ class PerformanceCalculatorV1 : PerformanceCalculator {
         val flashlightValue: Double =
             computeFlashlightValue(score, beatmap, scoreAttributes, totalHits, effectiveMissCount)
 
-        val totalValue = (
-                aimValue.pow(1.1) +
-                        speedValue.pow(1.1) +
-                        accuracyValue.pow(1.1) +
-                        flashlightValue.pow(1.1)
-                ).pow(1.0 / 1.1) * multiplier
+        val totalValue = Math.pow(
+                    Math.pow(aimValue, 1.1) +
+                    Math.pow(speedValue, 1.1) +
+                    Math.pow(accuracyValue, 1.1) +
+                    Math.pow(flashlightValue, 1.1), 1.0 / 1.1
+        ) * multiplier
 
         return totalValue
     }
@@ -96,19 +103,21 @@ class PerformanceCalculatorV1 : PerformanceCalculator {
         if (!mods.contains(Mod.Flashlight))
             return 0.0
 
-        var flashLightValue = beatmap.flashlightDifficulty.pow(2.0) * 25.0
+        var flashLightValue = Math.pow(beatmap.flashlightDifficulty, 2.0) * 25.0
 
         if (effectiveMissCount > 0)
-            flashLightValue *= 0.97 * (1 - (effectiveMissCount / totalHits).pow(0.775)).pow(effectiveMissCount.pow(0.875))
+            flashLightValue *= 0.97 * Math.pow(1.0 - Math.pow(effectiveMissCount / totalHits, 0.775), Math.pow(effectiveMissCount, 0.875))
 
         flashLightValue *= getComboScalingFactor(beatmap, score)
 
-        flashLightValue *= 0.7 + 0.1 * min(1.0, totalHits / 200.0) +
-                (if (totalHits > 200) 0.2 * min(1.0, (totalHits - 200) / 200.0) else 0.0)
+        flashLightValue *= 0.7 + 0.1 * Math.min(1.0, totalHits / 200.0) + if (totalHits > 200) 0.2 * Math.min(
+            1.0,
+            (totalHits - 200) / 200.0
+        ) else 0.0
 
         flashLightValue *= 0.5 + score.accuracy / 2.0
 
-        flashLightValue *= 0.98 + beatmap.overallDifficulty.pow(2) / 2500
+        flashLightValue *= 0.98 + Math.pow(beatmap.overallDifficulty, 2.0) / 2500.0
 
         return flashLightValue
     }
@@ -126,20 +135,20 @@ class PerformanceCalculatorV1 : PerformanceCalculator {
 
         var betterAccuracyPercentage: Double
 
-        val amountHitObjectsWithAccuracy = beatmap.circleCount
+        val amountHitObjectsWithAccuracy: Long = beatmap.circleCount
 
-        betterAccuracyPercentage = if (amountHitObjectsWithAccuracy > 0)
-            ((scoreAttributes.countGreat - (totalHits - amountHitObjectsWithAccuracy)) * 6 + scoreAttributes.countOk * 2 + scoreAttributes.countMeh) / (amountHitObjectsWithAccuracy * 6).toDouble()
+        if (amountHitObjectsWithAccuracy > 0)
+            betterAccuracyPercentage = ((scoreAttributes.countGreat - (totalHits - amountHitObjectsWithAccuracy)) * 6.0 + scoreAttributes.countOk * 2.0 + scoreAttributes.countMeh) / (amountHitObjectsWithAccuracy * 6).toDouble()
         else
-            0.0
-
-
-        if (betterAccuracyPercentage < 0.0)
             betterAccuracyPercentage = 0.0
 
-        var accuracyValue = 1.52163.pow(beatmap.overallDifficulty) * betterAccuracyPercentage.pow(24) * 2.83
+        if (betterAccuracyPercentage < 0)
+            betterAccuracyPercentage = 0.0
 
-        accuracyValue *= min(1.15, (amountHitObjectsWithAccuracy / 1000.0).pow(0.3))
+
+        var accuracyValue = Math.pow(1.52163, beatmap.overallDifficulty) * Math.pow(betterAccuracyPercentage, 24.0) * 2.83
+
+        accuracyValue *= Math.min(1.15, Math.pow(amountHitObjectsWithAccuracy / 1000.0, 0.3))
 
         /*
         unimplemented Blinds mod here
@@ -171,15 +180,15 @@ class PerformanceCalculatorV1 : PerformanceCalculator {
         if (score.mods.contains(Mod.Relax))
             return 0.0
 
-        var speedValue = (5.0 * max(1.0, beatmap.speedDifficulty / 0.0675) - 4.0).pow(3.0) / 100_000.0
+        var speedValue = Math.pow(5.0 * Math.max(1.0, beatmap.speedDifficulty / 0.0675) - 4.0, 3.0) / 100_000.0;
 
-        val lengthBonus = 0.95 + 0.4 * min(1.0, totalHits / 2000.0) +
-                (if (totalHits > 2000) log10(totalHits / 2000.0) * 0.5 else 0.0)
+        val lengthBonus = 0.95 + 0.4 * Math.min(1.0, totalHits / 2000.0) +
+                if (totalHits > 2000) Math.log10(totalHits / 2000.0) * 0.5 else 0.0
+
         speedValue *= lengthBonus
 
         if (effectiveMissCount > 0) {
-            speedValue *= 0.97 *
-                    (1 - (effectiveMissCount / totalHits).pow(0.775).pow((effectiveMissCount.pow(.875))))
+            speedValue *=  0.97 * Math.pow(1 - Math.pow(effectiveMissCount / totalHits, 0.775), Math.pow(effectiveMissCount, .875))
         }
 
         speedValue *= getComboScalingFactor(beatmap, score)
@@ -205,27 +214,17 @@ class PerformanceCalculatorV1 : PerformanceCalculator {
         }
 
         val relevantTotalDiff = totalHits - beatmap.speedNoteCount
-        val relevantCountGreat = max(0.0, scoreAttributes.countGreat - relevantTotalDiff)
-        val relevantCountOk =
-            max(0.0, scoreAttributes.countOk - max(0.0, relevantTotalDiff - scoreAttributes.countGreat))
-        val relevantCountMeh = max(
-            0.0,
-            scoreAttributes.countMeh - max(
-                0.0,
-                relevantTotalDiff - scoreAttributes.countGreat - scoreAttributes.countOk
-            )
-        )
-        val relevantAccuracy =
-            if (beatmap.speedNoteCount == 0.0) 0.0
-            else (relevantCountGreat * 6.0 + relevantCountOk * 2.0 + relevantCountMeh) / (beatmap.speedNoteCount * 6.0)
+        val relevantCountGreat = Math.max(0.0, scoreAttributes.countGreat - relevantTotalDiff)
+        val relevantCountOk = Math.max(0.0, scoreAttributes.countOk - Math.max(0.0, relevantTotalDiff - scoreAttributes.countGreat))
+        val relevantCountMeh = Math.max(0.0, scoreAttributes.countMeh - Math.max(0.0, relevantTotalDiff - scoreAttributes.countGreat - scoreAttributes.countOk))
+        val relevantAccuracy = if (beatmap.speedNoteCount == 0.0) 0.0 else ((relevantCountGreat * 6.0 + relevantCountOk * 2.0 + relevantCountMeh) / (beatmap.speedNoteCount * 6.0))
 
-        speedValue *= (0.95 + beatmap.overallDifficulty.pow(2) / 750) * ((score.accuracy + relevantAccuracy) / 2.0).pow(
-            14.5 - max(beatmap.overallDifficulty, 8.0)
-        ) / 2
 
-        speedValue *= 0.99.pow(if (scoreAttributes.countMeh < totalHits / 500.0) 0.0 else scoreAttributes.countMeh - totalHits / 500.0)
+        speedValue *= (0.95 + Math.pow(beatmap.overallDifficulty, 2.0) / 750.0) * Math.pow((scoreAttributes.accuracy + relevantAccuracy) / 2.0, (14.5 - Math.max(beatmap.overallDifficulty, 8.0)) / 2.0)
 
-        return speedValue;
+        speedValue *= Math.pow(0.99, if (scoreAttributes.countMeh < totalHits / 500.0) 0.0 else scoreAttributes.countMeh - totalHits / 500.0)
+
+        return speedValue
     }
 
     private fun computeAimValue(
@@ -235,14 +234,14 @@ class PerformanceCalculatorV1 : PerformanceCalculator {
         totalHits: Long,
         effectiveMissCount: Double
     ): Double {
-        var aimValue = (5.0 * max(1.0, beatmap.aimDifficulty / 0.0675) - 4.0).pow(3.0) / 100_000.0
+        var aimValue = Math.pow(5.0 * Math.max(1.0, beatmap.aimDifficulty / 0.0675) - 4.0, 3.0) / 100_000.0
 
-        val lengthBonus = 0.95 + 0.4 * min(1.0, totalHits / 2000.0) +
-                (if (totalHits > 2000) log10(totalHits / 2000.0) * 0.5 else 0.0)
+        val lengthBonus = 0.95 + 0.4 * Math.min(1.0, totalHits / 2000.0) +
+                (if (totalHits > 2000) Math.log10(totalHits / 2000.0) * 0.5 else 0.0)
         aimValue *= lengthBonus
 
         if (effectiveMissCount > 0) {
-            aimValue *= 0.97 * (1 - (effectiveMissCount / totalHits).pow(0.775)).pow(effectiveMissCount)
+            aimValue *= 0.97 * Math.pow(1 - Math.pow(effectiveMissCount / totalHits, 0.775), effectiveMissCount)
         }
 
         aimValue *= getComboScalingFactor(beatmap, score)
@@ -264,7 +263,7 @@ class PerformanceCalculatorV1 : PerformanceCalculator {
         /*
         There should be a section with currently unimplemented blinds mod
         if (score.Mods.Any(m => m is OsuModBlinds))
-                aimValue *= 1.3 + (totalHits * (0.0016 / (1 + 2 * effectiveMissCount)) * Math.Pow(accuracy, 16)) * (1 - 0.003 * attributes.DrainRate * attributes.DrainRate);
+                aimValue *= 1.3 + (totalHits * (0.0016 / (1 + 2 * effectiveMissCount)) * Math.pow(accuracy, 16)) * (1 - 0.003 * attributes.DrainRate * attributes.DrainRate);
         else if (hidden mod) {
          */
 
@@ -275,23 +274,23 @@ class PerformanceCalculatorV1 : PerformanceCalculator {
         val estimateDifficultSliders = beatmap.sliderCount * 0.15
 
         if (beatmap.sliderCount > 0) {
-            val estimateSliderEndsDropped = min(
-                (scoreAttributes.countOk + scoreAttributes.countMeh + scoreAttributes.countMiss),
-                beatmap.maxCombo - score.maxCombo
-            ).toDouble().coerceIn(0.0, estimateDifficultSliders)
-            val sliderNerfFactor =
-                (1 - beatmap.sliderFactor) * (1 - estimateSliderEndsDropped / estimateDifficultSliders).pow(3) + beatmap.sliderFactor
+            val estimateSliderEndsDropped: Double = clamp(Math.min(scoreAttributes.countOk.toDouble() + scoreAttributes.countMeh + scoreAttributes.countMiss, beatmap.maxCombo.toDouble() - scoreAttributes.maxCombo), 0.0, estimateDifficultSliders)
+            val sliderNerfFactor = (1 - beatmap.sliderFactor) * Math.pow(1 - estimateSliderEndsDropped / estimateDifficultSliders, 3.0) + beatmap.sliderFactor;
             aimValue *= sliderNerfFactor
         }
 
         aimValue *= score.accuracy
+        aimValue *= 0.98 + Math.pow(beatmap.overallDifficulty, 2.0) / 2500;
 
         return aimValue
     }
 
     private fun getComboScalingFactor(beatmap: Beatmap, score: Score): Double {
-        return if (beatmap.maxCombo <= 0) 1.0 else min(
-            score.maxCombo.toDouble().pow(0.8) / beatmap.maxCombo.toDouble().pow(0.8), 1.0
+        return if (score.maxCombo <= 0) 1.0 else Math.min(
+            Math.pow(
+                score.maxCombo.toDouble(),
+                0.8
+            ) / Math.pow(beatmap.maxCombo.toDouble(), 0.8), 1.0
         )
     }
 
@@ -303,13 +302,11 @@ class PerformanceCalculatorV1 : PerformanceCalculator {
         var comboBasedMissCount = 0.0
         if (beatmap.sliderCount > 0) {
             val fullComboThreshold: Double = beatmap.maxCombo - 0.1 * beatmap.sliderCount
-            if (scoreAttributes.maxCombo < fullComboThreshold) comboBasedMissCount =
-                fullComboThreshold / 1.0.coerceAtLeast(scoreAttributes.maxCombo.toDouble())
+            if (scoreAttributes.maxCombo < fullComboThreshold) comboBasedMissCount = fullComboThreshold / Math.max(1, scoreAttributes.maxCombo)
         }
 
         // Clamp miss count to maximum amount of possible breaks
-        comboBasedMissCount =
-            comboBasedMissCount.coerceAtMost((scoreAttributes.countOk + scoreAttributes.countMeh + scoreAttributes.countMiss).toDouble())
-        return scoreAttributes.countMiss.toDouble().coerceAtLeast(comboBasedMissCount)
+        comboBasedMissCount = Math.min(comboBasedMissCount, (scoreAttributes.countOk + scoreAttributes.countMeh + scoreAttributes.countMiss).toDouble())
+        return Math.max(scoreAttributes.countMiss.toDouble(), comboBasedMissCount)
     }
 }
