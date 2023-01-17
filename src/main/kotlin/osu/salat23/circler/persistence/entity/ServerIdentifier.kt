@@ -12,12 +12,9 @@ data class ServerIdentifier(
     val id: Long,
     @Column(name = "player_identifier")
     val playerIdentifier: String,
-    @Enumerated(value = EnumType.ORDINAL)
-    @Column(name = "server_name", nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "server", nullable = false)
     val server: Command.Server,
-
-    @ManyToOne
-    val chatMember: ChatMember
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

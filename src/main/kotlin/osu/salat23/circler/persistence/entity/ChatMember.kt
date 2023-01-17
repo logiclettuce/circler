@@ -1,7 +1,6 @@
 package osu.salat23.circler.persistence.entity
 
 import org.hibernate.Hibernate
-import osu.salat23.circler.bot.ClientType
 import javax.persistence.*
 
 @Entity
@@ -11,17 +10,8 @@ data class ChatMember(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     var id: Long,
-    @Enumerated(EnumType.ORDINAL)
-    @Column(name = "client_type", nullable = false)
-    var clientType: ClientType,
-    @Column(name = "client_specific_id", nullable = false)
-    var clientSpecificId: String,
-
-    @ManyToOne
-    var chat: Chat,
-
-    @OneToMany
-    var serverIdentifier: List<ServerIdentifier>
+    @Column(name = "client_id", nullable = false)
+    var clientId: String,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -34,7 +24,7 @@ data class ChatMember(
     override fun hashCode(): Int = javaClass.hashCode()
 
     override fun toString(): String {
-        return "ChatMember(id=$id, clientType=$clientType, clientSpecificId='$clientSpecificId', chat=$chat)"
+        return "ChatMember(id=$id, clientSpecificId='$clientId')"
     }
 
 

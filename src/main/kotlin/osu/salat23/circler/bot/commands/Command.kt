@@ -1,7 +1,9 @@
 package osu.salat23.circler.bot.commands
 
+import lombok.Builder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.InputStream
 import java.util.regex.Pattern
 
 class Command private constructor(
@@ -56,6 +58,21 @@ class Command private constructor(
             "User recent scores",
             Options.ArgumentIdentifiers.ACTOR
         ),
+        CHAT_LEADERBOARD(
+            arrayOf(
+                "l", "leaderboard",
+                "д", "дуфвукищфкв"
+            ),
+            "The leaderboard of identified members in chat"
+        ),
+        SET_CHAT_TEMPLATE(
+            arrayOf(
+                "tpl", "template",
+                "езд", "еуьздфеу"
+            ),
+            "Template for current chat",
+            nonServerSpecific = true
+        ),
         SET_USER_SERVER_IDENTIFIER(
             arrayOf(
                 "n", "nick",
@@ -95,28 +112,36 @@ class Command private constructor(
         val pageSize: Int,
         val actor: String,
         val beatmapId: String,
-        val pictureMode: Boolean
+        val pictureMode: Boolean,
+        val attachedFile: InputStream?,
+        val templateType: String
     ) {
         enum class ArgumentIdentifiers(val identifiers: Array<String>) {
             PAGE_NUMBER(arrayOf("p", "page", "з", "зфпу")),
             PAGE_SIZE(arrayOf("s", "size", "ы", "ышяу")),
             ACTOR(arrayOf("n", "nick", "nickname", "player", "т", "тшсл", "тшслтфьу", "здфнук")),
-            PICTURE_MODE(arrayOf("pic", "picture", "img", "image", "зшс", "шьп", "зшсегку", "шьфпу"))
-            // BEATMAP_ID
+            PICTURE_MODE(arrayOf("pic", "picture", "img", "image", "зшс", "шьп", "зшсегку", "шьфпу")),
+            TEMPLATE_TYPE(arrayOf("tt", "templatetype", "ее", "еуьздфеуензу")),
+            BEATMAP_ID(arrayOf("bm", "beatmap", "иь", "иуфеьфз"))
         }
 
         class Builder(defaultOptions: Options? = null) {
+            // todo fuck this rework asap
             private var pageNumber: Int = defaultOptions?.pageNumber ?: 0
             private var pageSize: Int = defaultOptions?.pageSize ?: 5
             private var actor: String = defaultOptions?.actor ?: ""
             private var beatmapId: String = ""
-            private var pictureMode: Boolean = false
+            private var pictureMode: Boolean = defaultOptions?.pictureMode ?: false
+            private var attachedFile: InputStream? = null
+            private var templateType: String = defaultOptions?.templateType ?: ""
             fun build() = Options(
                 pageNumber,
                 pageSize,
                 actor,
                 beatmapId,
-                pictureMode
+                pictureMode,
+                attachedFile,
+                templateType
             )
 
             fun pageNumber(pageNumber: Int) = this.apply { this.pageNumber = pageNumber }
@@ -124,6 +149,8 @@ class Command private constructor(
             fun actor(actor: String) = this.apply { this.actor = actor }
             fun beatmapId(id: String) = this.apply { this.beatmapId = id }
             fun pictureMode(state: Boolean) = this.apply { this.pictureMode = state }
+            fun attachedFile(file: InputStream?) = this.apply { this.attachedFile = file }
+            fun templateType(type: String) = this.apply { this.templateType = type }
         }
     }
 
@@ -133,7 +160,7 @@ class Command private constructor(
         private lateinit var options: Options
         val logger: Logger = LoggerFactory.getLogger(Builder::class.java)
         fun build() = Command(server, action, options)
-        fun from(input: String): Builder {
+        fun from(input: String, file: InputStream?): Builder {
             var input = input
             val indexesToChange = mutableListOf<Int>()
             var insideQuotes = false
@@ -228,6 +255,13 @@ class Command private constructor(
             options = parseOptions(
                 // specify default options for concrete action here
                 input, when (this.action) {
+                    // todo rework somehow
+                    Action.SET_CHAT_TEMPLATE -> {
+                        Options.Builder().apply {
+                            if (implicitArgument != null) templateType(implicitArgument)
+                        }.build()
+                    }
+
                     Action.USER_RECENT_SCORES -> {
                         Options.Builder().apply {
                             pageSize(1)
@@ -254,13 +288,14 @@ class Command private constructor(
                     }
 
                     else -> null
-                }
+                },
+                file
             )
 
             return this
         }
 
-        private fun parseOptions(input: String, defaultOptions: Options?): Options {
+        private fun parseOptions(input: String, defaultOptions: Options?, file: InputStream?): Options {
 
             val valueArgumentsMatcher = Pattern.compile("-[\\w\\u0400-\\u04FF]+ *[\\w\\u0400-\\u04FF%]*").matcher(input)
             val args = mutableListOf<String>()
@@ -269,11 +304,20 @@ class Command private constructor(
             }
 
             val optionsBuilder = Options.Builder(defaultOptions)
+
+            optionsBuilder.attachedFile(file)
+
             for (argument in args) {
                 val parts = argument.split(" ")
                 val identifier = parts[0].substring(1)
                 fun check(type: Options.ArgumentIdentifiers, arg: String) = type.identifiers.contains(arg)
                 when {
+                    check(Options.ArgumentIdentifiers.TEMPLATE_TYPE, identifier) -> {
+                        if (parts.size <= 1) continue
+                        if (!parts[1].matches(Regex("[\\w\\u0400-\\u04FF%]+"))) continue
+                        optionsBuilder.templateType(parts[1])
+                    }
+
                     check(Options.ArgumentIdentifiers.PAGE_NUMBER, identifier) -> {
                         if (parts.size <= 1) continue
                         if (!parts[1].matches(Regex("\\d+"))) continue

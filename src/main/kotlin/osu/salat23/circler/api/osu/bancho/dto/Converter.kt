@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter
 
 
 object Converter {
-
+// todo fuck offffffff this is shit! fix it
     fun convert(
         beatmapSet: BanchoBeatmapSet,
         beatmaps: Array<Beatmap> = arrayOf()
@@ -33,9 +33,9 @@ object Converter {
         return Beatmap(
             id = beatmap.id.toString(),
 
-            circleCount = beatmap.count_circles,
-            sliderCount = beatmap.count_sliders,
-            spinnerCount = beatmap.count_spinners,
+            circleCount = beatmap.countCircles,
+            sliderCount = beatmap.countSliders,
+            spinnerCount = beatmap.countSpinners,
 
             approachRate = beatmapAttributes.approachRate,
             circleSize = beatmap.cs,

@@ -68,10 +68,22 @@ object ResponseTemplates {
                     Score: ${it.score}
                     PP: ${decimalFormat.format(it.performance)}
                 """.trimIndent()
-            ) // todo make od somehow? - half done
+            )
             stringBuilder.append("\n")
         }
         return headerString + stringBuilder.toString().trim()
+    }
+
+    fun chatLeaderboard(users: List<User>): String {
+        var result = ""
+
+        for (user in users) {
+            result+="""
+                ${user.username} - ${user.performance}pp
+            """.trimIndent()
+            result+="\n"
+        }
+        return result.trimIndent()
     }
 
     fun osuUserRecentScores(user: User, command: Command, scores: Array<Score>): String {

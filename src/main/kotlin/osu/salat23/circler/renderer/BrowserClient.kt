@@ -11,10 +11,12 @@ class BrowserClient {
 
     @Synchronized fun render(htmlRenderTemplate: HtmlRenderTemplate): InputStream {
         val page: Page = browser.newPage()
-        val dimensions = htmlRenderTemplate.getDimensions()
 
-        page.setViewportSize(dimensions.first, dimensions.second)
         page.setContent(htmlRenderTemplate.getHtml())
+        val htmlTag = page.locator("html")
+        val width = htmlTag.boundingBox().width
+        val height = htmlTag.boundingBox().height
+        page.setViewportSize(width.toInt(), height.toInt())
         val byteArray = page.screenshot()
         page.close()
 

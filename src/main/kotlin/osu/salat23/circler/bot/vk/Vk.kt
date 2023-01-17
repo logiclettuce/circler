@@ -20,6 +20,8 @@ import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.bot.commands.NotABotCommandException
 import osu.salat23.circler.osu.OsuCommandHandler
 import osu.salat23.circler.properties.VkProperties
+import java.io.InputStream
+import java.net.URL
 
 @Component
 class Vk(
@@ -34,6 +36,8 @@ class Vk(
             lateinit var text: String
             lateinit var chatId: String
             lateinit var userId: String
+            var attachedFile: InputStream? = null
+            var isUserAdmin: Boolean = false
             when (update.type) {
                 Update.Type.MESSAGE_NEW -> {
                     val messageNew = update.`object` as MessageNew
@@ -46,19 +50,36 @@ class Vk(
                     }
                     chatId = messageNew.message.peerId.toString()
                     userId = messageNew.message.fromId.toString()
-                    logger.info("ChatId: $chatId, userId: $userId")
+                    val members = vk.messages.conversationMembers
+                        .setPeerId(chatId.toInt())
+                        .execute().response
+                    var isAdmin = false
+                    for (member in members.items) {
+                        if (member.memberId == userId.toInt() && member.isAdmin) isAdmin = true
+                    }
+                    isUserAdmin = isAdmin
+
+                    if (messageNew.message.hasAttachments()) {
+                        for (attachment in messageNew.message.attachments) {
+                            if (attachment.type == Attachment.Type.DOC) {
+                                attachedFile = URL(attachment.doc.url).openStream()
+                            }
+                        }
+                    }
                 }
 
                 else -> return
             }
             val command: Command
             try {
-                command = Command.Builder().from(text).build()
+                command = Command.Builder().from(text, attachedFile).build()
             } catch (exception: NotABotCommandException) {
                 return
             }
             try {
-                osuCommandHandler.handle(command, this, UserContext(chatId, userId, ClientType.VK))
+                // todo check if bot has previleges for chat admin (right now it just dies =( if there are no rights  )
+                // todo context creation seems kinda primitive. think about other ways of doing this bit
+                osuCommandHandler.handle(command, this, UserContext(chatId, userId, ClientType.VK, isUserAdmin))
             } catch (exception: Exception) {
                 exception.printStackTrace()
             }

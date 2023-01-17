@@ -3,5 +3,6 @@ package osu.salat23.circler.bot
 data class UserContext (
     val chatId: String,
     val userId: String,
-    val clientType: ClientType
+    val clientType: ClientType,
+    val isUserAdmin: Boolean,
 )

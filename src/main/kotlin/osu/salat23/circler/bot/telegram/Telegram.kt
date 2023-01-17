@@ -45,12 +45,13 @@ class Telegram(
             else -> return
         }
         val command: Command
-        try {
-            command = Command.Builder().from(text).build()
+        try { // todo normal input stream handling
+            command = Command.Builder().from(text, null).build()
         } catch (exception: NotABotCommandException) {
             return
         }
-        osuCommandHandler.handle(command, this, UserContext(chatId, userId, ClientType.TELEGRAM))
+        // todo IMPORTANT!!!! make isAdmin there (right now always false)
+        osuCommandHandler.handle(command, this, UserContext(chatId, userId, ClientType.TELEGRAM, false))
     }
 
     override fun send(clientEntity: ClientEntity) {

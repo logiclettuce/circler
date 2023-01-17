@@ -10,11 +10,15 @@
 <body>
 <style>
     :root {
-        --width: |width|px;
-        --height: |height|px;
+        --width: 760px;
+        --height: 500px;
         @import url('https://fonts.googleapis.com/css2?family=Sofia+Sans&display=swap');
         font-family: 'Sofia Sans', sans-serif;
         font-size: 30px;
+    }
+    html {
+        height: var(--height);
+        width: var(--width);
     }
 
     * {
@@ -74,21 +78,21 @@
 </style>
 
 <div class="background">
-    <img class="image" src="|background_src|">
+    <img class="image" src="{{osu_cover}}">
     <div class="content">
         <div class="topbar">
-        <div>Server: |server|</div>
-        <div>Mode: |mode|</div>
+        <div>Server: {{osu_server}}</div>
+        <div>Mode: {{osu_mode}}</div>
         </div>
         <div class="stats">
-            <img class="avatar" src="|avatar_src|">
+            <img class="avatar" src="{{osu_avatar}}">
             <div class="main_stats">
-                <div>|acc|% acc</div>
-                <div>|pp| pp</div>
-                <div>|playcount| playcount</div>
-                <div>|max_combo| maximum combo</div>
-                <div>|playtime| playtime</div>
-                <div>joined |joined_date|</div>
+                <div>{{osu_accuracy}}% acc</div>
+                <div>{{osu_performance}} pp</div>
+                <div>{{osu_playcount}} playcount</div>
+                <div>{{osu_max_combo}} maximum combo</div>
+                <div>{{osu_playtime}} playtime</div>
+                <div>joined {{osu_joined_date}}</div>
             </div>
         </div>
     </div>

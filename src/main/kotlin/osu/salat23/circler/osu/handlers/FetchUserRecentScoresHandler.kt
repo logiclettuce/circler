@@ -11,14 +11,15 @@ import osu.salat23.circler.bot.client.ClientImage
 import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.service.ChatService
 import osu.salat23.circler.service.OsuService
+import osu.salat23.circler.service.UserServerIdentifierService
 import java.io.InputStream
 import java.net.URL
 
 @Component
-class FetchUserRecentScoresHandler(val osuService: OsuService, val chatService: ChatService) : ChainHandler() {
+class FetchUserRecentScoresHandler(val osuService: OsuService, val userServerIdentifierService: UserServerIdentifierService) : ChainHandler() {
 
     override fun handleUpdate(command: Command, client: Client, userContext: UserContext) {
-        val identifier = getIdentifier(command, userContext, chatService, client)
+        val identifier = getIdentifier(command, userContext, userServerIdentifierService, client)
         val osuApi = osuService.getOsuApiByServer(command.server)
         val user = osuApi.user(identifier)
         val scores =

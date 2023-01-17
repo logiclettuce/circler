@@ -3,9 +3,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "2.7.5"
     id("io.spring.dependency-management") version "1.0.15.RELEASE"
-    kotlin("jvm") version "1.6.21"
-    kotlin("plugin.spring") version "1.6.21"
-    kotlin("plugin.jpa") version "1.6.21"
+    id("io.freefair.lombok") version "5.3.0"
+    kotlin("plugin.lombok") version "1.8.0"
+    kotlin("jvm") version "1.8.0"
+    kotlin("plugin.spring") version "1.8.0"
+    kotlin("plugin.jpa") version "1.8.0"
 }
 
 group = "osu.salat23"
@@ -28,7 +30,6 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("com.github.yvasyliev:java-vk-bots-longpoll-api:3.5.3")
     implementation("org.telegram:telegrambots-spring-boot-starter:6.3.0")
-    implementation(files("libs/html2image.jar")) // todo remove
     implementation("com.microsoft.playwright:driver-bundle:1.28.1")
     implementation("com.microsoft.playwright:playwright:1.28.1")
 
@@ -36,7 +37,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
-    testImplementation("junit:junit:4.13.1")
+    testImplementation("junit:junit:4.13.2")
 
 }
 configurations {

@@ -1,35 +1,48 @@
 package osu.salat23.circler.api.osu.bancho.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class BanchoBeatmap (
     val id: Long,
     val accuracy: Double,
     val ar: Double,
-    val beatmapset_id: String,
+    @JsonProperty("beatmapset_id")
+    val beatmapsetId: String,
     val bpm: Double?,
     val convert: Boolean,
-    val count_circles: Long,
+    @JsonProperty("count_circles")
+    val countCircles: Long,
     val status: String,
-    val status_int: Long,
+    @JsonProperty("status_int")
+    val statusInt: Long,
     // todo rename to sliderCount
-    val count_sliders: Long,
-    val count_spinners: Long,
+    @JsonProperty("count_sliders")
+    val countSliders: Long,
+    @JsonProperty("count_spinners")
+    val countSpinners: Long,
     val cs: Double,
-    val deleted_at: String?, // todo timestamp better?
+    @JsonProperty("deteled_at")
+    val deletedAt: String?,
     val drain: Double,
-    val difficulty_rating: Double,
-    val hit_length: Long,
-    val is_scoreable: Boolean,
-    val last_updated: String, // todo also timestamp
-    val mode_int: Long,
+    @JsonProperty("difficulty_rating")
+    val difficultyRating: Double,
+    @JsonProperty("hit_length")
+    val hitLength: Long,
+    @JsonProperty("is_scorable")
+    val isScoreable: Boolean,
+    @JsonProperty("last_updated")
+    val lastUpdated: String,
+    @JsonProperty("mode_int")
+    val modeInt: Long,
     val mode: String,
     val passcount: Long,
     val playcount: Long,
     val ranked: Long,
     val url: String,
-    val max_combo: Long,
+    @JsonProperty("max_combo")
+    val maxCombo: Long,
     val beatmapset: BanchoBeatmapSet?
 ) {
 

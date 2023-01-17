@@ -8,6 +8,7 @@ import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.osu.ResponseTemplates
 import osu.salat23.circler.osu.exceptions.UserNotDefinedException
 import osu.salat23.circler.service.ChatService
+import osu.salat23.circler.service.UserServerIdentifierService
 
 abstract class ChainHandler {
 
@@ -26,19 +27,21 @@ abstract class ChainHandler {
         fun getIdentifier(
             command: Command,
             userContext: UserContext,
-            chatService: ChatService,
+            userServerIdentifierService: UserServerIdentifierService,
             client: Client
         ): String {
             var identifier = command.options.actor
             if (identifier.isEmpty()) {
                 val persistedIdentifier =
-                    chatService.getPlayerIdentifier(
-                        userContext.userId,
-                        userContext.chatId,
-                        command.server,
-                        userContext.clientType
-                    )
-                if (persistedIdentifier == null) {
+                    userServerIdentifierService
+                        .getUserServerIdentifier(
+                            userContext.userId,
+                            userContext.chatId,
+                            command.server,
+                            userContext.clientType
+                        )
+
+                if (persistedIdentifier.isEmpty) {
                     client.send(
                         ClientMessage(
                             chatId = userContext.chatId,
@@ -48,7 +51,7 @@ abstract class ChainHandler {
                     )
                     throw UserNotDefinedException()
                 }
-                identifier = persistedIdentifier
+                identifier = persistedIdentifier.get()
             }
             return identifier
         }

@@ -8,36 +8,38 @@ import org.springframework.stereotype.Repository
 import osu.salat23.circler.bot.ClientType
 import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.persistence.entity.ServerIdentifier
+import java.util.*
 import javax.transaction.Transactional
 
 @Repository
-@Transactional
 interface ServerIdentifierRepository : JpaRepository<ServerIdentifier, Long> {
 
-    @Query(
-        nativeQuery = true, value = """
-        select cmsi.player_identifier from chat_member_server_identifiers cmsi join chat_members cm on cmsi.chat_member_id = cm.id join chats c on cm.chat_id = c.id where cm.client_specific_id = :userId and c.client_specific_id = :chatId and cmsi.server_name = :#{#server.name()}   
+    @Query(nativeQuery = true,
+        value =
         """
-    )
-    fun getPlayerIdentifier(@Param("userId") userId: String, @Param("chatId") chatId: String, @Param("server") server: Command.Server): String?
+            select cmsi.player_identifier 
+            from chat_member_server_identifiers cmsi
+            where 
+                cmsi.server = :server and
+                cmsi.chat_member_id = :chatMemberId
+        """)
+    fun getPlayerIdentifier(@Param("chatMemberId") chatMemberId: Long, @Param("server") serverName: String): Optional<String>
 
-    @Query(
-        nativeQuery = true, value = """
-        select cmsi.player_identifier from chat_members cm join chats c on c.id = cm.chat_id join chat_member_server_identifiers cmsi on cmsi.chat_member_id=cm.id where cm.client_specific_id = :userId and c.client_specific_id = :chatId and cmsi.server_name = :#{#server.name()}   
-        """
-    )
-    fun getPlayerIdentifierId(@Param("userId") userId: String, @Param("chatId") chatId: String, @Param("server") server: Command.Server): String?
 
-    // todo create stored procedure for setting chat member server identifier, preferably create these procedure for above queries as well
-
-    @Query(
-        nativeQuery = true, value = """
-        call setPlayerIdentifier(:identifier, :#{#server.name()}, :userId, :chatId, :#{#clientType.name()})
-    """
-    )
     @Modifying
-    fun setPlayerIdentifier(@Param("userId") userId: String, @Param("chatId") chatId: String, @Param("identifier") identifier: String, @Param("clientType") clientType: ClientType, @Param("server") server: Command.Server)
+    @Query(nativeQuery = true,
+        value =
+        """
+            insert into chat_member_server_identifiers(chat_member_id, player_identifier, server)
+                 values (:chatMemberId, :playerIdentifier, :server)
+        """)
+    fun createPlayerIdentifier(@Param("chatMemberId") chatMemberId: Long, @Param("server") serverName: String, @Param("playerIdentifier") playerIdentifier: String): Int
 
-    fun deleteServerIdentifierById(id: Long)
-
+    @Modifying
+    @Query(nativeQuery = true,
+        value =
+        """
+            update chat_member_server_identifiers cmsi set player_identifier = :playerIdentifier where cmsi.chat_member_id = :chatMemberId and cmsi.server = :server
+        """)
+    fun setPlayerIdentifier(@Param("chatMemberId") chatMemberId: Long, @Param("server") serverName: String, @Param("playerIdentifier") playerIdentifier: String): Int
 }
