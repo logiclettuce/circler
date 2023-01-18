@@ -41,7 +41,6 @@ class Vk(
             when (update.type) {
                 Update.Type.MESSAGE_NEW -> {
                     val messageNew = update.`object` as MessageNew
-                    logger.info(messageNew.toString())
                     text = VkTextParsingTools.tryRemovePing(messageNew.message.text)
                     for (attachment in messageNew.message.attachments) {
                         if (attachment.type == Attachment.Type.LINK) {

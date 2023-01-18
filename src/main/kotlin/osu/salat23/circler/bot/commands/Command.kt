@@ -5,7 +5,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.InputStream
 import java.util.regex.Pattern
-
+// todo global rework of commands and how bot handles updates. probably will take forever
 class Command private constructor(
     val server: Server,
     val action: Action,
@@ -65,6 +65,13 @@ class Command private constructor(
             ),
             "The leaderboard of identified members in chat"
         ),
+        MAP_CHAT_LEADERBOARD(
+            arrayOf(
+                "lm", "leaderboardmap",
+                "дь", "дуфвукищфквьфз"
+            ),
+            "The leaderboard of identified members in chat on a specific map"
+        ),
         SET_CHAT_TEMPLATE(
             arrayOf(
                 "tpl", "template",
@@ -100,9 +107,9 @@ class Command private constructor(
             "Beatmap lookup"
         )
 
-        // todo make recommend map option
+        // todo fetching scores with mods filtering (like +dthd +fl etc...)
 
-        // todo make local chat top with all registered users
+        // todo make recommend map option
 
         // todo make mrekk cookiezi and other players roulette (casino)
     }
@@ -130,18 +137,18 @@ class Command private constructor(
             private var pageNumber: Int = defaultOptions?.pageNumber ?: 0
             private var pageSize: Int = defaultOptions?.pageSize ?: 5
             private var actor: String = defaultOptions?.actor ?: ""
-            private var beatmapId: String = ""
+            private var beatmapId: String = defaultOptions?.beatmapId ?: ""
             private var pictureMode: Boolean = defaultOptions?.pictureMode ?: false
             private var attachedFile: InputStream? = null
             private var templateType: String = defaultOptions?.templateType ?: ""
             fun build() = Options(
-                pageNumber,
-                pageSize,
-                actor,
-                beatmapId,
-                pictureMode,
-                attachedFile,
-                templateType
+                pageNumber = pageNumber,
+                pageSize = pageSize,
+                actor = actor,
+                beatmapId = beatmapId,
+                pictureMode = pictureMode,
+                attachedFile = attachedFile,
+                templateType = templateType
             )
 
             fun pageNumber(pageNumber: Int) = this.apply { this.pageNumber = pageNumber }
@@ -185,7 +192,7 @@ class Command private constructor(
             var isBeatmapUrl = false
             var serverType = Server.None
             for (server in Server.values()) {
-                if (server.beatmapsetUrl.containsMatchIn(input) && server != Server.None) {
+                if (input.matches(server.beatmapsetUrl) && server != Server.None) {
                     isBeatmapUrl = true
                     serverType = server
                     break
@@ -206,6 +213,24 @@ class Command private constructor(
                 return this
             }
 
+            // converting each beatmap link to beatmap id
+            for (server in Server.values()) {
+                if (server != Server.None) {
+                    val beatmapLinks = mutableListOf<String>()
+                    server.beatmapsetUrl.findAll(input).iterator().forEach {
+                        beatmapLinks.add(it.value)
+                    }
+                    val linkToId = beatmapLinks.map { link ->
+                        var beatmapId = ""
+                        for (index in link.length-1 downTo 0) {
+                            if (link[index] == '/') break
+                            beatmapId += link[index]
+                        }
+                        return@map Pair(link, beatmapId.reversed())
+                    }
+                    linkToId.forEach { pair -> input = input.replace(pair.first, pair.second) }
+                }
+            }
 
             // = Default command here ======================================================
             val commandArguments = ArrayDeque(input.split(" "))
@@ -256,6 +281,13 @@ class Command private constructor(
                 // specify default options for concrete action here
                 input, when (this.action) {
                     // todo rework somehow
+                    Action.MAP_CHAT_LEADERBOARD -> {
+                        Options.Builder().apply {
+                            if (implicitArgument != null)
+                                beatmapId(implicitArgument)
+                        }.build()
+                    }
+
                     Action.SET_CHAT_TEMPLATE -> {
                         Options.Builder().apply {
                             if (implicitArgument != null) templateType(implicitArgument)
@@ -312,6 +344,12 @@ class Command private constructor(
                 val identifier = parts[0].substring(1)
                 fun check(type: Options.ArgumentIdentifiers, arg: String) = type.identifiers.contains(arg)
                 when {
+                    check(Options.ArgumentIdentifiers.BEATMAP_ID, identifier) -> {
+                        if (parts.size <= 1) continue
+                        if (!parts[1].matches(Regex("\\d+"))) continue
+                        optionsBuilder.beatmapId(parts[1])
+                    }
+
                     check(Options.ArgumentIdentifiers.TEMPLATE_TYPE, identifier) -> {
                         if (parts.size <= 1) continue
                         if (!parts[1].matches(Regex("[\\w\\u0400-\\u04FF%]+"))) continue

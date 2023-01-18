@@ -86,6 +86,24 @@ object ResponseTemplates {
         return result.trimIndent()
     }
 
+    fun chatBeatmapLeaderboard(beatmap: Beatmap, userScorePairs: List<Pair<User, Score>>): String {
+        var scoresList = ""
+        userScorePairs.forEach { pair ->
+            scoresList += "${pair.first.username} - ${pair.second.score} | ${pair.second.performance}pp | ${pair.second.accuracy}% | x${pair.second.hitOk} 100s | x${pair.second.hitMeh} 50s | x${pair.second.hitMiss} miss\n"
+        }
+        scoresList = scoresList.trimIndent()
+
+
+
+        var result = """
+            ${beatmap.beatmapSet?.title ?: "???"} - ${beatmap.beatmapSet?.artist ?: "???"}
+            
+            $scoresList
+        """.trimIndent()
+
+        return result
+    }
+
     fun osuUserRecentScores(user: User, command: Command, scores: Array<Score>): String {
         val stringBuilder = StringBuilder()
         scores.forEach {

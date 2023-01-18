@@ -21,7 +21,12 @@ data class OsuScoreStatistics(
 * */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class OsuScore(
+data class BanchoScores(
+    val scores: List<BanchoScore>
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class BanchoScore(
     val accuracy: Double,
     val best_id: String?,
     val created_at: String,
@@ -44,8 +49,8 @@ data class OsuScore(
     val replay: Boolean,
     val score: Long,
     val statistics: OsuScoreStatistics,
-    val beatmap: BanchoBeatmap,
-    val beatmapset: BanchoBeatmapSet,
+    val beatmap: BanchoBeatmap?,
+    val beatmapset: BanchoBeatmapSet?,
 // todo "type":"score_best_osu",
     val user_id: String,
     ) {

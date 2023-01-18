@@ -25,7 +25,6 @@ class PerformanceCalculatorV1 : PerformanceCalculator {
 
     override fun calculate(
         score: Score, beatmap: Beatmap
-        /*score: OsuScore, beatmap: BanchoBeatmap, attributes: BanchoBeatmapAttributes*/
     ): Double {
 
         val scoreAttributes = ScoreAttributes(

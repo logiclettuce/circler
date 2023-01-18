@@ -1,6 +1,6 @@
 package osu.salat23.circler.api.osu
 
-import osu.salat23.circler.api.osu.bancho.dto.OsuScore
+import osu.salat23.circler.api.osu.bancho.dto.BanchoScore
 
 object BanchoEndpoints {
     const val TOKEN_URL: String = "https://osu.ppy.sh/oauth/token"
@@ -13,7 +13,7 @@ object BanchoEndpoints {
 
     fun beatmap(id: String) = "$OSU_API_BASE_V2/beatmaps/$id"
     // todo make parameters more standardized. e.g. this function should not have default parameters or otherwise with the osuapi interface
-    fun scoresUrl(identifier: String, type: OsuScore.Type, mode: OsuGameMode = OsuGameMode.UserDefault, limit: Int = 5, offset: Int = 0, showFailed: Boolean = true): String {
+    fun scoresUrl(identifier: String, type: BanchoScore.Type, mode: OsuGameMode = OsuGameMode.UserDefault, limit: Int = 5, offset: Int = 0, showFailed: Boolean = true): String {
         val queryParams = mutableListOf(
             if (mode.value.isNotEmpty()) "mode=${mode.value}" else "",
             "limit=${limit}",
@@ -25,5 +25,7 @@ object BanchoEndpoints {
     }
 
     fun beatmapAttributesUrl(beatmapId: String): String = "$OSU_API_BASE_V2/beatmaps/$beatmapId/attributes"
+
+    fun userBeatmapScores(identifier: String, beatmapId: String) = "$OSU_API_BASE_V2/beatmaps/$beatmapId/scores/users/$identifier/all"
 
 }

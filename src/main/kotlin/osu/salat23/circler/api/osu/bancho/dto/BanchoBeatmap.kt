@@ -9,12 +9,12 @@ data class BanchoBeatmap (
     val accuracy: Double,
     val ar: Double,
     @JsonProperty("beatmapset_id")
-    val beatmapsetId: String,
+    val beatmapsetId: String?,
     val bpm: Double?,
     val convert: Boolean,
     @JsonProperty("count_circles")
     val countCircles: Long,
-    val status: String,
+    val status: String?,
     @JsonProperty("status_int")
     val statusInt: Long,
     // todo rename to sliderCount

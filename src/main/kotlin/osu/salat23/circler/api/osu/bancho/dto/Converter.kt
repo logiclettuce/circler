@@ -51,7 +51,7 @@ object Converter {
             flashlightDifficulty = beatmapAttributes.flashlightDifficulty,
 
             mode = Mode.from(beatmap.mode),
-            status = Status.from(beatmap.status),
+            status = Status.from(beatmap.status ?: Status.Graveyard.alternativeName),
             url = beatmap.url,
             beatmapSet = if (beatmapSet != null) convert(beatmapSet) else null
         )
@@ -92,8 +92,9 @@ object Converter {
         )
     }
 
+    // todo overload with beatmapAttributes instead of just beatmap??
     fun convert(
-        score: OsuScore,
+        score: BanchoScore,
         beatmap: Beatmap,
         performanceCalculator: PerformanceCalculator
     ): Score {
