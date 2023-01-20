@@ -1,4 +1,4 @@
-package osu.salat23.circler.bot.commands
+package osu.salat23.circler.bot.command.commands
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

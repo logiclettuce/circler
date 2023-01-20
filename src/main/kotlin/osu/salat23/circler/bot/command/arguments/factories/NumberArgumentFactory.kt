@@ -1,14 +1,10 @@
-package osu.salat23.circler.bot.commands.arguments.factories
+package osu.salat23.circler.bot.command.arguments.factories
 
-import osu.salat23.circler.bot.commands.arguments.NumberArgument
-import osu.salat23.circler.bot.commands.arguments.ProvidedArgument
-import osu.salat23.circler.bot.commands.arguments.StringArgument
-import osu.salat23.circler.bot.commands.exceptions.CouldNotParseArgumentValueException
-import osu.salat23.circler.configuration.domain.Argument
+import osu.salat23.circler.bot.command.exceptions.CouldNotParseArgumentValueException
 import kotlin.reflect.jvm.jvmName
 
-abstract class NumberArgumentFactory<T: NumberArgument>: ArgumentFactory<T>() {
-    override fun create(input: String, implicit: Boolean): ProvidedArgument<T> {
+abstract class NumberArgumentFactory: osu.salat23.circler.bot.command.arguments.factories.ArgumentFactory<osu.salat23.circler.bot.command.arguments.NumberArgument>() {
+    override fun create(input: String, implicit: Boolean): osu.salat23.circler.bot.command.arguments.ProvidedArgument<osu.salat23.circler.bot.command.arguments.NumberArgument> {
         val identifiers = getConfiguredArgument().identifiers
         val prefix = '-'
         identifiers.forEach { identifier ->
@@ -36,11 +32,15 @@ abstract class NumberArgumentFactory<T: NumberArgument>: ArgumentFactory<T>() {
                     } catch (exception: Exception) {
                         throw CouldNotParseArgumentValueException(value, Long::class.jvmName)
                     }
-                    return ProvidedArgument.of(NumberArgument(numberValue))
+                    return osu.salat23.circler.bot.command.arguments.ProvidedArgument.of(
+                        osu.salat23.circler.bot.command.arguments.NumberArgument(
+                            numberValue
+                        )
+                    )
                 }
             }
         }
 
-        return ProvidedArgument.empty()
+        return osu.salat23.circler.bot.command.arguments.ProvidedArgument.empty()
     }
 }

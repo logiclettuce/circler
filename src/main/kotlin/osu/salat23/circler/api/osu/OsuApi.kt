@@ -11,7 +11,7 @@ import osu.salat23.circler.osu.domain.User
 interface OsuApi {
     // todo some work of standardizing method signatures
     fun user(identifier: String, osuGameMode: OsuGameMode = OsuGameMode.UserDefault, key: String? = null): User
-    fun userScores(identifier: String, type: BanchoScore.Type, pageSize: Int, pageNumber: Int, osuGameMode: OsuGameMode = OsuGameMode.UserDefault, showFailed: Boolean = true, key: String? = null): Array<Score>
+    fun userScores(identifier: String, type: BanchoScore.Type, pageSize: Long, pageNumber: Long, osuGameMode: OsuGameMode = OsuGameMode.UserDefault, showFailed: Boolean = true, key: String? = null): Array<Score>
 
     fun beatmap(id: String, mods: Array<Mod> = arrayOf()): Beatmap
     fun userBeatmapScores(identifier: String, beatmapId: String, requiredMods: List<Mod> = emptyList()): List<Score>

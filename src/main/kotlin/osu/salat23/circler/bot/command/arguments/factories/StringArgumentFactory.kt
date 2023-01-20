@@ -1,26 +1,10 @@
-package osu.salat23.circler.bot.commands.arguments.factories
+package osu.salat23.circler.bot.command.arguments.factories
 
-import org.springframework.stereotype.Component
-import osu.salat23.circler.bot.commands.arguments.ProvidedArgument
-import osu.salat23.circler.bot.commands.arguments.ServerArgument
-import osu.salat23.circler.bot.commands.arguments.StringArgument
-import osu.salat23.circler.bot.commands.exceptions.ArgumentIsNotDefinedException
-import osu.salat23.circler.configuration.domain.Argument
-import osu.salat23.circler.configuration.domain.CommandConfiguration
-import osu.salat23.circler.osu.Server
+import osu.salat23.circler.bot.command.arguments.ProvidedArgument
+import osu.salat23.circler.bot.command.arguments.StringArgument
 
-@Component
-class ServerArgumentFactory(
-    commandConfiguration: CommandConfiguration
-): ArgumentFactory<ServerArgument>() {
-
-    companion object {
-        private const val ARGUMENT_KEY = "actor"
-    }
-
-    private final val configuredArgument = commandConfiguration.arguments[ARGUMENT_KEY]
-        ?: throw ArgumentIsNotDefinedException(ARGUMENT_KEY)
-    override fun create(input: String, implicit: Boolean): ProvidedArgument<ServerArgument> {
+abstract class StringArgumentFactory: osu.salat23.circler.bot.command.arguments.factories.ArgumentFactory<osu.salat23.circler.bot.command.arguments.StringArgument>() {
+    override fun create(input: String, implicit: Boolean): osu.salat23.circler.bot.command.arguments.ProvidedArgument<osu.salat23.circler.bot.command.arguments.StringArgument> {
         val identifiers = getConfiguredArgument().identifiers
         val prefix = '-'
 
@@ -51,12 +35,11 @@ class ServerArgumentFactory(
 
                 value += character
             }
-
-            for (server in Server.values()) {
-                for (identifier in server.identifiers) {
-                    if (identifier == value) return ProvidedArgument.of(ServerArgument(server))
-                }
-            }
+            return osu.salat23.circler.bot.command.arguments.ProvidedArgument.of(
+                osu.salat23.circler.bot.command.arguments.StringArgument(
+                    value
+                )
+            )
         }
 
         identifiers.forEach { identifier ->
@@ -65,8 +48,8 @@ class ServerArgumentFactory(
                 var index = input.indexOf(stringToMatch, ignoreCase = true)
                 index += stringToMatch.length - 1
 
-                if (input[index + 1].isWhitespace() && !input[index + 2].isWhitespace()) {
-                    val valueStartingIndex = index + 2
+                if (input[index+1].isWhitespace() && !input[index+2].isWhitespace()) {
+                    val valueStartingIndex = index+2
 
                     var value = ""
                     var isQuoted = false
@@ -84,7 +67,7 @@ class ServerArgumentFactory(
                         }
 
                         if (isQuoted && character.isWhitespace()) {
-                            value += character
+                            value+=character
                             continue
                         }
 
@@ -92,22 +75,18 @@ class ServerArgumentFactory(
                             break
                         }
 
-                        value += character
+                        value+=character
                     }
 
-                    for (server in Server.values()) {
-                        for (identifier in server.identifiers) {
-                            if (identifier == value) return ProvidedArgument.of(ServerArgument(server))
-                        }
-                    }
+                    return osu.salat23.circler.bot.command.arguments.ProvidedArgument.of(
+                        osu.salat23.circler.bot.command.arguments.StringArgument(
+                            value
+                        )
+                    )
                 }
             }
         }
 
-        return ProvidedArgument.empty()
-    }
-
-    override fun getConfiguredArgument(): Argument {
-        return configuredArgument
+        return osu.salat23.circler.bot.command.arguments.ProvidedArgument.empty()
     }
 }

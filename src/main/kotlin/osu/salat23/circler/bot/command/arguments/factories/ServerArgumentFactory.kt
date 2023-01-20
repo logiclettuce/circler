@@ -1,12 +1,29 @@
-package osu.salat23.circler.bot.commands.arguments.factories
+package osu.salat23.circler.bot.command.arguments.factories
 
-import osu.salat23.circler.bot.commands.arguments.ActorArgument
-import osu.salat23.circler.bot.commands.arguments.ProvidedArgument
-import osu.salat23.circler.bot.commands.arguments.StringArgument
+import org.springframework.stereotype.Component
+import osu.salat23.circler.bot.command.arguments.ProvidedArgument
+import osu.salat23.circler.bot.command.arguments.ServerArgument
+import osu.salat23.circler.bot.command.exceptions.ArgumentIsNotDefinedException
 import osu.salat23.circler.configuration.domain.Argument
+import osu.salat23.circler.configuration.domain.CommandConfiguration
+import osu.salat23.circler.osu.Server
 
-abstract class StringArgumentFactory<T: StringArgument>: ArgumentFactory<T>() {
-    override fun create(input: String, implicit: Boolean): ProvidedArgument<T> {
+@Component
+class ServerArgumentFactory(
+    commandConfiguration: CommandConfiguration
+) : ArgumentFactory<ServerArgument>() {
+
+    companion object {
+        private const val ARGUMENT_KEY = "actor"
+    }
+
+    private final val configuredArgument = commandConfiguration.arguments[ARGUMENT_KEY]
+        ?: throw ArgumentIsNotDefinedException(ARGUMENT_KEY)
+
+    override fun create(
+        input: String,
+        implicit: Boolean
+    ): ProvidedArgument<ServerArgument> {
         val identifiers = getConfiguredArgument().identifiers
         val prefix = '-'
 
@@ -27,7 +44,7 @@ abstract class StringArgumentFactory<T: StringArgument>: ArgumentFactory<T>() {
                 }
 
                 if (isQuoted && character.isWhitespace()) {
-                    value+=character
+                    value += character
                     continue
                 }
 
@@ -37,7 +54,16 @@ abstract class StringArgumentFactory<T: StringArgument>: ArgumentFactory<T>() {
 
                 value += character
             }
-            return ProvidedArgument.of(StringArgument(value))
+
+            for (server in Server.values()) {
+                for (identifier in server.identifiers) {
+                    if (identifier == value) return ProvidedArgument.of(
+                        ServerArgument(
+                            server
+                        )
+                    )
+                }
+            }
         }
 
         identifiers.forEach { identifier ->
@@ -46,8 +72,8 @@ abstract class StringArgumentFactory<T: StringArgument>: ArgumentFactory<T>() {
                 var index = input.indexOf(stringToMatch, ignoreCase = true)
                 index += stringToMatch.length - 1
 
-                if (input[index+1].isWhitespace() && !input[index+2].isWhitespace()) {
-                    val valueStartingIndex = index+2
+                if (input[index + 1].isWhitespace() && !input[index + 2].isWhitespace()) {
+                    val valueStartingIndex = index + 2
 
                     var value = ""
                     var isQuoted = false
@@ -65,7 +91,7 @@ abstract class StringArgumentFactory<T: StringArgument>: ArgumentFactory<T>() {
                         }
 
                         if (isQuoted && character.isWhitespace()) {
-                            value+=character
+                            value += character
                             continue
                         }
 
@@ -73,14 +99,24 @@ abstract class StringArgumentFactory<T: StringArgument>: ArgumentFactory<T>() {
                             break
                         }
 
-                        value+=character
+                        value += character
                     }
 
-                    return ProvidedArgument.of(StringArgument(value))
+                    for (server in Server.values()) {
+                        for (identifier in server.identifiers) {
+                            if (identifier == value) return ProvidedArgument.of(
+                                ServerArgument(server)
+                            )
+                        }
+                    }
                 }
             }
         }
 
         return ProvidedArgument.empty()
+    }
+
+    override fun getConfiguredArgument(): Argument {
+        return configuredArgument
     }
 }

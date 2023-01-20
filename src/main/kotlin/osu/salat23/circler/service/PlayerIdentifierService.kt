@@ -4,9 +4,9 @@ import org.springframework.stereotype.Service
 import osu.salat23.circler.bot.UserContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientMessage
-import osu.salat23.circler.bot.commands.arguments.ActorArgument
-import osu.salat23.circler.bot.commands.arguments.ProvidedArgument
-import osu.salat23.circler.bot.commands.arguments.ServerArgument
+import osu.salat23.circler.bot.command.arguments.ProvidedArgument
+import osu.salat23.circler.bot.command.arguments.ServerArgument
+import osu.salat23.circler.bot.command.arguments.StringArgument
 import osu.salat23.circler.osu.ResponseTemplates
 import osu.salat23.circler.osu.exceptions.NoServerProvidedException
 import osu.salat23.circler.osu.exceptions.UserNotDefinedException
@@ -17,7 +17,7 @@ class PlayerIdentifierService(
 ) {
 
     fun getIdentifier(
-        providedActor: ProvidedArgument<ActorArgument>,
+        providedActor: ProvidedArgument<StringArgument>,
         providedServer: ProvidedArgument<ServerArgument>,
         userContext: UserContext,
         client: Client

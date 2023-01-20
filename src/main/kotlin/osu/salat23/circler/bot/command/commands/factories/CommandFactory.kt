@@ -1,4 +1,4 @@
-package osu.salat23.circler.bot.commands.factories
+package osu.salat23.circler.bot.command.commands.factories
 
 import osu.salat23.circler.bot.commands.Command
 import java.util.Optional

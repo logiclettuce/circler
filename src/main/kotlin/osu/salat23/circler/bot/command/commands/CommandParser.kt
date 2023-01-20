@@ -1,4 +1,4 @@
-package osu.salat23.circler.bot.commands
+package osu.salat23.circler.bot.command.commands
 
 import org.springframework.stereotype.Component
 import osu.salat23.circler.bot.commands.exceptions.NotABotCommandException

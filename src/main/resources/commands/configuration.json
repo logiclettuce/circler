@@ -11,6 +11,36 @@
         "тшсл",
         "т"
       ]
+    },
+    "server": {
+      "name": "Server",
+      "description": "",
+      "identifiers": [
+        "server",
+        "s",
+        "ыукмук",
+        "ы"
+      ]
+    },
+    "pageSize": {
+      "name": "Page size",
+      "description": "",
+      "identifiers": [
+        "size",
+        "sz",
+        "ышяу",
+        "ыя"
+      ]
+    },
+    "pageNumber": {
+      "name": "Page number",
+      "description": "",
+      "identifiers": [
+        "page",
+        "p",
+        "зфпу",
+        "з"
+      ]
     }
   },
   "commands": {
@@ -19,13 +49,29 @@
       "description": "",
       "availableArguments": [
         "actor",
-        "displayMode"
+        "server"
       ],
       "identifiers": [
         "user",
         "u",
         "гыук",
         "г"
+      ]
+    },
+    "fetchUserTopScores": {
+      "name": "User top scores",
+      "description": "",
+      "availableArguments": [
+        "actor",
+        "pageSize",
+        "pageNumber",
+        "server"
+      ],
+      "identifiers": [
+        "top",
+        "t",
+        "ещз",
+        "е"
       ]
     }
   }
