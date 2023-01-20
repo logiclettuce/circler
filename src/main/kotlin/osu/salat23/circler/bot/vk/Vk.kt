@@ -17,7 +17,8 @@ import osu.salat23.circler.bot.client.ClientEntity
 import osu.salat23.circler.bot.client.ClientImage
 import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.bot.commands.Command
-import osu.salat23.circler.bot.commands.NotABotCommandException
+import osu.salat23.circler.bot.commands.CommandParser
+import osu.salat23.circler.bot.commands.exceptions.NotABotCommandException
 import osu.salat23.circler.osu.OsuCommandHandler
 import osu.salat23.circler.properties.VkProperties
 import java.io.InputStream
@@ -27,6 +28,7 @@ import java.net.URL
 class Vk(
     val vkProperties: VkProperties,
     val osuCommandHandler: OsuCommandHandler,
+    val commandParser: CommandParser
 ) : LongPollBot(), Client, ApplicationRunner {
 
     private val logger: Logger = LoggerFactory.getLogger(Vk::class.java)
@@ -71,7 +73,7 @@ class Vk(
             }
             val command: Command
             try {
-                command = Command.Builder().from(text, attachedFile).build()
+                command = commandParser.parse(text, attachedFile)
             } catch (exception: NotABotCommandException) {
                 return
             }

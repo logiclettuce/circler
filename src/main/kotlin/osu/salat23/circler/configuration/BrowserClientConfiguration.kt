@@ -1,4 +1,4 @@
-package osu.salat23.circler.config
+package osu.salat23.circler.configuration
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Scope
 import osu.salat23.circler.renderer.BrowserClient
 
 @Configuration
-class BrowserClientConfig {
+class BrowserClientConfiguration {
 
     @Bean
     @Scope("singleton")

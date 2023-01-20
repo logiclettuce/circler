@@ -1,4 +1,4 @@
-package osu.salat23.circler.config
+package osu.salat23.circler.configuration
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -9,7 +9,7 @@ import osu.salat23.circler.osu.formula.performance.PerformanceCalculatorV1
 import osu.salat23.circler.properties.OsuProperties
 
 @Configuration
-class OsuApiConfig(
+class OsuApiConfiguration(
     val osuProperties: OsuProperties
 ) {
 

@@ -3,6 +3,7 @@ package osu.salat23.circler.service
 import org.springframework.stereotype.Service
 import osu.salat23.circler.bot.ClientType
 import osu.salat23.circler.bot.commands.Command
+import osu.salat23.circler.osu.Server
 import osu.salat23.circler.persistence.repository.ServerIdentifierRepository
 import java.util.*
 import javax.transaction.Transactional
@@ -17,7 +18,7 @@ class UserServerIdentifierService(
     fun getUserServerIdentifier(
         userClientId: String,
         chatClientId: String,
-        server: Command.Server,
+        server: Server,
         clientType: ClientType
     ): Optional<String> {
         val chat = chatService.getOrCreateChat(chatClientId, clientType)
@@ -29,7 +30,7 @@ class UserServerIdentifierService(
         identifier: String,
         userClientId: String,
         chatClientId: String,
-        server: Command.Server,
+        server: Server,
         clientType: ClientType
     ): String {
         val chat = chatService.getOrCreateChat(chatClientId, clientType)

@@ -1,0 +1,32 @@
+{
+  "arguments": {
+    "actor": {
+      "name": "actor",
+      "description": "",
+      "identifiers": [
+        "nickname",
+        "nick",
+        "n",
+        "тшслтфьу",
+        "тшсл",
+        "т"
+      ]
+    }
+  },
+  "commands": {
+    "fetchUserProfile": {
+      "name": "User profile",
+      "description": "",
+      "availableArguments": [
+        "actor",
+        "displayMode"
+      ],
+      "identifiers": [
+        "user",
+        "u",
+        "гыук",
+        "г"
+      ]
+    }
+  }
+}

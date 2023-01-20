@@ -22,38 +22,4 @@ abstract class ChainHandler {
         } catch (_: UserNotDefinedException) {
         }
     }
-
-    companion object {
-        fun getIdentifier(
-            command: Command,
-            userContext: UserContext,
-            userServerIdentifierService: UserServerIdentifierService,
-            client: Client
-        ): String {
-            var identifier = command.options.actor
-            if (identifier.isEmpty()) {
-                val persistedIdentifier =
-                    userServerIdentifierService
-                        .getUserServerIdentifier(
-                            userContext.userId,
-                            userContext.chatId,
-                            command.server,
-                            userContext.clientType
-                        )
-
-                if (persistedIdentifier.isEmpty) {
-                    client.send(
-                        ClientMessage(
-                            chatId = userContext.chatId,
-                            userId = userContext.userId,
-                            text = ResponseTemplates.osuUserNotDefined()
-                        )
-                    )
-                    throw UserNotDefinedException()
-                }
-                identifier = persistedIdentifier.get()
-            }
-            return identifier
-        }
-    }
 }
