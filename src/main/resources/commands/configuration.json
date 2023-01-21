@@ -1,7 +1,17 @@
 {
   "arguments": {
+    "template": {
+      "name": "Template type",
+      "description": "",
+      "identifiers": [
+        "template",
+        "tmpl",
+        "еуьздфеу",
+        "еьзд"
+      ]
+    },
     "actor": {
-      "name": "actor",
+      "name": "Actor",
       "description": "",
       "identifiers": [
         "nickname",
@@ -72,6 +82,77 @@
         "t",
         "ещз",
         "е"
+      ]
+    },
+    "fetchUserRecentScores": {
+      "name": "User recent scores",
+      "description": "",
+      "availableArguments": [
+        "actor",
+        "pageSize",
+        "pageNumber",
+        "server"
+      ],
+      "identifiers": [
+        "recent",
+        "r",
+        "кусуте",
+        "к"
+      ]
+    },
+    "chatLeaderboard": {
+      "name": "Player leaderboard in current chat",
+      "description": "",
+      "availableArguments": [
+        "server"
+      ],
+      "identifiers": [
+        "leaderboard",
+        "lb",
+        "дуфвукищфкв",
+        "ди"
+      ]
+    },
+    "chatMapLeaderboard": {
+      "name": "Player leaderboard on specific map in current chat",
+      "description": "",
+      "availableArguments": [
+        "server"
+      ],
+      "identifiers": [
+        "mapleaderboard",
+        "ml",
+        "ьфздуфвукищфкв",
+        "ьд"
+      ]
+    },
+    "setChatTemplate": {
+      "name": "Sets the specified template for rendering",
+      "description": "",
+      "availableArguments": [
+        "template"
+      ],
+      "identifiers": [
+        "mapleaderboard",
+        "ml",
+        "ьфздуфвукищфкв",
+        "ьд"
+      ]
+    },
+    "setUserServerIdentifier": {
+      "name": "Sets the user identifier for specified server",
+      "description": "",
+      "availableArguments": [
+        "server",
+        "actor"
+      ],
+      "identifiers": [
+        "nickname",
+        "nick",
+        "n",
+        "тшслтфьу",
+        "тшсл",
+        "т"
       ]
     }
   }
