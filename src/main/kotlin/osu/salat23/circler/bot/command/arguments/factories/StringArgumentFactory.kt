@@ -3,8 +3,8 @@ package osu.salat23.circler.bot.command.arguments.factories
 import osu.salat23.circler.bot.command.arguments.ProvidedArgument
 import osu.salat23.circler.bot.command.arguments.StringArgument
 
-abstract class StringArgumentFactory: osu.salat23.circler.bot.command.arguments.factories.ArgumentFactory<osu.salat23.circler.bot.command.arguments.StringArgument>() {
-    override fun create(input: String, implicit: Boolean): osu.salat23.circler.bot.command.arguments.ProvidedArgument<osu.salat23.circler.bot.command.arguments.StringArgument> {
+abstract class StringArgumentFactory: ArgumentFactory<StringArgument>() {
+    override fun create(input: String, implicit: Boolean): ProvidedArgument<StringArgument> {
         val identifiers = getConfiguredArgument().identifiers
         val prefix = '-'
 
@@ -35,8 +35,8 @@ abstract class StringArgumentFactory: osu.salat23.circler.bot.command.arguments.
 
                 value += character
             }
-            return osu.salat23.circler.bot.command.arguments.ProvidedArgument.of(
-                osu.salat23.circler.bot.command.arguments.StringArgument(
+            return ProvidedArgument.of(
+                StringArgument(
                     value
                 )
             )
@@ -78,8 +78,8 @@ abstract class StringArgumentFactory: osu.salat23.circler.bot.command.arguments.
                         value+=character
                     }
 
-                    return osu.salat23.circler.bot.command.arguments.ProvidedArgument.of(
-                        osu.salat23.circler.bot.command.arguments.StringArgument(
+                    return ProvidedArgument.of(
+                        StringArgument(
                             value
                         )
                     )
@@ -87,6 +87,6 @@ abstract class StringArgumentFactory: osu.salat23.circler.bot.command.arguments.
             }
         }
 
-        return osu.salat23.circler.bot.command.arguments.ProvidedArgument.empty()
+        return ProvidedArgument.empty()
     }
 }

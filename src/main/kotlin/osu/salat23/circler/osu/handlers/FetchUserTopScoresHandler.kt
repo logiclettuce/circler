@@ -16,7 +16,6 @@ import osu.salat23.circler.service.UserServerIdentifierService
 @Component
 class FetchUserTopScoresHandler(
     val osuService: OsuService,
-    val userServerIdentifierService: UserServerIdentifierService,
     val playerIdentifierService: PlayerIdentifierService) : ChainHandler() {
 
     override fun handleUpdate(command: Command, client: Client, userContext: UserContext) {

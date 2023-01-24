@@ -28,6 +28,7 @@ class BotConfiguration {
         val convertedCommands = mutableMapOf<String, Command>()
         val convertedArguments = mutableMapOf<String, Argument>()
 
+        // todo make duplicate check
         configJson.arguments.forEach { entry ->
             val argumentKey = entry.key
             val argumentName = entry.value.name

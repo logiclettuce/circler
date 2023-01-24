@@ -7,8 +7,8 @@ import osu.salat23.circler.bot.client.ClientEntity
 import osu.salat23.circler.api.osu.exceptions.OsuUserNotFoundException
 import osu.salat23.circler.bot.client.ClientImage
 import osu.salat23.circler.bot.client.ClientMessage
-import osu.salat23.circler.bot.commands.Command
-import osu.salat23.circler.bot.commands.FetchUserProfileCommand
+import osu.salat23.circler.bot.command.commands.Command
+import osu.salat23.circler.bot.command.commands.FetchUserProfileCommand
 import osu.salat23.circler.osu.ResponseTemplates
 import osu.salat23.circler.osu.domain.User
 import osu.salat23.circler.renderer.BrowserClient

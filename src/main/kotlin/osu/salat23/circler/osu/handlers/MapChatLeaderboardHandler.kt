@@ -5,16 +5,16 @@ import org.springframework.stereotype.Component
 import osu.salat23.circler.bot.UserContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientMessage
+import osu.salat23.circler.bot.command.commands.Command
 import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.osu.ResponseTemplates
 import osu.salat23.circler.osu.domain.Score
 import osu.salat23.circler.osu.domain.User
-import osu.salat23.circler.pmap
 import osu.salat23.circler.service.ChatService
 import osu.salat23.circler.service.OsuService
 
 @Component
-class MapChatLeaderboard(
+class MapChatLeaderboardHandler(
     val osuService: OsuService,
     val chatService: ChatService
 ) : ChainHandler() {

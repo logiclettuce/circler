@@ -16,9 +16,9 @@ import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientEntity
 import osu.salat23.circler.bot.client.ClientImage
 import osu.salat23.circler.bot.client.ClientMessage
-import osu.salat23.circler.bot.commands.Command
-import osu.salat23.circler.bot.commands.CommandParser
-import osu.salat23.circler.bot.commands.exceptions.NotABotCommandException
+import osu.salat23.circler.bot.command.commands.Command
+import osu.salat23.circler.bot.command.commands.CommandParser
+import osu.salat23.circler.bot.command.exceptions.NotABotCommandException
 import osu.salat23.circler.osu.OsuCommandHandler
 import osu.salat23.circler.properties.VkProperties
 import java.io.InputStream
@@ -73,14 +73,22 @@ class Vk(
             }
             val command: Command
             try {
-                command = commandParser.parse(text, attachedFile)
+                command = commandParser.parse(text)
             } catch (exception: NotABotCommandException) {
                 return
             }
             try {
                 // todo check if bot has previleges for chat admin (right now it just dies =( if there are no rights  )
                 // todo context creation seems kinda primitive. think about other ways of doing this bit
-                osuCommandHandler.handle(command, this, UserContext(chatId, userId, ClientType.VK, isUserAdmin))
+                osuCommandHandler.handle(
+                    command,
+                    this,
+                    UserContext(
+                        chatId= chatId,
+                        userId = userId,
+                        clientType = ClientType.VK,
+                        isUserAdmin = isUserAdmin,
+                        fileAttachment = attachedFile ?: InputStream.nullInputStream()))
             } catch (exception: Exception) {
                 exception.printStackTrace()
             }
