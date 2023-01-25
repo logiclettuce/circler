@@ -21,7 +21,7 @@ class BotConfiguration {
         val mapper = jacksonObjectMapper()
         val classLoader = javaClass.classLoader
         val bufferedReader: BufferedReader =
-            classLoader.getResourceAsStream("command/configuration.json")?.bufferedReader()
+            classLoader.getResourceAsStream("commands/configuration.json")?.bufferedReader()
                 ?: throw IllegalStateException("Could not find command configuration file!")
 
         val configJson = mapper.readValue(bufferedReader.readText(), CommandConfigurationJSON::class.java)

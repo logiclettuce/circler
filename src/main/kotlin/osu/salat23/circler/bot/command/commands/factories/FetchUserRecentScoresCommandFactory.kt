@@ -62,7 +62,7 @@ class FetchUserRecentScoresCommandFactory(
         val commandActionIdentifiers = commandConfiguration.commands[COMMAND_KEY]!!.identifiers
 
         commandActionIdentifiers.forEach { identifier ->
-            if (input.lowercase().startsWith(identifier.lowercase() + ' '))
+            if (input.lowercase().startsWith(identifier.lowercase()))
                 canCreate = true
         }
 

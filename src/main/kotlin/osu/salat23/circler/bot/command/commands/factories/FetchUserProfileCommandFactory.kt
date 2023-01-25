@@ -34,8 +34,8 @@ class FetchUserProfileCommandFactory(
 
         // remove the action part
         for (actionIdentifier in configuration.identifiers) {
-            if (input.startsWith("$actionIdentifier ")) {
-                input  = input.substring(actionIdentifier.length+1)
+            if (input.startsWith(actionIdentifier)) {
+                input  = input.substring(actionIdentifier.length).trim()
                 break
             }
         }
@@ -58,7 +58,7 @@ class FetchUserProfileCommandFactory(
         val commandActionIdentifiers = commandConfiguration.commands[COMMAND_KEY]!!.identifiers
 
         commandActionIdentifiers.forEach { identifier ->
-            if (input.lowercase().startsWith(identifier.lowercase() + ' '))
+            if (input.lowercase().startsWith(identifier.lowercase()))
                 canCreate = true
         }
 

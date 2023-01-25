@@ -1,15 +1,14 @@
 package osu.salat23.circler.service
 
-import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Service
 import osu.salat23.circler.bot.ClientType
-import osu.salat23.circler.bot.commands.Command
+import osu.salat23.circler.bot.command.commands.Command
+import osu.salat23.circler.osu.Server
 import osu.salat23.circler.persistence.entity.Chat
 import osu.salat23.circler.persistence.repository.ChatRepository
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.util.stream.Collectors
 import javax.transaction.Transactional
 
 @Service
@@ -31,7 +30,7 @@ class ChatService(
         setUserProfileTemplate(clientId, clientType, template)
     }
 
-    fun getChatMemberIdentifiers(clientId: String, clientType: ClientType, server: Command.Server): List<String> {
+    fun getChatMemberIdentifiers(clientId: String, clientType: ClientType, server: Server): List<String> {
         val chat = getOrCreateChat(clientId, clientType)
 
         return chatMemberService.getChatMemberIdentifiers(chat.id, server)

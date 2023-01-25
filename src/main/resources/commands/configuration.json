@@ -51,6 +51,16 @@
         "зфпу",
         "з"
       ]
+    },
+    "beatmapId": {
+      "name": "Beatmap Id",
+      "description": "",
+      "identifiers": [
+        "beatmap",
+        "bmp",
+        "иуфеьфз",
+        "иьз"
+      ]
     }
   },
   "commands": {
@@ -133,13 +143,13 @@
         "template"
       ],
       "identifiers": [
-        "mapleaderboard",
-        "ml",
-        "ьфздуфвукищфкв",
-        "ьд"
+        "template",
+        "tmpl",
+        "еуьздфеу",
+        "еьзд"
       ]
     },
-    "setUserServerIdentifier": {
+    "setChatMemberIdentifier": {
       "name": "Sets the user identifier for specified server",
       "description": "",
       "availableArguments": [
@@ -153,6 +163,19 @@
         "тшслтфьу",
         "тшсл",
         "т"
+      ]
+    },
+    "fetchBeatmap": {
+      "name": "Get information about particular beatmap",
+      "description": "",
+      "availableArguments": [
+        "beatmapId"
+      ],
+      "identifiers": [
+        "beatmap",
+        "bmp",
+        "иуфеьфз",
+        "иьз"
       ]
     }
   }

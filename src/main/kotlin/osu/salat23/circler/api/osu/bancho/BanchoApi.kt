@@ -79,8 +79,8 @@ class BanchoApi(
     override fun userScores(
         identifier: String,
         type: BanchoScore.Type,
-        pageSize: Int,
-        pageNumber: Int,
+        pageSize: Long,
+        pageNumber: Long,
         osuGameMode: OsuGameMode,
         showFailed: Boolean,
         key: String?
@@ -91,7 +91,7 @@ class BanchoApi(
         val scoresBancho = makeRequest<Array<BanchoScore>>(request)
         val scores = scoresBancho.map { banchoScore ->
             val banchoBeatmap = banchoBeatmap(banchoScore.beatmap!!.id.toString(), Mod.fromStringArray(banchoScore.mods))
-            val banchoBeatmapAttributes = banchoBeatmapAttributes(banchoScore.beatmap!!.id.toString(), Mod.fromStringArray(banchoScore.mods))
+            val banchoBeatmapAttributes = banchoBeatmapAttributes(banchoScore.beatmap.id.toString(), Mod.fromStringArray(banchoScore.mods))
             val beatmap = Converter.convert(banchoBeatmap, banchoBeatmapAttributes, banchoBeatmap.beatmapset)
             val score = Converter.convert(banchoScore, beatmap, performanceCalculator)
             return@map score

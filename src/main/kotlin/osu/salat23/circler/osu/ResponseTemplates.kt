@@ -1,25 +1,19 @@
 package osu.salat23.circler.osu
 
-import com.microsoft.playwright.Page
-import com.microsoft.playwright.Playwright
-import osu.salat23.circler.bot.commands.Command
+import osu.salat23.circler.bot.command.commands.Command
+import osu.salat23.circler.bot.command.commands.FetchUserProfileCommand
+import osu.salat23.circler.bot.command.commands.FetchUserTopScoresCommand
 import osu.salat23.circler.osu.domain.Beatmap
 import osu.salat23.circler.osu.domain.Score
 import osu.salat23.circler.osu.domain.User
 import osu.salat23.circler.utility.Time
-import java.io.BufferedReader
-import java.io.ByteArrayInputStream
-import java.io.File
-import java.io.InputStream
-import java.lang.IllegalStateException
 import java.text.DecimalFormat
-import java.time.format.DateTimeFormatter
 
 
 object ResponseTemplates {
     private const val USER_LINK_TEMPLATE = "https://osu.ppy.sh/u/"
 
-    fun osuUserTemplate(user: User, command: Command): String {
+    fun osuUserTemplate(user: User, command: FetchUserProfileCommand): String {
         var playstyle = ""
         var highestRank = ""
 
@@ -33,9 +27,9 @@ object ResponseTemplates {
                 user.highestRankDate
             })"""
         }
-
+// todo refactor this
         return """
-    [Server: ${command.server.displayName}]
+    [Server: ${command.serverArgument.getArgument().value}]
     [Mode: ${user.playMode}]
     👤Player: ${user.username} ${if (user.isOnline) """🟢""" else ""}
     🌐: ${user.country.name}
@@ -50,10 +44,10 @@ object ResponseTemplates {
             """.trimIndent()
     }
 
-    fun osuUserTopScores(user: User, command: Command, scores: Array<Score>): String {
+    fun osuUserTopScores(user: User, command: FetchUserTopScoresCommand, scores: Array<Score>): String {
         val decimalFormat = DecimalFormat("#.##") // todo second decimal format for difficulty attributes
         val headerString = """
-            [Server: ${command.server.displayName}]
+            [Server: ${command.serverArgument.getArgument().value}]
             [Mode: ${user.playMode}]
             Top scores for ${user.username}:${"\n"}
             

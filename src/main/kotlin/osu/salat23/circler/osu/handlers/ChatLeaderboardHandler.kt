@@ -4,9 +4,9 @@ import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
 import osu.salat23.circler.bot.UserContext
 import osu.salat23.circler.bot.client.Client
-import osu.salat23.circler.bot.client.ClientEntity
 import osu.salat23.circler.bot.client.ClientMessage
-import osu.salat23.circler.bot.commands.Command
+import osu.salat23.circler.bot.command.commands.ChatLeaderboardCommand
+import osu.salat23.circler.bot.command.commands.Command
 import osu.salat23.circler.osu.ResponseTemplates
 import osu.salat23.circler.osu.domain.User
 import osu.salat23.circler.pmap
@@ -17,9 +17,24 @@ import osu.salat23.circler.service.OsuService
 @Component
 class ChatLeaderboardHandler(val chatService: ChatService, val osuService: OsuService): ChainHandler() {
     override fun handleUpdate(command: Command, client: Client, userContext: UserContext) {
-        val osuApi = osuService.getOsuApiByServer(command.server)
+        val command = command as ChatLeaderboardCommand
 
-        val chatMemberIdentifiers = chatService.getChatMemberIdentifiers(userContext.chatId, userContext.clientType, command.server)
+        if (!command.serverArgument.isPresent()) {
+            client.send(
+                ClientMessage(
+                    userId = userContext.userId,
+                    chatId = userContext.chatId,
+                    text = "No server provided!"
+                )
+            )
+        }
+
+        val server = command.serverArgument.getArgument().value
+
+
+        val osuApi = osuService.getOsuApiByServer(server)
+
+        val chatMemberIdentifiers = chatService.getChatMemberIdentifiers(userContext.chatId, userContext.clientType, server)
 
         var users: List<User>
         runBlocking {
@@ -42,6 +57,6 @@ class ChatLeaderboardHandler(val chatService: ChatService, val osuService: OsuSe
     }
 
     override fun canHandle(command: Command, userContext: UserContext): Boolean {
-        return command.action == Command.Action.CHAT_LEADERBOARD
+        return command is ChatLeaderboardCommand
     }
 }

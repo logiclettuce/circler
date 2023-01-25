@@ -2,23 +2,21 @@ package osu.salat23.circler.bot.command.commands.factories
 
 import org.springframework.stereotype.Component
 import osu.salat23.circler.bot.command.arguments.factories.BeatmapIdArgumentFactory
-import osu.salat23.circler.bot.command.arguments.factories.ServerArgumentFactory
+import osu.salat23.circler.bot.command.commands.ChatLeaderboardCommand
 import osu.salat23.circler.bot.command.commands.Command
-import osu.salat23.circler.bot.command.commands.MapChatLeaderboardCommand
+import osu.salat23.circler.bot.command.commands.FetchBeatmapCommand
 import osu.salat23.circler.bot.command.exceptions.CommandIsNotDefinedException
 import osu.salat23.circler.configuration.domain.CommandConfiguration
 import osu.salat23.circler.configuration.domain.Command as ConfigCommand
 
 @Component
-class MapChatLeaderboardCommandFactory(
+class FetchBeatmapIdCommandFactory(
     private val commandConfiguration: CommandConfiguration,
-    private val beatmapIdArgumentFactory: BeatmapIdArgumentFactory,
-    private val serverArgumentFactory: ServerArgumentFactory
+    val beatmapIdCommandFactory: BeatmapIdArgumentFactory
 ): CommandFactory() {
-
     private final val configuration: ConfigCommand
     companion object {
-        private const val COMMAND_KEY = "chatMapLeaderboard"
+        private const val COMMAND_KEY = "fetchBeatmap"
     }
     init {
         if (!commandConfiguration.commands.containsKey(COMMAND_KEY))
@@ -36,12 +34,10 @@ class MapChatLeaderboardCommandFactory(
             }
         }
 
-        val beatmapIdArgument = beatmapIdArgumentFactory.create(input, true)
-        val serverArgument = serverArgumentFactory.create(input)
+        val beatmapIdArgument = beatmapIdCommandFactory.create(input, true)
 
-        return MapChatLeaderboardCommand(
-            beatmapIdArgument = beatmapIdArgument,
-            serverArgument = serverArgument
+        return FetchBeatmapCommand(
+            beatmapIdArgument = beatmapIdArgument
         )
     }
 

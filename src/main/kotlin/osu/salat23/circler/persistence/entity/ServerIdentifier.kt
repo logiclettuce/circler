@@ -1,7 +1,8 @@
 package osu.salat23.circler.persistence.entity
 
 import org.hibernate.Hibernate
-import osu.salat23.circler.bot.commands.Command
+import osu.salat23.circler.bot.command.commands.Command
+import osu.salat23.circler.osu.Server
 import javax.persistence.*
 
 @Entity
@@ -14,7 +15,7 @@ data class ServerIdentifier(
     val playerIdentifier: String,
     @Enumerated(value = EnumType.STRING)
     @Column(name = "server", nullable = false)
-    val server: Command.Server,
+    val server: Server,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

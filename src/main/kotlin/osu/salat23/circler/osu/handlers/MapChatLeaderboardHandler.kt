@@ -6,7 +6,7 @@ import osu.salat23.circler.bot.UserContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.bot.command.commands.Command
-import osu.salat23.circler.bot.commands.Command
+import osu.salat23.circler.bot.command.commands.MapChatLeaderboardCommand
 import osu.salat23.circler.osu.ResponseTemplates
 import osu.salat23.circler.osu.domain.Score
 import osu.salat23.circler.osu.domain.User
@@ -19,22 +19,43 @@ class MapChatLeaderboardHandler(
     val chatService: ChatService
 ) : ChainHandler() {
     override fun handleUpdate(command: Command, client: Client, userContext: UserContext) {
-        val osuApi = osuService.getOsuApiByServer(command.server)
+        val command = command as MapChatLeaderboardCommand
+        if (!command.serverArgument.isPresent()) {
+            ClientMessage(
+                chatId = userContext.chatId,
+                userId = userContext.userId,
+                text = "No server provided!"
+            )
+            return
+        }
+        if (!command.beatmapIdArgument.isPresent()) {
+            ClientMessage(
+                chatId = userContext.chatId,
+                userId = userContext.userId,
+                text = "No beatmap provided!"
+            )
+            return
+        }
 
-        val map = osuApi.beatmap(command.options.beatmapId)
+        val server = command.serverArgument.getArgument().value
+        val beatmapId = command.beatmapIdArgument.getArgument().id
+
+        val osuApi = osuService.getOsuApiByServer(server)
+
+        val map = osuApi.beatmap(beatmapId)
 
         val identifiers = chatService.getChatMemberIdentifiers(
             clientId = userContext.chatId,
             clientType = userContext.clientType,
-            server = command.server
+            server = server
         )
         // todo IMPORTANT! fix values presentation (probably convert problem)
-        var userScorePairs: MutableList<Pair<User, Score>> = mutableListOf()
+        val userScorePairs: MutableList<Pair<User, Score>> = mutableListOf()
         runBlocking {
             // todo implement filtering by mods logic
             identifiers.parallelStream().forEach { identifier ->
                 val user = osuApi.user(identifier)
-                var userBeatmapScores = osuApi.userBeatmapScores(user.username, map.id)
+                val userBeatmapScores = osuApi.userBeatmapScores(user.username, map.id)
                 if (userBeatmapScores.isNotEmpty()) {
 
                     val bestScore: Score = userBeatmapScores.reduce { acc, score ->
@@ -60,6 +81,6 @@ class MapChatLeaderboardHandler(
     }
 
     override fun canHandle(command: Command, userContext: UserContext): Boolean {
-        return command.action == Command.Action.MAP_CHAT_LEADERBOARD
+        return command is MapChatLeaderboardCommand
     }
 }

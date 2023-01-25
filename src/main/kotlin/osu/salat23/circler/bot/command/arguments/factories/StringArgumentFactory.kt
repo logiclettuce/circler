@@ -7,8 +7,8 @@ abstract class StringArgumentFactory: ArgumentFactory<StringArgument>() {
     override fun create(input: String, implicit: Boolean): ProvidedArgument<StringArgument> {
         val identifiers = getConfiguredArgument().identifiers
         val prefix = '-'
-
-        if (implicit && input.isNotBlank()) {
+        // todo "u n duckpicker" gives exception because it thinks 'n' is an implicit nickname. maybe check for excess tokens???
+        if (implicit && input.isNotBlank() && !input.startsWith(prefix)) {
             var value = ""
             var isQuoted = false
             for (character in input.trim()) {
@@ -48,8 +48,8 @@ abstract class StringArgumentFactory: ArgumentFactory<StringArgument>() {
                 var index = input.indexOf(stringToMatch, ignoreCase = true)
                 index += stringToMatch.length - 1
 
-                if (input[index+1].isWhitespace() && !input[index+2].isWhitespace()) {
-                    val valueStartingIndex = index+2
+                if (input[index].isWhitespace() && !input[index+1].isWhitespace()) {
+                    val valueStartingIndex = index+1
 
                     var value = ""
                     var isQuoted = false

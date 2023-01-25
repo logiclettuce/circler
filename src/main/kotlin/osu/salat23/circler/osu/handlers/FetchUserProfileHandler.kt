@@ -27,19 +27,34 @@ class FetchUserProfileHandler(
     val userServerIdentifierService: UserServerIdentifierService) : ChainHandler() {
     override fun handleUpdate(command: Command, client: Client, userContext: UserContext) {
         val command = command as FetchUserProfileCommand
+
+        if (!command.serverArgument.isPresent()) {
+            client.send(
+                ClientMessage(
+                    chatId = userContext.chatId,
+                    userId = userContext.userId,
+                    text = "No server provided!"
+                )
+            )
+            return
+        }
+
+        val server = command.serverArgument.getArgument().value
+
+        // todo uhh maybe move out the logic from service to handler?
         val identifier = playerIdentifierService.getIdentifier(command.actorArgument, command.serverArgument, userContext, client)
 
-        val osuApi = osuService.getOsuApiByServer(command.)
+        val osuApi = osuService.getOsuApiByServer(server)
         val user: User
         try {
             user = osuApi.user(identifier)
-            val clientEntity: ClientEntity = if (command.options.pictureMode) {
+            val clientEntity: ClientEntity = if (false /*todo display type argument*/) {
                 val chat = chatService.getOrCreateChat(userContext.chatId, userContext.clientType)
 
                 ClientImage(
                     chatId = userContext.chatId,
                     userId = userContext.userId,
-                    image = browserClient.render(ProfileRenderTemplate(user, command, chat.userProfileTemplate))
+                    image = browserClient.render(ProfileRenderTemplate(user, server, command, chat.userProfileTemplate))
                 )
             } else {
                 ClientMessage(

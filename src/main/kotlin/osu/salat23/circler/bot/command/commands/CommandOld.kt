@@ -2,7 +2,7 @@ package osu.salat23.circler.bot.command.commands
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import osu.salat23.circler.bot.commands.exceptions.NotABotCommandException
+import osu.salat23.circler.bot.command.exceptions.NotABotCommandException
 import java.io.InputStream
 import java.util.regex.Pattern
 // todo global rework of commands and how bot handles updates. probably will take forever
