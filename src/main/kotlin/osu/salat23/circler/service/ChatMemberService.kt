@@ -1,10 +1,10 @@
 package osu.salat23.circler.service
 
 import org.springframework.stereotype.Service
-import osu.salat23.circler.bot.commands.Command
+import osu.salat23.circler.bot.command.commands.Command
+import osu.salat23.circler.osu.Server
 import osu.salat23.circler.persistence.entity.ChatMember
 import osu.salat23.circler.persistence.repository.ChatMemberRepository
-import osu.salat23.circler.service.domain.ChatMemberWithIdentifier
 import javax.transaction.Transactional
 
 @Service
@@ -13,7 +13,7 @@ class ChatMemberService (
     private val chatMemberRepository: ChatMemberRepository
 ) {
 
-    fun getChatMemberIdentifiers(chatId: Long, server: Command.Server): List<String> {
+    fun getChatMemberIdentifiers(chatId: Long, server: Server): List<String> {
         return chatMemberRepository.getChatMemberIdentifiers(chatId, server.name)
     }
     fun getOrCreateChatMember(clientId: String, chatId: Long): ChatMember {

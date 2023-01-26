@@ -1,0 +1,182 @@
+{
+  "arguments": {
+    "template": {
+      "name": "Template type",
+      "description": "",
+      "identifiers": [
+        "template",
+        "tmpl",
+        "еуьздфеу",
+        "еьзд"
+      ]
+    },
+    "actor": {
+      "name": "Actor",
+      "description": "",
+      "identifiers": [
+        "nickname",
+        "nick",
+        "n",
+        "тшслтфьу",
+        "тшсл",
+        "т"
+      ]
+    },
+    "server": {
+      "name": "Server",
+      "description": "",
+      "identifiers": [
+        "server",
+        "s",
+        "ыукмук",
+        "ы"
+      ]
+    },
+    "pageSize": {
+      "name": "Page size",
+      "description": "",
+      "identifiers": [
+        "size",
+        "sz",
+        "ышяу",
+        "ыя"
+      ]
+    },
+    "pageNumber": {
+      "name": "Page number",
+      "description": "",
+      "identifiers": [
+        "page",
+        "p",
+        "зфпу",
+        "з"
+      ]
+    },
+    "beatmapId": {
+      "name": "Beatmap Id",
+      "description": "",
+      "identifiers": [
+        "beatmap",
+        "bmp",
+        "иуфеьфз",
+        "иьз"
+      ]
+    }
+  },
+  "commands": {
+    "fetchUserProfile": {
+      "name": "User profile",
+      "description": "",
+      "availableArguments": [
+        "actor",
+        "server"
+      ],
+      "identifiers": [
+        "user",
+        "u",
+        "гыук",
+        "г"
+      ]
+    },
+    "fetchUserTopScores": {
+      "name": "User top scores",
+      "description": "",
+      "availableArguments": [
+        "actor",
+        "pageSize",
+        "pageNumber",
+        "server"
+      ],
+      "identifiers": [
+        "top",
+        "t",
+        "ещз",
+        "е"
+      ]
+    },
+    "fetchUserRecentScores": {
+      "name": "User recent scores",
+      "description": "",
+      "availableArguments": [
+        "actor",
+        "pageSize",
+        "pageNumber",
+        "server"
+      ],
+      "identifiers": [
+        "recent",
+        "r",
+        "кусуте",
+        "к"
+      ]
+    },
+    "chatLeaderboard": {
+      "name": "Player leaderboard in current chat",
+      "description": "",
+      "availableArguments": [
+        "server"
+      ],
+      "identifiers": [
+        "leaderboard",
+        "lb",
+        "дуфвукищфкв",
+        "ди"
+      ]
+    },
+    "chatMapLeaderboard": {
+      "name": "Player leaderboard on specific map in current chat",
+      "description": "",
+      "availableArguments": [
+        "server"
+      ],
+      "identifiers": [
+        "mapleaderboard",
+        "ml",
+        "ьфздуфвукищфкв",
+        "ьд"
+      ]
+    },
+    "setChatTemplate": {
+      "name": "Sets the specified template for rendering",
+      "description": "",
+      "availableArguments": [
+        "template"
+      ],
+      "identifiers": [
+        "template",
+        "tmpl",
+        "еуьздфеу",
+        "еьзд"
+      ]
+    },
+    "setChatMemberIdentifier": {
+      "name": "Sets the user identifier for specified server",
+      "description": "",
+      "availableArguments": [
+        "server",
+        "actor"
+      ],
+      "identifiers": [
+        "nickname",
+        "nick",
+        "n",
+        "тшслтфьу",
+        "тшсл",
+        "т"
+      ]
+    },
+    "fetchBeatmap": {
+      "name": "Get information about particular beatmap",
+      "description": "",
+      "availableArguments": [
+        "beatmapId"
+      ],
+      "identifiers": [
+        "beatmap",
+        "bmp",
+        "иуфеьфз",
+        "иьз"
+      ]
+    }
+  }
+}

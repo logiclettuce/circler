@@ -1,15 +1,15 @@
 package osu.salat23.circler.service
 
 import org.springframework.stereotype.Service
-import osu.salat23.circler.bot.commands.Command
 import osu.salat23.circler.api.osu.OsuApi
+import osu.salat23.circler.osu.Server
 
 @Service
 class OsuService(private val bancho: OsuApi) {
 
-    fun getOsuApiByServer(server: Command.Server): OsuApi {
+    fun getOsuApiByServer(server: Server): OsuApi {
         return when (server) {
-            Command.Server.Bancho -> bancho
+            Server.Bancho -> bancho
             else -> bancho
         }
     }

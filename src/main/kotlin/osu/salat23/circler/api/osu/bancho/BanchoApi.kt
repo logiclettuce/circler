@@ -1,5 +1,6 @@
 package osu.salat23.circler.api.osu.bancho
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import okhttp3.*
 import org.slf4j.Logger
@@ -15,8 +16,7 @@ import osu.salat23.circler.osu.domain.*
 import osu.salat23.circler.osu.formula.performance.PerformanceCalculator
 import osu.salat23.circler.properties.OsuProperties
 import java.io.IOException
-import kotlin.math.log
-
+// todo refactor every possible signature to include all necessary parameters
 @Component
 class BanchoApi(
     private val properties: OsuProperties,
@@ -24,12 +24,15 @@ class BanchoApi(
 ) : OsuApi {
 
     data class TokenData(
-        val access_token: String,
-        val token_type: String,
-        val expires_in: Int,
+        @JsonProperty("access_token")
+        val accessToken: String,
+        @JsonProperty("token_type")
+        val tokenType: String,
+        @JsonProperty("expires_in")
+        val expiresIn: Int,
     )
 
-    private var tokenData: TokenData? = null;
+    private var tokenData: TokenData? = null
     private val mapper = jacksonObjectMapper()
     private val client = OkHttpClient()
     private var logger: Logger = LoggerFactory.getLogger(BanchoApi::class.java)
@@ -56,7 +59,7 @@ class BanchoApi(
     private inline fun <reified T> makeRequest(request: Request, printResult: Boolean = false): T {
         if (tokenData == null) initToken()
         val newRequest =
-            request.newBuilder().addHeader("Authorization", "${tokenData!!.token_type} ${tokenData!!.access_token}")
+            request.newBuilder().addHeader("Authorization", "${tokenData!!.tokenType} ${tokenData!!.accessToken}")
                 .build()
 
         client.newCall(newRequest).execute().use { response ->
@@ -72,15 +75,15 @@ class BanchoApi(
     }
 
     override fun user(identifier: String, osuGameMode: OsuGameMode, key: String?): User {
-        val request = Request.Builder().url(BanchoEndpoints.usersUrl(key ?: identifier)).get().build();
+        val request = Request.Builder().url(BanchoEndpoints.usersUrl(key ?: identifier)).get().build()
         return Converter.convert(makeRequest<OsuUser>(request))
     }
 
     override fun userScores(
         identifier: String,
         type: BanchoScore.Type,
-        pageSize: Int,
-        pageNumber: Int,
+        pageSize: Long,
+        pageNumber: Long,
         osuGameMode: OsuGameMode,
         showFailed: Boolean,
         key: String?
@@ -91,7 +94,7 @@ class BanchoApi(
         val scoresBancho = makeRequest<Array<BanchoScore>>(request)
         val scores = scoresBancho.map { banchoScore ->
             val banchoBeatmap = banchoBeatmap(banchoScore.beatmap!!.id.toString(), Mod.fromStringArray(banchoScore.mods))
-            val banchoBeatmapAttributes = banchoBeatmapAttributes(banchoScore.beatmap!!.id.toString(), Mod.fromStringArray(banchoScore.mods))
+            val banchoBeatmapAttributes = banchoBeatmapAttributes(banchoScore.beatmap.id.toString(), Mod.fromStringArray(banchoScore.mods))
             val beatmap = Converter.convert(banchoBeatmap, banchoBeatmapAttributes, banchoBeatmap.beatmapset)
             val score = Converter.convert(banchoScore, beatmap, performanceCalculator)
             return@map score
@@ -106,7 +109,7 @@ class BanchoApi(
         mods: Array<Mod>
     ): Beatmap {
         val banchoBeatmap: BanchoBeatmap = banchoBeatmap(id, mods)
-        val banchoBeatmapAttributes = banchoBeatmapAttributes(banchoBeatmap.id.toString(), mods,/*todo: Gamemode here*/)
+        val banchoBeatmapAttributes = banchoBeatmapAttributes(banchoBeatmap.id.toString(), mods)
         return Converter.convert(banchoBeatmap, banchoBeatmapAttributes, banchoBeatmap.beatmapset)
     }
 
@@ -116,7 +119,7 @@ class BanchoApi(
             .url(BanchoEndpoints.userBeatmapScores(user.id, beatmapId))
             .get()
             .build()
-        // todo refactor this entire file, changing osuScores to banchoScores probably
+
         val scores = makeRequest<BanchoScores>(request, true).scores.map { osuScore ->
             val beatmap = beatmap(beatmapId, Mod.fromStringArray(osuScore.mods))
             return@map Converter.convert(osuScore, beatmap, performanceCalculator)
@@ -139,10 +142,9 @@ class BanchoApi(
         mods: Array<Mod>,
         osuGameMode: Mode = Mode.Default
     ): BanchoBeatmapAttributes {
-        // ${JSONArray(mods.map { mod -> mod.alternativeName })}
-        val modsValue = if (mods.size > 0) mods.map { mod -> mod.id }.reduce { acc, id -> acc.or(id) } else 0
+        val modsValue = if (mods.isNotEmpty()) mods.map { mod -> mod.id }.reduce { acc, id -> acc.or(id) } else 0
         val bodyParameters: RequestBody = FormBody.Builder()
-            .add("mods", "${modsValue}")
+            .add("mods", "$modsValue")
             .build()
         val request = Request.Builder().url(BanchoEndpoints.beatmapAttributesUrl(beatmapId)).post(
             bodyParameters
@@ -155,10 +157,10 @@ class BanchoApi(
             user(identifier)
         } catch (exception: RequestFailedException) {
             if (exception.code == 404) {
-                return false;
+                return false
             }
             throw UnexpectedException()
         }
-        return true;
+        return true
     }
 }

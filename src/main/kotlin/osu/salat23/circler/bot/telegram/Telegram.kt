@@ -13,15 +13,18 @@ import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientEntity
 import osu.salat23.circler.bot.client.ClientImage
 import osu.salat23.circler.bot.client.ClientMessage
-import osu.salat23.circler.bot.commands.Command
-import osu.salat23.circler.bot.commands.NotABotCommandException
+import osu.salat23.circler.bot.command.commands.Command
+import osu.salat23.circler.bot.command.commands.CommandParser
+import osu.salat23.circler.bot.command.exceptions.NotABotCommandException
 import osu.salat23.circler.osu.OsuCommandHandler
 import osu.salat23.circler.properties.TelegramProperties
+import java.io.InputStream
 
 @Component
 class Telegram(
     private val telegramProperties: TelegramProperties,
     val osuCommandHandler: OsuCommandHandler,
+    val commandParser: CommandParser
 ) : TelegramLongPollingBot(DefaultBotOptions()), Client {
 
     override fun getBotToken(): String = telegramProperties.token
@@ -46,12 +49,12 @@ class Telegram(
         }
         val command: Command
         try { // todo normal input stream handling
-            command = Command.Builder().from(text, null).build()
+            command = commandParser.parse(text)
         } catch (exception: NotABotCommandException) {
             return
         }
         // todo IMPORTANT!!!! make isAdmin there (right now always false)
-        osuCommandHandler.handle(command, this, UserContext(chatId, userId, ClientType.TELEGRAM, false))
+        osuCommandHandler.handle(command, this, UserContext(chatId, userId, ClientType.TELEGRAM, false, InputStream.nullInputStream()))
     }
 
     override fun send(clientEntity: ClientEntity) {

@@ -1,33 +1,22 @@
 package osu.salat23.circler.osu
 
-import com.microsoft.playwright.Page
-import com.microsoft.playwright.Playwright
-import osu.salat23.circler.bot.commands.Command
+import osu.salat23.circler.bot.command.commands.Command
+import osu.salat23.circler.bot.command.commands.FetchUserProfileCommand
+import osu.salat23.circler.bot.command.commands.FetchUserTopScoresCommand
 import osu.salat23.circler.osu.domain.Beatmap
 import osu.salat23.circler.osu.domain.Score
 import osu.salat23.circler.osu.domain.User
 import osu.salat23.circler.utility.Time
-import java.io.BufferedReader
-import java.io.ByteArrayInputStream
-import java.io.File
-import java.io.InputStream
-import java.lang.IllegalStateException
 import java.text.DecimalFormat
-import java.time.format.DateTimeFormatter
 
 
 object ResponseTemplates {
     private const val USER_LINK_TEMPLATE = "https://osu.ppy.sh/u/"
 
-    fun osuUserTemplate(user: User, command: Command): String {
-        var playstyle = ""
+    fun osuUserTemplate(user: User, command: FetchUserProfileCommand): String {
+        val playstyle = ""
         var highestRank = ""
 
-//        if (user.playstyle != null) { todo: implement user playstyle
-//            // ladno pohui p.s. it should not work like that
-//            playstyle = user.playstyle.reduce { acc: String, s: String -> "${acc.capitalize()} ${s.capitalize()}" }
-//            playstyle.trim()
-//        }
         if (user.highestRank != 0L) {
             highestRank = """🔥(Highest: #${user.highestRank} at ${
                 user.highestRankDate
@@ -35,7 +24,7 @@ object ResponseTemplates {
         }
 
         return """
-    [Server: ${command.server.displayName}]
+    [Server: ${command.serverArgument.getArgument().value}]
     [Mode: ${user.playMode}]
     👤Player: ${user.username} ${if (user.isOnline) """🟢""" else ""}
     🌐: ${user.country.name}
@@ -50,10 +39,10 @@ object ResponseTemplates {
             """.trimIndent()
     }
 
-    fun osuUserTopScores(user: User, command: Command, scores: Array<Score>): String {
-        val decimalFormat = DecimalFormat("#.##") // todo second decimal format for difficulty attributes
+    fun osuUserTopScores(user: User, command: FetchUserTopScoresCommand, scores: Array<Score>): String {
+        val decimalFormat = DecimalFormat("#.##")
         val headerString = """
-            [Server: ${command.server.displayName}]
+            [Server: ${command.serverArgument.getArgument().value}]
             [Mode: ${user.playMode}]
             Top scores for ${user.username}:${"\n"}
             
@@ -95,7 +84,7 @@ object ResponseTemplates {
 
 
 
-        var result = """
+        val result = """
             ${beatmap.beatmapSet?.title ?: "???"} - ${beatmap.beatmapSet?.artist ?: "???"}
             
             $scoresList
