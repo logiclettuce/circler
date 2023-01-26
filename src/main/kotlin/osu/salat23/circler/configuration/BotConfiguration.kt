@@ -28,19 +28,26 @@ class BotConfiguration {
         val convertedCommands = mutableMapOf<String, Command>()
         val convertedArguments = mutableMapOf<String, Argument>()
 
-        // todo make duplicate check
+        val allArgumentIdentifiers = mutableSetOf<String>()
+        val allCommandIdentifiers = mutableSetOf<String>()
         configJson.arguments.forEach { entry ->
             val argumentKey = entry.key
             val argumentName = entry.value.name
             val argumentDescription = entry.value.description
             val argumentIdentifiers = entry.value.identifiers
 
+            argumentIdentifiers.forEach {
+                if (allArgumentIdentifiers.contains(it)) throw IllegalStateException("Configuration file contains duplicate argument identifiers - $it ($argumentKey)")
+                if (it.contains(' ')) throw IllegalStateException("Argument identifier cannot contain whitespace - $it ($argumentKey)")
+            }
+            allArgumentIdentifiers.addAll(argumentIdentifiers)
+
             val argument = Argument(
                 name = argumentName,
                 description = argumentDescription,
                 identifiers = argumentIdentifiers
             )
-
+            if (convertedArguments.containsKey(argumentKey)) throw IllegalStateException("Configuration file contains duplicate argument key - $argumentKey")
             convertedArguments[argumentKey] = argument
         }
 
@@ -57,6 +64,12 @@ class BotConfiguration {
                 commandArguments.add(convertedArguments[argumentKey]!!)
             }
 
+            commandIdentifiers.forEach {
+                if (allCommandIdentifiers.contains(it)) throw IllegalStateException("Configuration file contains duplicate command identifiers - $it ($commandKey)")
+                if (it.contains(' ')) throw IllegalStateException("Command identifier cannot contain whitespace - $it ($commandKey)")
+            }
+            allCommandIdentifiers.addAll(commandIdentifiers)
+
             val command = Command(
                 name = commandName,
                 description = commandDescription,
@@ -64,6 +77,7 @@ class BotConfiguration {
                 arguments = commandArguments
             )
 
+            if (convertedArguments.containsKey(commandKey)) throw IllegalStateException("Configuration file contains duplicate command key - $commandKey")
             convertedCommands[commandKey] = command
         }
 

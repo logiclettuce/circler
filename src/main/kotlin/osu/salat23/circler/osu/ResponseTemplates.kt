@@ -14,20 +14,15 @@ object ResponseTemplates {
     private const val USER_LINK_TEMPLATE = "https://osu.ppy.sh/u/"
 
     fun osuUserTemplate(user: User, command: FetchUserProfileCommand): String {
-        var playstyle = ""
+        val playstyle = ""
         var highestRank = ""
 
-//        if (user.playstyle != null) { todo: implement user playstyle
-//            // ladno pohui p.s. it should not work like that
-//            playstyle = user.playstyle.reduce { acc: String, s: String -> "${acc.capitalize()} ${s.capitalize()}" }
-//            playstyle.trim()
-//        }
         if (user.highestRank != 0L) {
             highestRank = """🔥(Highest: #${user.highestRank} at ${
                 user.highestRankDate
             })"""
         }
-// todo refactor this
+
         return """
     [Server: ${command.serverArgument.getArgument().value}]
     [Mode: ${user.playMode}]
@@ -45,7 +40,7 @@ object ResponseTemplates {
     }
 
     fun osuUserTopScores(user: User, command: FetchUserTopScoresCommand, scores: Array<Score>): String {
-        val decimalFormat = DecimalFormat("#.##") // todo second decimal format for difficulty attributes
+        val decimalFormat = DecimalFormat("#.##")
         val headerString = """
             [Server: ${command.serverArgument.getArgument().value}]
             [Mode: ${user.playMode}]
@@ -89,7 +84,7 @@ object ResponseTemplates {
 
 
 
-        var result = """
+        val result = """
             ${beatmap.beatmapSet?.title ?: "???"} - ${beatmap.beatmapSet?.artist ?: "???"}
             
             $scoresList
