@@ -2,10 +2,10 @@ package osu.salat23.circler.bot.command.commands
 
 import osu.salat23.circler.bot.command.arguments.*
 
-class FetchUserTopScoresCommand(
-    val pageSizeArgument: ProvidedArgument<NumberArgument>,
-    val pageArgument: ProvidedArgument<NumberArgument>,
+class FetchBeatmapScoreCommand(
     val actorArgument: ProvidedArgument<StringArgument>,
     val serverArgument: ProvidedArgument<ServerArgument>,
-    val gameModeArgument: ProvidedArgument<GameModeArgument>
+    val beatmapIdArgument: ProvidedArgument<BeatmapIdArgument>,
+    val pageSizeArgument: ProvidedArgument<NumberArgument>,
+    val pageNumberArgument: ProvidedArgument<NumberArgument>
 ): Command()

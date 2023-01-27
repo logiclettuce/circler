@@ -20,29 +20,26 @@ class MapChatLeaderboardHandler(
 ) : ChainHandler() {
     override fun handleUpdate(command: Command, client: Client, userContext: UserContext) {
         val command = command as MapChatLeaderboardCommand
-        if (!command.serverArgument.isPresent()) {
-            ClientMessage(
-                chatId = userContext.chatId,
-                userId = userContext.userId,
-                text = "No server provided!"
-            )
-            return
-        }
         if (!command.beatmapIdArgument.isPresent()) {
-            ClientMessage(
-                chatId = userContext.chatId,
-                userId = userContext.userId,
-                text = "No beatmap provided!"
+            client.send(
+                ClientMessage(
+                    chatId = userContext.chatId,
+                    userId = userContext.userId,
+                    text = "No beatmap provided!"
+                )
             )
             return
         }
 
         val server = command.serverArgument.getArgument().value
         val beatmapId = command.beatmapIdArgument.getArgument().id
+        val gameMode = command.gameModeArgument.getArgument().mode
+
+        val modsArgument = command.modsArgument.getArgument()
 
         val osuApi = osuService.getOsuApiByServer(server)
 
-        val map = osuApi.beatmap(beatmapId)
+        val map = osuApi.beatmap(id = beatmapId, gameMode = gameMode, mods = modsArgument.mods)
 
         val identifiers = chatService.getChatMemberIdentifiers(
             clientId = userContext.chatId,
@@ -54,16 +51,23 @@ class MapChatLeaderboardHandler(
         runBlocking {
             // todo implement filtering by mods logic
             identifiers.parallelStream().forEach { identifier ->
-                val user = osuApi.user(identifier)
-                val userBeatmapScores = osuApi.userBeatmapScores(user.username, map.id)
+                val user = osuApi.user(identifier = identifier, gameMode = gameMode)
+                val userBeatmapScores = osuApi.userBeatmapScores(
+                    identifier = user.username,
+                    gameMode = gameMode,
+                    beatmapId = map.id,
+                    requiredMods = modsArgument.mods // todo mods filtering logic
+                )
                 if (userBeatmapScores.isNotEmpty()) {
-
                     val bestScore: Score = userBeatmapScores.reduce { acc, score ->
                         if (score.score > acc.score) return@reduce score
                         return@reduce acc
                     }
                     synchronized(userScorePairs) {
-                        userScorePairs.add(Pair(user, bestScore))
+                        userBeatmapScores.forEach { score ->
+                            userScorePairs.add(Pair(user, score))
+                        }
+                       // userScorePairs.add(Pair(user, bestScore))
                     }
                 }
             }

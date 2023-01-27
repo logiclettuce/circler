@@ -35,7 +35,7 @@ data class BanchoScore(
     val maxCombo: Long,
     val mode: String,
     val mode_int: Long,
-    val mods: Array<String>,
+    val mods: List<String>,
 // todo hash code for mods and other fields
     val passed: Boolean,
     val perfect: Boolean,
@@ -53,8 +53,4 @@ data class BanchoScore(
     val beatmapset: BanchoBeatmapSet?,
 // todo "type":"score_best_osu",
     val user_id: String,
-    ) {
-    enum class Type {
-        Best, Firsts, Recent
-    }
-}
+)

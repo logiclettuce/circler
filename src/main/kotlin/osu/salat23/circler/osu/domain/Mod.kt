@@ -40,7 +40,7 @@ enum class Mod(val alternativeName: String, val id: Long) {
     TouchDevice("TD", 4);
 
     companion object {
-        fun fromStringArray(modsAsStrings: Array<String>): Array<Mod> {
+        fun fromStringList(modsAsStrings: List<String>): List<Mod> {
 
             val mods = mutableListOf<Mod>()
 
@@ -49,7 +49,7 @@ enum class Mod(val alternativeName: String, val id: Long) {
                     if (mod.alternativeName == modString) mods.add(mod)
                 }
             }
-            return mods.toTypedArray()
+            return mods
         }
     }
 }

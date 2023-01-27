@@ -30,7 +30,7 @@ class ChatLeaderboardHandler(val chatService: ChatService, val osuService: OsuSe
         }
 
         val server = command.serverArgument.getArgument().value
-
+        val gameMode = command.gameModeArgument.getArgument().mode
 
         val osuApi = osuService.getOsuApiByServer(server)
 
@@ -38,7 +38,7 @@ class ChatLeaderboardHandler(val chatService: ChatService, val osuService: OsuSe
 
         var users: List<User>
         runBlocking {
-            users = chatMemberIdentifiers.pmap { osuApi.user(it) }
+            users = chatMemberIdentifiers.pmap { osuApi.user(identifier = it, gameMode) }
         }
 
         users = users.sortedWith(Comparator { u1, u2 ->

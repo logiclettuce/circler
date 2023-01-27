@@ -2,8 +2,7 @@ package osu.salat23.circler.service
 
 import org.springframework.stereotype.Service
 import osu.salat23.circler.bot.ClientType
-import osu.salat23.circler.bot.command.commands.Command
-import osu.salat23.circler.osu.Server
+import osu.salat23.circler.api.osu.Server
 import osu.salat23.circler.persistence.entity.Chat
 import osu.salat23.circler.persistence.repository.ChatRepository
 import java.io.BufferedReader

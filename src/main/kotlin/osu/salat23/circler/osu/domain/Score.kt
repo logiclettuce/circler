@@ -17,7 +17,7 @@ data class Score(
     val hitOk: Long,
     val hitMeh: Long,
     val hitMiss: Long,
-    val mods: Array<Mod>,
+    val mods: List<Mod>,
     val beatmap: Beatmap
 ) {
 

@@ -31,7 +31,7 @@ class ProvidedArgument<T: osu.salat23.circler.bot.command.arguments.Argument> pr
         return default!!
     }
 
-    fun withDefault(default: T): osu.salat23.circler.bot.command.arguments.ProvidedArgument<T> {
-        return osu.salat23.circler.bot.command.arguments.ProvidedArgument(provided, default)
+    fun withDefault(default: T): ProvidedArgument<T> {
+        return ProvidedArgument(provided, default)
     }
 }

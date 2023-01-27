@@ -2,7 +2,7 @@ package osu.salat23.circler.service
 
 import org.springframework.stereotype.Service
 import osu.salat23.circler.api.osu.OsuApi
-import osu.salat23.circler.osu.Server
+import osu.salat23.circler.api.osu.Server
 
 @Service
 class OsuService(private val bancho: OsuApi) {

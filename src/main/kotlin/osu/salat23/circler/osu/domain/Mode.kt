@@ -1,11 +1,11 @@
 package osu.salat23.circler.osu.domain
 
-enum class Mode(val alternativeName: String, val id: Long) {
-    Standard("osu", 0),
-    Mania("mania", 3),
-    Taiko("taiko", 1),
-    CatchTheBeat("fruits", 2),
-    Default("", -1);
+enum class Mode(val alternativeName: String, val id: Long, val identifiers: List<String>) {
+    Standard("osu", 0, listOf("osu", "щыг")),
+    Mania("mania", 3, listOf("mania", "ьфтшф")),
+    Taiko("taiko", 1, listOf("taiko", "ефшлщ")),
+    CatchTheBeat("fruits", 2, listOf("fruits", "акгшеы")),
+    Default("", -1, listOf());
 
     companion object {
         fun from(id: Long): Mode {

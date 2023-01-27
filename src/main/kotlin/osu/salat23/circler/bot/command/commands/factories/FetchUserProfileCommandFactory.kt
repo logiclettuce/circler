@@ -6,13 +6,15 @@ import osu.salat23.circler.bot.command.arguments.factories.ServerArgumentFactory
 import osu.salat23.circler.bot.command.commands.Command
 import osu.salat23.circler.bot.command.commands.FetchUserProfileCommand
 import osu.salat23.circler.configuration.domain.CommandConfiguration
-import osu.salat23.circler.osu.Server
+import osu.salat23.circler.api.osu.Server
+import osu.salat23.circler.bot.command.arguments.factories.GameModeArgumentFactory
 
 @Component
 class FetchUserProfileCommandFactory(
     commandConfiguration: CommandConfiguration,
     private val actorArgumentFactory: osu.salat23.circler.bot.command.arguments.factories.ActorArgumentFactory,
-    val serverArgumentFactory: ServerArgumentFactory
+    val serverArgumentFactory: ServerArgumentFactory,
+    val gameModeArgumentFactory: GameModeArgumentFactory
 ): GenericCommandFactory(commandConfiguration) {
     override fun getCommandKey(): String = "fetchUserProfile"
     override fun create(input: String): Command {
@@ -22,10 +24,12 @@ class FetchUserProfileCommandFactory(
                 Server.Bancho
             )
         )
+        val gameModeArgument = gameModeArgumentFactory.create(input)
 
         return FetchUserProfileCommand(
             actorArgument = actorArgument,
-            serverArgument = serverArgument
+            serverArgument = serverArgument,
+            gameModeArgument = gameModeArgument
         )
 
     }

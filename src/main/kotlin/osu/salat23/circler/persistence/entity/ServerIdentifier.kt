@@ -1,8 +1,7 @@
 package osu.salat23.circler.persistence.entity
 
 import org.hibernate.Hibernate
-import osu.salat23.circler.bot.command.commands.Command
-import osu.salat23.circler.osu.Server
+import osu.salat23.circler.api.osu.Server
 import javax.persistence.*
 
 @Entity

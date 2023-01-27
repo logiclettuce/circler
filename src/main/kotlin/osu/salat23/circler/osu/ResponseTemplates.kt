@@ -4,6 +4,7 @@ import osu.salat23.circler.bot.command.commands.Command
 import osu.salat23.circler.bot.command.commands.FetchUserProfileCommand
 import osu.salat23.circler.bot.command.commands.FetchUserTopScoresCommand
 import osu.salat23.circler.osu.domain.Beatmap
+import osu.salat23.circler.osu.domain.Mode
 import osu.salat23.circler.osu.domain.Score
 import osu.salat23.circler.osu.domain.User
 import osu.salat23.circler.utility.Time
@@ -13,7 +14,7 @@ import java.text.DecimalFormat
 object ResponseTemplates {
     private const val USER_LINK_TEMPLATE = "https://osu.ppy.sh/u/"
 
-    fun osuUserTemplate(user: User, command: FetchUserProfileCommand): String {
+    fun osuUserTemplate(user: User, command: FetchUserProfileCommand, gameMode: Mode): String {
         val playstyle = ""
         var highestRank = ""
 
@@ -25,7 +26,7 @@ object ResponseTemplates {
 
         return """
     [Server: ${command.serverArgument.getArgument().value}]
-    [Mode: ${user.playMode}]
+    [Mode: ${if (gameMode == Mode.Default) user.playMode.name else gameMode.name}]
     👤Player: ${user.username} ${if (user.isOnline) """🟢""" else ""}
     🌐: ${user.country.name}
     💹PP: ${user.performance}
@@ -39,7 +40,7 @@ object ResponseTemplates {
             """.trimIndent()
     }
 
-    fun osuUserTopScores(user: User, command: FetchUserTopScoresCommand, scores: Array<Score>): String {
+    fun osuUserTopScores(user: User, command: FetchUserTopScoresCommand, scores: List<Score>): String {
         val decimalFormat = DecimalFormat("#.##")
         val headerString = """
             [Server: ${command.serverArgument.getArgument().value}]
@@ -93,7 +94,7 @@ object ResponseTemplates {
         return result
     }
 
-    fun osuUserRecentScores(user: User, command: Command, scores: Array<Score>): String {
+    fun osuUserRecentScores(user: User, command: Command, scores: List<Score>): String {
         val stringBuilder = StringBuilder()
         scores.forEach {
             stringBuilder.append("""${it.beatmap.beatmapSet?.title} - ${it.beatmap.beatmapSet?.artist} | ${it.beatmap.difficultyRating}⭐ | ${it.performance}pp""")

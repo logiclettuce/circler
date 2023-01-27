@@ -1,29 +1,25 @@
 package osu.salat23.circler.bot.command.arguments.factories
 
 import org.springframework.stereotype.Component
+import osu.salat23.circler.bot.command.arguments.GameModeArgument
 import osu.salat23.circler.bot.command.arguments.ProvidedArgument
-import osu.salat23.circler.bot.command.arguments.ServerArgument
 import osu.salat23.circler.bot.command.exceptions.ArgumentIsNotDefinedException
 import osu.salat23.circler.configuration.domain.Argument
 import osu.salat23.circler.configuration.domain.CommandConfiguration
-import osu.salat23.circler.api.osu.Server
+import osu.salat23.circler.osu.domain.Mode
 
 @Component
-class ServerArgumentFactory(
+class GameModeArgumentFactory(
     commandConfiguration: CommandConfiguration
-) : ArgumentFactory<ServerArgument>() {
-
+) : ArgumentFactory<GameModeArgument>() {
     companion object {
-        private const val ARGUMENT_KEY = "server"
+        private const val ARGUMENT_KEY = "gameMode"
     }
 
     private final val configuredArgument = commandConfiguration.arguments[ARGUMENT_KEY]
         ?: throw ArgumentIsNotDefinedException(ARGUMENT_KEY)
 
-    override fun create(
-        input: String,
-        implicit: Boolean
-    ): ProvidedArgument<ServerArgument> {
+    override fun create(input: String, implicit: Boolean): ProvidedArgument<GameModeArgument> {
         val identifiers = getConfiguredArgument().identifiers
         val prefix = '-'
 
@@ -37,14 +33,11 @@ class ServerArgumentFactory(
                 value += character
             }
 
-            for (server in Server.values()) {
-                for (identifier in server.identifiers) {
-                    if (identifier == value)
-                        return ProvidedArgument.of(
-                            ServerArgument(
-                                server
-                            )
-                        )
+            for (mode in Mode.values()) {
+                for (identifier in mode.identifiers) {
+                    if (identifier == value) return ProvidedArgument.of(
+                        GameModeArgument(mode)
+                    )
                 }
             }
         }
@@ -55,7 +48,7 @@ class ServerArgumentFactory(
                 var index = input.indexOf(stringToMatch, ignoreCase = true)
                 index += stringToMatch.length - 1
 
-                if (input[index].isWhitespace() && !input[index+1].isWhitespace()) {
+                if (input[index].isWhitespace() && !input[index + 1].isWhitespace()) {
                     val valueStartingIndex = index + 1
 
                     var value = ""
@@ -67,10 +60,10 @@ class ServerArgumentFactory(
                         value += character
                     }
 
-                    for (server in Server.values()) {
-                        for (identifier in server.identifiers) {
+                    for (mode in Mode.values()) {
+                        for (identifier in mode.identifiers) {
                             if (identifier == value) return ProvidedArgument.of(
-                                ServerArgument(server)
+                                GameModeArgument(mode)
                             )
                         }
                     }
@@ -78,7 +71,7 @@ class ServerArgumentFactory(
             }
         }
 
-        return ProvidedArgument.of(ServerArgument(Server.Bancho))
+        return ProvidedArgument.of(GameModeArgument(Mode.Default))
     }
 
     override fun getConfiguredArgument(): Argument {

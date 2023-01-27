@@ -12,7 +12,7 @@ abstract class NumberArgumentFactory: osu.salat23.circler.bot.command.arguments.
             if (input.contains(stringToMatch, true)) {
                 var index = input.indexOf(stringToMatch, ignoreCase = true)
                 index += stringToMatch.length - 1
-
+                // todo IMPORTANT!!! fix indexes
                 if (input[index+1].isWhitespace() && !input[index+2].isWhitespace()) {
                     val valueStartingIndex = index+2
 

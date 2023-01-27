@@ -1,4 +1,4 @@
-package osu.salat23.circler.osu
+package osu.salat23.circler.api.osu
 
 enum class Server(
     val identifiers: Array<String>,

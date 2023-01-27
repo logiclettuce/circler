@@ -32,6 +32,26 @@
         "ы"
       ]
     },
+    "gameMode": {
+      "name": "Game mode",
+      "description": "",
+      "identifiers": [
+        "gamemode",
+        "mode",
+        "пфьуьщву",
+        "ьщву"
+      ]
+    },
+    "mods": {
+      "name": "Mods",
+      "description": "",
+      "identifiers": [
+        "mods",
+        "m",
+        "ьщвы",
+        "ь"
+      ]
+    },
     "pageSize": {
       "name": "Page size",
       "description": "",
@@ -176,6 +196,25 @@
         "bmp",
         "иуфеьфз",
         "иьз"
+      ]
+    },
+    "fetchBeatmapScore": {
+      "name": "Get user scores on specified beatmap",
+      "description": "",
+      "availableArguments": [
+        "actor",
+        "beatmapId",
+        "server",
+        "pageSize",
+        "pageNumber"
+      ],
+      "identifiers": [
+        "score",
+        "scores",
+        "s",
+        "ысщку",
+        "ысщкуы",
+        "ы"
       ]
     }
   }

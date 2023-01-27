@@ -1,6 +1,7 @@
 package osu.salat23.circler.api.osu
 
 import osu.salat23.circler.api.osu.bancho.dto.BanchoScore
+import osu.salat23.circler.osu.domain.Mode
 
 object BanchoEndpoints {
     const val TOKEN_URL: String = "https://osu.ppy.sh/oauth/token"
@@ -8,14 +9,14 @@ object BanchoEndpoints {
     const val OSU_API_BASE_V2 = "https://osu.ppy.sh/api/v2"
 
 
-    fun usersUrl(identifier: String, mode: OsuGameMode = OsuGameMode.UserDefault) =
-        "$OSU_API_BASE_V2/users/${identifier}/${mode.value}"
+    fun usersUrl(identifier: String, mode: Mode) =
+        "$OSU_API_BASE_V2/users/${identifier}/${mode.alternativeName}"
 
     fun beatmap(id: String) = "$OSU_API_BASE_V2/beatmaps/$id"
     // todo make parameters more standardized. e.g. this function should not have default parameters or otherwise with the osuapi interface
-    fun scoresUrl(identifier: String, type: BanchoScore.Type, mode: OsuGameMode = OsuGameMode.UserDefault, limit: Long, offset: Long, showFailed: Boolean): String {
+    fun scoresUrl(identifier: String, type: ScoreType, mode: Mode, limit: Long, offset: Long, showFailed: Boolean): String {
         val queryParams = mutableListOf(
-            if (mode.value.isNotEmpty()) "mode=${mode.value}" else "",
+            if (mode.alternativeName.isNotEmpty()) "mode=${mode.alternativeName}" else "",
             "limit=${limit}",
             "offset=${(if (offset - 1 >= 0) offset-1 else 0) * limit}",
             "include_fails=${if (showFailed) 1 else 0}"

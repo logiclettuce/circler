@@ -1,7 +1,7 @@
 package osu.salat23.circler.renderer
 
 import osu.salat23.circler.bot.command.commands.Command
-import osu.salat23.circler.osu.Server
+import osu.salat23.circler.api.osu.Server
 import osu.salat23.circler.osu.domain.User
 import osu.salat23.circler.renderer.templates.ProfileTemplate
 import java.io.BufferedReader

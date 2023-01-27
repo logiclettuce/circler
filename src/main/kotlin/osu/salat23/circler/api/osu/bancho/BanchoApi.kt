@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component
 import osu.salat23.circler.api.osu.BanchoEndpoints
 import osu.salat23.circler.api.osu.OsuApi
 import osu.salat23.circler.api.osu.OsuGameMode
+import osu.salat23.circler.api.osu.ScoreType
 import osu.salat23.circler.api.osu.bancho.dto.*
 import osu.salat23.circler.api.osu.exceptions.RequestFailedException
 import osu.salat23.circler.api.osu.exceptions.UnexpectedException
@@ -74,63 +75,8 @@ class BanchoApi(
         }
     }
 
-    override fun user(identifier: String, osuGameMode: OsuGameMode, key: String?): User {
-        val request = Request.Builder().url(BanchoEndpoints.usersUrl(key ?: identifier)).get().build()
-        return Converter.convert(makeRequest<OsuUser>(request))
-    }
-
-    override fun userScores(
-        identifier: String,
-        type: BanchoScore.Type,
-        pageSize: Long,
-        pageNumber: Long,
-        osuGameMode: OsuGameMode,
-        showFailed: Boolean,
-        key: String?
-    ): Array<Score> {
-        val user = user(identifier, osuGameMode, key)
-        val request = Request.Builder()
-            .url(BanchoEndpoints.scoresUrl(user.id, type, osuGameMode, pageSize, pageNumber, showFailed)).get().build()
-        val scoresBancho = makeRequest<Array<BanchoScore>>(request)
-        val scores = scoresBancho.map { banchoScore ->
-            val banchoBeatmap = banchoBeatmap(banchoScore.beatmap!!.id.toString(), Mod.fromStringArray(banchoScore.mods))
-            val banchoBeatmapAttributes = banchoBeatmapAttributes(banchoScore.beatmap.id.toString(), Mod.fromStringArray(banchoScore.mods))
-            val beatmap = Converter.convert(banchoBeatmap, banchoBeatmapAttributes, banchoBeatmap.beatmapset)
-            val score = Converter.convert(banchoScore, beatmap, performanceCalculator)
-            return@map score
-        }
-        return scores.toTypedArray()
-    }
-
-
-
-    override fun beatmap(
-        id: String,
-        mods: Array<Mod>
-    ): Beatmap {
-        val banchoBeatmap: BanchoBeatmap = banchoBeatmap(id, mods)
-        val banchoBeatmapAttributes = banchoBeatmapAttributes(banchoBeatmap.id.toString(), mods)
-        return Converter.convert(banchoBeatmap, banchoBeatmapAttributes, banchoBeatmap.beatmapset)
-    }
-
-    override fun userBeatmapScores(identifier: String, beatmapId: String, requiredMods: List<Mod>): List<Score> {
-        val user = user(identifier)
-        val request = Request.Builder()
-            .url(BanchoEndpoints.userBeatmapScores(user.id, beatmapId))
-            .get()
-            .build()
-
-        val scores = makeRequest<BanchoScores>(request, true).scores.map { osuScore ->
-            val beatmap = beatmap(beatmapId, Mod.fromStringArray(osuScore.mods))
-            return@map Converter.convert(osuScore, beatmap, performanceCalculator)
-        }
-
-        return scores
-    }
-
     private fun banchoBeatmap(
         id: String,
-        mods: Array<Mod>
     ): BanchoBeatmap {
         val request = Request.Builder()
             .url(BanchoEndpoints.beatmap(id)).build()
@@ -139,12 +85,13 @@ class BanchoApi(
 
     private fun banchoBeatmapAttributes(
         beatmapId: String,
-        mods: Array<Mod>,
-        osuGameMode: Mode = Mode.Default
+        gameMode: Mode,
+        mods: List<Mod>,
     ): BanchoBeatmapAttributes {
         val modsValue = if (mods.isNotEmpty()) mods.map { mod -> mod.id }.reduce { acc, id -> acc.or(id) } else 0
         val bodyParameters: RequestBody = FormBody.Builder()
             .add("mods", "$modsValue")
+            .add("ruleset", gameMode.alternativeName)
             .build()
         val request = Request.Builder().url(BanchoEndpoints.beatmapAttributesUrl(beatmapId)).post(
             bodyParameters
@@ -152,9 +99,106 @@ class BanchoApi(
         return makeRequest<BanchoBeatmapAttributesWrapper>(request).banchoBeatmapAttributes
     }
 
-    override fun playerExists(identifier: String): Boolean {
+    override fun user(
+        identifier: String,
+        gameMode: Mode
+    ): User {
+        val request = Request.Builder().url(BanchoEndpoints.usersUrl(identifier = identifier, mode = gameMode)).get().build()
+        return Converter.convertToUser(makeRequest(request))
+    }
+
+    override fun userScores(
+        identifier: String,
+        gameMode: Mode,
+        type: ScoreType,
+        pageSize: Long,
+        pageNumber: Long,
+        showFailed: Boolean
+    ): List<Score> {
+        val user = user(
+            identifier = identifier,
+            gameMode = gameMode)
+        val request = Request.Builder()
+            .url(BanchoEndpoints.scoresUrl(
+                identifier = user.id,
+                type = type,
+                mode = gameMode,
+                limit = pageSize,
+                offset = pageNumber,
+                showFailed = showFailed
+            )).get().build()
+        val scoresBancho = makeRequest<Array<BanchoScore>>(request)
+        val scores = scoresBancho.map { banchoScore ->
+            val banchoBeatmap = banchoBeatmap(banchoScore.beatmap!!.id.toString())
+            val banchoBeatmapAttributes = banchoBeatmapAttributes(
+                beatmapId = banchoScore.beatmap.id.toString(),
+                gameMode = gameMode,
+                mods = Mod.fromStringList(banchoScore.mods))
+            val beatmap = Converter.convertToBeatmap(
+                beatmap = banchoBeatmap,
+                beatmapAttributes = banchoBeatmapAttributes,
+                beatmapSet = banchoBeatmap.beatmapset)
+            val score = Converter.convertToScore(
+                score = banchoScore,
+                beatmap = beatmap,
+                performanceCalculator = performanceCalculator)
+            return@map score
+        }
+        return scores
+    }
+
+    override fun beatmap(
+        id: String,
+        gameMode: Mode,
+        mods: List<Mod>
+    ): Beatmap {
+        val banchoBeatmap: BanchoBeatmap = banchoBeatmap(id)
+        val banchoBeatmapAttributes = banchoBeatmapAttributes(
+            beatmapId = banchoBeatmap.id.toString(),
+            gameMode = gameMode,
+            mods = mods)
+        return Converter.convertToBeatmap(
+            beatmap = banchoBeatmap,
+            beatmapAttributes = banchoBeatmapAttributes,
+            beatmapSet = banchoBeatmap.beatmapset)
+    }
+
+    override fun userBeatmapScores(
+        identifier: String,
+        gameMode: Mode,
+        beatmapId: String,
+        requiredMods: List<Mod>
+    ): List<Score> {
+        val user = user(identifier, gameMode)
+        val request = Request.Builder()
+            .url(BanchoEndpoints.userBeatmapScores(user.id, beatmapId))
+            .get()
+            .build()
+
+        val scores = makeRequest<BanchoScores>(request, true).scores.map { osuScore ->
+            val beatmap = beatmap(
+                id = beatmapId,
+                gameMode = gameMode,
+                mods = Mod.fromStringList(osuScore.mods)
+            )
+            return@map Converter.convertToScore(
+                score = osuScore,
+                beatmap = beatmap,
+                performanceCalculator = performanceCalculator)
+        }
+
+        return scores
+    }
+
+    override fun playerExists(
+        identifier: String,
+        gameMode: Mode
+    ): Boolean {
         try {
-            user(identifier)
+            user(
+                identifier = identifier,
+                gameMode = gameMode
+            )
         } catch (exception: RequestFailedException) {
             if (exception.code == 404) {
                 return false

@@ -9,13 +9,13 @@ import osu.salat23.circler.configuration.domain.Command as ConfigCommand
 abstract class GenericCommandFactory(
     val commandConfiguration: CommandConfiguration
 ): CommandFactory() {
-
     private final val configuration: ConfigCommand
     init {
         if (!commandConfiguration.commands.containsKey(getCommandKey()))
             throw CommandIsNotDefinedException(getCommandKey())
         configuration = commandConfiguration.commands[getCommandKey()]!!
     }
+    abstract fun getCommandKey(): String
     override fun canCreate(input: String): Boolean {
         var canCreate = false
         val commandActionIdentifiers = commandConfiguration.commands[getCommandKey()]!!.identifiers
@@ -54,6 +54,4 @@ abstract class GenericCommandFactory(
         }
         return Optional.empty()
     }
-
-    abstract fun getCommandKey(): String
 }

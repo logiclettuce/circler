@@ -7,7 +7,7 @@ import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.bot.command.commands.Command
 import osu.salat23.circler.bot.command.commands.FetchBeatmapCommand
 import osu.salat23.circler.osu.ResponseTemplates
-import osu.salat23.circler.osu.Server
+import osu.salat23.circler.api.osu.Server
 import osu.salat23.circler.service.OsuService
 
 @Component
@@ -26,10 +26,12 @@ class FetchBeatmapHandler(val osuService: OsuService) : ChainHandler() {
         }
 
         val beatmapId = command.beatmapIdArgument.getArgument().id
+        val gameMode = command.gameModeArgument.getArgument().mode
+        val mods = command.modsArgument.getArgument().mods
 
 
         val osuApi = osuService.getOsuApiByServer(Server.Bancho) // todo maybe later add other servers for fetching??
-        val beatmap = osuApi.beatmap(beatmapId)
+        val beatmap = osuApi.beatmap(id = beatmapId, gameMode = gameMode, mods = mods)
 
         client.send(
             ClientMessage(

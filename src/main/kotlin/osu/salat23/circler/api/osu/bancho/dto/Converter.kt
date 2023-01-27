@@ -9,8 +9,7 @@ import java.time.format.DateTimeFormatter
 
 
 object Converter {
-// todo fuck offffffff this is shit! fix it
-    fun convert(
+    fun convertToBeatmapSet(
         beatmapSet: BanchoBeatmapSet,
         beatmaps: Array<Beatmap> = arrayOf()
     ): BeatmapSet {
@@ -25,7 +24,7 @@ object Converter {
         )
     }
 
-    fun convert(
+    fun convertToBeatmap(
         beatmap: BanchoBeatmap,
         beatmapAttributes: BanchoBeatmapAttributes,
         beatmapSet: BanchoBeatmapSet? = null
@@ -53,11 +52,11 @@ object Converter {
             mode = Mode.from(beatmap.mode),
             status = Status.from(beatmap.status ?: Status.Graveyard.alternativeName),
             url = beatmap.url,
-            beatmapSet = if (beatmapSet != null) convert(beatmapSet) else null
+            beatmapSet = if (beatmapSet != null) convertToBeatmapSet(beatmapSet) else null
         )
     }
 
-    fun convert(
+    fun convertToUser(
         user: OsuUser
     ): User {
         val joinDate = ZonedDateTime.parse(user.joinDate, DateTimeFormatter.ISO_DATE_TIME)
@@ -93,7 +92,7 @@ object Converter {
     }
 
     // todo overload with beatmapAttributes instead of just beatmap??
-    fun convert(
+    fun convertToScore(
         score: BanchoScore,
         beatmap: Beatmap,
         performanceCalculator: PerformanceCalculator
@@ -113,7 +112,7 @@ object Converter {
             hitOk = score.statistics.count_100,
             hitMeh = score.statistics.count_50,
             hitMiss = score.statistics.count_miss,
-            mods = Mod.fromStringArray(score.mods),
+            mods = Mod.fromStringList(score.mods),
             beatmap = beatmap
         )
 

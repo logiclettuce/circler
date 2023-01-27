@@ -25,21 +25,13 @@ class SetChatMemberIdentifierHandler(val osuService: OsuService, val userServerI
             )
         }
 
-        if (!command.serverArgument.isPresent()) {
-            client.send(
-                ClientMessage(
-                    chatId = userContext.chatId,
-                    userId = userContext.userId,
-                    text = "No server provided!"
-                )
-            )
-        }
+        val gameMode = command.gameModeArgument.getArgument().mode
 
         val actor = command.actorArgument.getArgument().value
         val server = command.serverArgument.getArgument().value
 
         val osuApi = osuService.getOsuApiByServer(server)
-        val exists = osuApi.playerExists(actor)
+        val exists = osuApi.playerExists(identifier = actor, gameMode = gameMode)
         if (exists) {
             userServerIdentifierService.setUserServerIdentifier(
                 identifier = actor,
