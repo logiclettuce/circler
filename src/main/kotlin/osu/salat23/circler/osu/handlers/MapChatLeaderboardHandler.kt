@@ -2,12 +2,12 @@ package osu.salat23.circler.osu.handlers
 
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
-import osu.salat23.circler.bot.UserContext
+import osu.salat23.circler.bot.ClientBotContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.bot.command.commands.Command
 import osu.salat23.circler.bot.command.commands.MapChatLeaderboardCommand
-import osu.salat23.circler.osu.ResponseTemplates
+import osu.salat23.circler.bot.response.templates.OldResponseTemplates
 import osu.salat23.circler.osu.domain.Score
 import osu.salat23.circler.osu.domain.User
 import osu.salat23.circler.service.ChatService
@@ -18,13 +18,13 @@ class MapChatLeaderboardHandler(
     val osuService: OsuService,
     val chatService: ChatService
 ) : ChainHandler() {
-    override fun handleUpdate(command: Command, client: Client, userContext: UserContext) {
+    override fun handleUpdate(command: Command, client: Client, clientBotContext: ClientBotContext) {
         val command = command as MapChatLeaderboardCommand
         if (!command.beatmapIdArgument.isPresent()) {
             client.send(
                 ClientMessage(
-                    chatId = userContext.chatId,
-                    userId = userContext.userId,
+                    chatId = clientBotContext.chatId,
+                    userId = clientBotContext.userId,
                     text = "No beatmap provided!"
                 )
             )
@@ -42,8 +42,8 @@ class MapChatLeaderboardHandler(
         val map = osuApi.beatmap(id = beatmapId, gameMode = gameMode, mods = modsArgument.mods)
 
         val identifiers = chatService.getChatMemberIdentifiers(
-            clientId = userContext.chatId,
-            clientType = userContext.clientType,
+            clientId = clientBotContext.chatId,
+            clientType = clientBotContext.clientType,
             server = server
         )
         // todo IMPORTANT! fix values presentation (probably convert problem)
@@ -76,15 +76,15 @@ class MapChatLeaderboardHandler(
 
         client.send(
             ClientMessage(
-                userId = userContext.userId,
-                chatId = userContext.chatId,
-                text = ResponseTemplates.chatBeatmapLeaderboard(map, finalUserScorePairs)
+                userId = clientBotContext.userId,
+                chatId = clientBotContext.chatId,
+                text = OldResponseTemplates.chatBeatmapLeaderboard(map, finalUserScorePairs)
             )
         )
 
     }
 
-    override fun canHandle(command: Command, userContext: UserContext): Boolean {
+    override fun canHandle(command: Command, clientBotContext: ClientBotContext): Boolean {
         return command is MapChatLeaderboardCommand
     }
 }

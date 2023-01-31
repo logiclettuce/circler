@@ -71,7 +71,7 @@ class GameModeArgumentFactory(
             }
         }
 
-        return ProvidedArgument.of(GameModeArgument(Mode.Default))
+        return ProvidedArgument.of(GameModeArgument(Mode.Standard))
     }
 
     override fun getConfiguredArgument(): Argument {

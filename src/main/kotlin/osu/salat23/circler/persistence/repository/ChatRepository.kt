@@ -9,7 +9,7 @@ import osu.salat23.circler.persistence.entity.Chat
 import java.util.*
 
 @Repository
-interface ChatRepository : JpaRepository<Chat, Long> {
+interface ChatRepository {
 
     @Query(nativeQuery = true,
         value =
@@ -20,15 +20,6 @@ interface ChatRepository : JpaRepository<Chat, Long> {
         @Param("clientId") clientId: String,
         @Param("clientType") clientTypeName: String
     ): Optional<Chat>
-
-    @Modifying
-    @Query(nativeQuery = true,
-        value =
-        """
-            update chats c set user_profile_template = :template where c.id = :chatId
-        """
-    )
-    fun setUserProfileTemplate( @Param("chatId") chatId: Long, @Param("template") template: String)
 
     @Modifying
     @Query(nativeQuery = true,

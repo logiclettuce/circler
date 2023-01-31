@@ -1,25 +1,25 @@
 package osu.salat23.circler.osu.handlers
 
 import org.springframework.stereotype.Component
-import osu.salat23.circler.bot.UserContext
+import osu.salat23.circler.bot.ClientBotContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.bot.command.commands.Command
 import osu.salat23.circler.bot.command.commands.FetchBeatmapCommand
-import osu.salat23.circler.osu.ResponseTemplates
+import osu.salat23.circler.bot.response.templates.OldResponseTemplates
 import osu.salat23.circler.api.osu.Server
 import osu.salat23.circler.service.OsuService
 
 @Component
 class FetchBeatmapHandler(val osuService: OsuService) : ChainHandler() {
-    override fun handleUpdate(command: Command, client: Client, userContext: UserContext) {
+    override fun handleUpdate(command: Command, client: Client, clientBotContext: ClientBotContext) {
         val command = command as FetchBeatmapCommand
 
         if (!command.beatmapIdArgument.isPresent()) {
             client.send(
                 ClientMessage(
-                    chatId = userContext.chatId,
-                    userId = userContext.userId,
+                    chatId = clientBotContext.chatId,
+                    userId = clientBotContext.userId,
                     text = "No beatmap id provided"
                 )
             )
@@ -35,14 +35,14 @@ class FetchBeatmapHandler(val osuService: OsuService) : ChainHandler() {
 
         client.send(
             ClientMessage(
-                chatId = userContext.chatId,
-                userId = userContext.userId,
-                text = ResponseTemplates.beatmapInfo(beatmap)
+                chatId = clientBotContext.chatId,
+                userId = clientBotContext.userId,
+                text = OldResponseTemplates.beatmapInfo(beatmap)
             )
         )
     }
 
-    override fun canHandle(command: Command, userContext: UserContext): Boolean {
+    override fun canHandle(command: Command, clientBotContext: ClientBotContext): Boolean {
         return command is FetchBeatmapCommand
     }
 }

@@ -3,7 +3,7 @@ package osu.salat23.circler.configuration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
-import osu.salat23.circler.renderer.BrowserClient
+import osu.salat23.circler.bot.response.browser.BrowserClient
 
 @Configuration
 class BrowserClientConfiguration {

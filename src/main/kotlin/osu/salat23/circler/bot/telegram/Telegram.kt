@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendPhoto
 import org.telegram.telegrambots.meta.api.objects.InputFile
 import org.telegram.telegrambots.meta.api.objects.Update
 import osu.salat23.circler.bot.ClientType
-import osu.salat23.circler.bot.UserContext
+import osu.salat23.circler.bot.ClientBotContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientEntity
 import osu.salat23.circler.bot.client.ClientImage
@@ -54,7 +54,7 @@ class Telegram(
             return
         }
         // todo IMPORTANT!!!! make isAdmin there (right now always false)
-        osuCommandHandler.handle(command, this, UserContext(chatId, userId, ClientType.TELEGRAM, false, InputStream.nullInputStream()))
+        osuCommandHandler.handle(command, this, ClientBotContext(chatId, userId, ClientType.TELEGRAM, false, InputStream.nullInputStream()))
     }
 
     override fun send(clientEntity: ClientEntity) {

@@ -1,4 +1,4 @@
-package osu.salat23.circler.osu
+package osu.salat23.circler.bot.response.templates
 
 import osu.salat23.circler.bot.command.commands.Command
 import osu.salat23.circler.bot.command.commands.FetchUserProfileCommand
@@ -11,7 +11,7 @@ import osu.salat23.circler.utility.Time
 import java.text.DecimalFormat
 
 
-object ResponseTemplates {
+object OldResponseTemplates {
     private const val USER_LINK_TEMPLATE = "https://osu.ppy.sh/u/"
 
     fun osuUserTemplate(user: User, command: FetchUserProfileCommand, gameMode: Mode): String {

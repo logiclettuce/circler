@@ -11,7 +11,7 @@ import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.stereotype.Component
 import osu.salat23.circler.bot.ClientType
-import osu.salat23.circler.bot.UserContext
+import osu.salat23.circler.bot.ClientBotContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientEntity
 import osu.salat23.circler.bot.client.ClientImage
@@ -83,7 +83,7 @@ class Vk(
                 osuCommandHandler.handle(
                     command,
                     this,
-                    UserContext(
+                    ClientBotContext(
                         chatId= chatId,
                         userId = userId,
                         clientType = ClientType.VK,

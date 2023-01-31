@@ -1,13 +1,13 @@
 package osu.salat23.circler.service
 
 import org.springframework.stereotype.Service
-import osu.salat23.circler.bot.UserContext
+import osu.salat23.circler.bot.ClientBotContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.bot.command.arguments.ProvidedArgument
 import osu.salat23.circler.bot.command.arguments.ServerArgument
 import osu.salat23.circler.bot.command.arguments.StringArgument
-import osu.salat23.circler.osu.ResponseTemplates
+import osu.salat23.circler.bot.response.templates.OldResponseTemplates
 import osu.salat23.circler.osu.exceptions.NoServerProvidedException
 import osu.salat23.circler.osu.exceptions.UserNotDefinedException
 
@@ -19,7 +19,7 @@ class PlayerIdentifierService(
     fun getIdentifier(
         providedActor: ProvidedArgument<StringArgument>,
         providedServer: ProvidedArgument<ServerArgument>,
-        userContext: UserContext,
+        clientBotContext: ClientBotContext,
         client: Client
     ): String {
         var identifier = ""
@@ -30,18 +30,18 @@ class PlayerIdentifierService(
             val persistedIdentifier =
                 userServerIdentifierService
                     .getUserServerIdentifier(
-                        userContext.userId,
-                        userContext.chatId,
+                        clientBotContext.userId,
+                        clientBotContext.chatId,
                         if (providedServer.isPresent()) providedServer.getArgument().value else throw NoServerProvidedException(),
-                        userContext.clientType
+                        clientBotContext.clientType
                     )
 
             if (persistedIdentifier.isEmpty) {
                 client.send(
                     ClientMessage(
-                        chatId = userContext.chatId,
-                        userId = userContext.userId,
-                        text = ResponseTemplates.osuUserNotDefined()
+                        chatId = clientBotContext.chatId,
+                        userId = clientBotContext.userId,
+                        text = OldResponseTemplates.osuUserNotDefined()
                     )
                 )
                 throw UserNotDefinedException()

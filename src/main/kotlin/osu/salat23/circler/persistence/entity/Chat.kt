@@ -15,8 +15,18 @@ data class Chat(
     var clientType: ClientType,
     @Column(name = "client_id", nullable = false)
     var clientId: String,
-    @Column(name = "user_profile_template", nullable = false)
-    var userProfileTemplate: String
+
+
+    @Column(name = "html_profile_template", nullable = false)
+    var htmlProfileTemplate: String,
+    @Column(name = "text_profile_template", nullable = false)
+    var textProfileTemplate: String,
+
+    @Column(name = "html_score_template", nullable = false)
+    var htmlScoreTemplate: String,
+    @Column(name = "text_score_template", nullable = false)
+    var textScoreTemplate: String,
+
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

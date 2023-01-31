@@ -2,12 +2,12 @@ package osu.salat23.circler.osu.handlers
 
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
-import osu.salat23.circler.bot.UserContext
+import osu.salat23.circler.bot.ClientBotContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.bot.command.commands.ChatLeaderboardCommand
 import osu.salat23.circler.bot.command.commands.Command
-import osu.salat23.circler.osu.ResponseTemplates
+import osu.salat23.circler.bot.response.templates.OldResponseTemplates
 import osu.salat23.circler.osu.domain.User
 import osu.salat23.circler.pmap
 import osu.salat23.circler.service.ChatService
@@ -16,14 +16,14 @@ import osu.salat23.circler.service.OsuService
 
 @Component
 class ChatLeaderboardHandler(val chatService: ChatService, val osuService: OsuService): ChainHandler() {
-    override fun handleUpdate(command: Command, client: Client, userContext: UserContext) {
+    override fun handleUpdate(command: Command, client: Client, clientBotContext: ClientBotContext) {
         val command = command as ChatLeaderboardCommand
 
         if (!command.serverArgument.isPresent()) {
             client.send(
                 ClientMessage(
-                    userId = userContext.userId,
-                    chatId = userContext.chatId,
+                    userId = clientBotContext.userId,
+                    chatId = clientBotContext.chatId,
                     text = "No server provided!"
                 )
             )
@@ -34,7 +34,7 @@ class ChatLeaderboardHandler(val chatService: ChatService, val osuService: OsuSe
 
         val osuApi = osuService.getOsuApiByServer(server)
 
-        val chatMemberIdentifiers = chatService.getChatMemberIdentifiers(userContext.chatId, userContext.clientType, server)
+        val chatMemberIdentifiers = chatService.getChatMemberIdentifiers(clientBotContext.chatId, clientBotContext.clientType, server)
 
         var users: List<User>
         runBlocking {
@@ -49,14 +49,14 @@ class ChatLeaderboardHandler(val chatService: ChatService, val osuService: OsuSe
 
         client.send(
             ClientMessage(
-                userId = userContext.userId,
-                chatId = userContext.chatId,
-                text = ResponseTemplates.chatLeaderboard(users)
+                userId = clientBotContext.userId,
+                chatId = clientBotContext.chatId,
+                text = OldResponseTemplates.chatLeaderboard(users)
             )
         )
     }
 
-    override fun canHandle(command: Command, userContext: UserContext): Boolean {
+    override fun canHandle(command: Command, clientBotContext: ClientBotContext): Boolean {
         return command is ChatLeaderboardCommand
     }
 }

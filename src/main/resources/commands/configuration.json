@@ -22,6 +22,14 @@
         "т"
       ]
     },
+    "isHtml": {
+      "name": "Is html",
+      "description": "",
+      "identifiers": [
+        "isHtml",
+        "шыРеьд"
+      ]
+    },
     "server": {
       "name": "Server",
       "description": "",
