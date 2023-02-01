@@ -1,42 +1,58 @@
 package osu.salat23.circler.persistence.repository
 
-import org.springframework.data.jpa.repository.JpaRepository
+import org.jooq.DSLContext
 import org.springframework.data.jpa.repository.Modifying
-import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import osu.salat23.circler.persistence.entity.ServerIdentifier
+import osu.salat23.circler.Tables.CHAT_MEMBER_SERVER_IDENTIFIERS
 import java.util.*
 
 @Repository
-interface ServerIdentifierRepository : JpaRepository<ServerIdentifier, Long> {
+class ServerIdentifierRepository(
+    val context: DSLContext
+) {
+    fun getPlayerIdentifier(
+        chatMemberId: Long,
+        serverName: String
+    ): Optional<String> {
+        val res = context
+            .select(CHAT_MEMBER_SERVER_IDENTIFIERS.PLAYER_IDENTIFIER)
+            .from(CHAT_MEMBER_SERVER_IDENTIFIERS)
 
-    @Query(nativeQuery = true,
-        value =
-        """
-            select cmsi.player_identifier 
-            from chat_member_server_identifiers cmsi
-            where 
-                cmsi.server = :server and
-                cmsi.chat_member_id = :chatMemberId
-        """)
-    fun getPlayerIdentifier(@Param("chatMemberId") chatMemberId: Long, @Param("server") serverName: String): Optional<String>
+            .where(CHAT_MEMBER_SERVER_IDENTIFIERS.SERVER.eq(serverName))
+            .and(CHAT_MEMBER_SERVER_IDENTIFIERS.CHAT_MEMBER_ID.eq(chatMemberId))
 
-
-    @Modifying
-    @Query(nativeQuery = true,
-        value =
-        """
-            insert into chat_member_server_identifiers(chat_member_id, player_identifier, server)
-                 values (:chatMemberId, :playerIdentifier, :server)
-        """)
-    fun createPlayerIdentifier(@Param("chatMemberId") chatMemberId: Long, @Param("server") serverName: String, @Param("playerIdentifier") playerIdentifier: String): Int
+            .fetchOne()?.into(String::class.java)
+        return Optional.ofNullable(res)
+    }
 
     @Modifying
-    @Query(nativeQuery = true,
-        value =
-        """
-            update chat_member_server_identifiers cmsi set player_identifier = :playerIdentifier where cmsi.chat_member_id = :chatMemberId and cmsi.server = :server
-        """)
-    fun setPlayerIdentifier(@Param("chatMemberId") chatMemberId: Long, @Param("server") serverName: String, @Param("playerIdentifier") playerIdentifier: String): Int
+    fun createPlayerIdentifier(
+        chatMemberId: Long,
+        serverName: String,
+        playerIdentifier: String
+    ): Int {
+        return context
+            .insertInto(CHAT_MEMBER_SERVER_IDENTIFIERS,
+                CHAT_MEMBER_SERVER_IDENTIFIERS.CHAT_MEMBER_ID,
+                CHAT_MEMBER_SERVER_IDENTIFIERS.PLAYER_IDENTIFIER,
+                CHAT_MEMBER_SERVER_IDENTIFIERS.SERVER)
+            .values(chatMemberId, playerIdentifier, serverName)
+            .execute()
+    }
+
+    @Modifying
+    fun setPlayerIdentifier(
+        chatMemberId: Long,
+        serverName: String,
+        playerIdentifier: String
+    ): Int {
+        return context
+            .update(CHAT_MEMBER_SERVER_IDENTIFIERS)
+            .set(CHAT_MEMBER_SERVER_IDENTIFIERS.PLAYER_IDENTIFIER, playerIdentifier)
+
+            .where(CHAT_MEMBER_SERVER_IDENTIFIERS.CHAT_MEMBER_ID.eq(chatMemberId))
+            .and(CHAT_MEMBER_SERVER_IDENTIFIERS.SERVER.eq(serverName))
+
+            .execute()
+    }
 }

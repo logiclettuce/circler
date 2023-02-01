@@ -1,52 +1,58 @@
 package osu.salat23.circler.persistence.repository
 
-import org.springframework.data.jpa.repository.JpaRepository
+import okhttp3.internal.toImmutableList
+import org.jooq.DSLContext
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import org.telegram.telegrambots.meta.api.objects.adminrights.ChatAdministratorRights
+import osu.salat23.circler.Tables.*
 import osu.salat23.circler.persistence.entity.ChatMember
-import osu.salat23.circler.service.domain.ChatMemberWithIdentifier
-import java.util.Optional
+import java.util.*
 
 @Repository
-interface ChatMemberRepository : JpaRepository<ChatMember, Long> {
-
-    @Query(
-        nativeQuery = true,
-        value =
-        """
-            select * from chat_members cm where cm.client_id = :clientId and chat_id = :chatId
-        """
-    )
+class ChatMemberRepository(
+    val context: DSLContext
+) {
     fun getChatMember(
-        @Param("clientId") clientId: String,
-        @Param("chatId") chatId: Long
-    ): Optional<ChatMember>
+        clientId: String,
+        chatId: Long
+    ): Optional<ChatMember> {
+        val res = context
+            .select().from(CHAT_MEMBERS)
 
-    @Query(
-        nativeQuery = true,
-        value =
-        """
-            select cmsi.player_identifier as identifier from chat_members cm join chat_member_server_identifiers cmsi on cm.id = cmsi.chat_member_id 
-            where
-                cm.chat_id = :chatId and
-                cmsi.server = :server
-        """
-    )
-    fun getChatMemberIdentifiers(@Param("chatId") chatId: Long, @Param("server") serverName: String): List<String>
+            .where(CHAT_MEMBERS.CLIENT_ID.eq(clientId))
+            .and(CHAT_MEMBERS.CHAT_ID.eq(chatId))
+
+            .fetchOne()?.into(ChatMember::class.java)
+        return Optional.ofNullable(res)
+    }
+
+    fun getChatMemberIdentifiers(
+        chatId: Long,
+        serverName: String
+    ): List<String> {
+        return context
+            .select(CHAT_MEMBER_SERVER_IDENTIFIERS.PLAYER_IDENTIFIER)
+            .from(CHAT_MEMBERS)
+
+            .join(CHAT_MEMBER_SERVER_IDENTIFIERS)
+            .on(CHAT_MEMBERS.ID.eq(CHAT_MEMBER_SERVER_IDENTIFIERS.CHAT_MEMBER_ID))
+
+            .where(CHAT_MEMBERS.CHAT_ID.eq(chatId))
+            .and(CHAT_MEMBER_SERVER_IDENTIFIERS.SERVER.eq(serverName))
+
+            .fetch().into(String::class.java)
+    }
 
     @Modifying
-    @Query(
-        nativeQuery = true,
-        value =
-        """
-            insert into chat_members(client_id, chat_id) values (:clientId, :chatId)
-        """
-    )
     fun createChatMember(
         @Param("clientId") clientId: String,
         @Param("chatId") chatId: Long
-    ): Int
+    ): Int {
+        return context
+            .insertInto(CHAT_MEMBERS, CHAT_MEMBERS.CLIENT_ID, CHAT_MEMBERS.CHAT_ID)
+            .values(clientId, chatId)
+            .execute()
+    }
 }

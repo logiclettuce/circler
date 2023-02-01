@@ -18,19 +18,7 @@ class ChatService(
     private val chatMemberService: ChatMemberService
 ) {
     fun setChatTemplate(templateType: ResponseTemplates, clientId: String, clientType: ClientType, template: String, isHtml: Boolean) {
-        val chat = getOrCreateChat(clientId, clientType)
-
-        // todo there is probably a better way of doing this but I cant think of one right now
-        when (templateType) {
-            ResponseTemplates.Profile -> {
-                if (isHtml) chat.htmlProfileTemplate = template
-                else chat.textProfileTemplate = template
-                chatRepository.save(chat)
-            }
-
-            else -> {}
-        }
-
+        chatRepository.changeChatTemplate(clientId, clientType.name, templateType, template, isHtml)
     }
 
     fun setChatTemplate(templateType: ResponseTemplates, clientId: String, clientType: ClientType, templateFile: InputStream, isHtml: Boolean) {
