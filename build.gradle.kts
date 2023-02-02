@@ -6,14 +6,10 @@ import org.jooq.meta.jaxb.Property
 plugins {
     id("org.springframework.boot") version "2.7.5"
     id("io.spring.dependency-management") version "1.0.15.RELEASE"
-//    id("io.freefair.lombok") version "5.3.0"
-//    kotlin("plugin.lombok") version "1.8.0"
     kotlin("jvm") version "1.8.0"
     kotlin("plugin.spring") version "1.8.0"
 
     id("nu.studer.jooq") version "7.0"
-
-
 }
 
 group = "osu.salat23"
@@ -29,7 +25,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("io.micrometer:micrometer-registry-prometheus")
+
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.flywaydb:flyway-core")
@@ -43,7 +39,6 @@ dependencies {
     implementation("com.microsoft.playwright:playwright:1.28.1")
 
     runtimeOnly("org.postgresql:postgresql")
-    runtimeOnly("org.springframework.boot:micrometer-registry-prometheus")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -77,7 +72,7 @@ jooq {
 
     configurations {
         create("main") {  // name of the jOOQ configuration
-            generateSchemaSourceOnCompilation.set(true)  // default (can be omitted)
+            generateSchemaSourceOnCompilation.set(false)  // default (can be omitted)
 
             jooqConfiguration.apply {
                 logging = Logging.WARN
@@ -117,7 +112,7 @@ jooq {
                     }
                     target.apply {
                         packageName = "osu.salat23.circler"
-                        directory = "build/generated-src/jooq/main"  // default (can be omitted)
+                        directory = "src/generated-src/jooq/main"  // default (can be omitted)
                     }
                     strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
                 }

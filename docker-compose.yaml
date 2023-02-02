@@ -10,8 +10,6 @@ services:
       - "database:database"
       - "prometheus:prometheus"
     restart: on-failure
-    ports:
-      - "8080:8080"
 
   database:
     image: 'postgres:14.0-alpine'
@@ -22,8 +20,8 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-    ports:
-      - "5432:5432"
+    expose:
+      - 5436
 
   prometheus:
     image: prom/prometheus:latest
@@ -57,6 +55,5 @@ services:
       - grafana_storage:/var/lib/grafana
 
 volumes:
-  postgres_volume: {}
   grafana_storage:
     external: true
