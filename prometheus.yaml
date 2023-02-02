@@ -1,0 +1,11 @@
+scrape_configs:
+  - job_name: 'Spring Boot Application input'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 2s
+    static_configs:
+      - targets: ['192.168.0.194:8080']
+        labels:
+          application: 'Circler'
+    basic_auth:
+      username: 'salat23'
+      password: 'salat23'

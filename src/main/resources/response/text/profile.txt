@@ -1,12 +1,14 @@
-`[Server: {{osu_server}} | Mode: {{osu_user_mode}}]
+<content>
+[Server: {{osu_server}} | Mode: {{osu_user_mode}}]
 {{osu_user_username}}
 Performance: {{osu_user_performance}}pp
 Rank: #{{osu_user_global_rank}} ({{osu_user_country_code}}: #{{osu_user_country_rank}})
 
-Accuracy: {{osu_user_accuracy}}
+Accuracy: {{osu_user_accuracy}}%
 Max combo: {{osu_user_max_combo}}
 Playcount: {{osu_user_playcount}}
 
 Joined {{osu_user_joined_date}}
 
-https://osu.ppy.sh/u/{{osu_user_id}}`
+https://osu.ppy.sh/u/{{osu_user_id}}
+</content>

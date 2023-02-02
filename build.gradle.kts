@@ -10,7 +10,6 @@ plugins {
 //    kotlin("plugin.lombok") version "1.8.0"
     kotlin("jvm") version "1.8.0"
     kotlin("plugin.spring") version "1.8.0"
-    kotlin("plugin.jpa") version "1.8.0"
 
     id("nu.studer.jooq") version "7.0"
 
@@ -29,6 +28,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-registry-prometheus")
+
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.flywaydb:flyway-core")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -41,6 +43,8 @@ dependencies {
     implementation("com.microsoft.playwright:playwright:1.28.1")
 
     runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("org.springframework.boot:micrometer-registry-prometheus")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")

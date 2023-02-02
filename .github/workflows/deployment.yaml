@@ -1,0 +1,23 @@
+name: deployment
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            chmod +x ./deploycircler.sh
+            ./deploycircler.sh
+      - name: Final
+        run: echo "Succesfully deployed"
