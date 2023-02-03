@@ -10,6 +10,7 @@ services:
       - DATABASE_USER=${DATABASE_USER}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_URL=${DATABASE_URL}
+      - SPRING_PROFILES_ACTIVE=prod
     links:
       - "database:database"
     restart: on-failure
