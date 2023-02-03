@@ -40,5 +40,17 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           passphrase: ${{ secrets.PASSPHRASE }}
-          source: "./build/libs/circler-ALPHA.jar"
-          target: "app.jar"
+          source: "./build/libs/circler-ALPHA.jar,./Dockerfile,./docker-compose.yaml"
+          target: "circler/"
+          strip_components: 1
+      - name: Deployment on server
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          script: |
+            chmod +x deploycircler.sh
+            ./deploycircler.sh
