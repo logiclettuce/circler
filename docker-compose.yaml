@@ -63,5 +63,3 @@ services:
       - /home/salat23/circler/grafana/GF_PATHS_CONFIG.ini:/etc/grafana/grafana.ini
       - /home/salat23/circler/grafana/GF_PATHS_DATA:/var/lib/grafana
       - /home/salat23/circler/grafana/GF_PATHS_LOGS:/var/log/grafana
-      - /home/salat23/circler/grafana/GF_PATHS_PLUGINS:/var/lib/grafana/plugins
-      - /home/salat23/circler/grafana/GF_PATHS_PROVISIONING:/etc/grafana/provisioning
