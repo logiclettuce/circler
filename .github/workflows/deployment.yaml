@@ -40,7 +40,7 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           passphrase: ${{ secrets.PASSPHRASE }}
-          source: "./build/libs/circler-ALPHA.jar,./Dockerfile,./docker-compose.yaml"
+          source: "./build/libs/circler-ALPHA.jar,./Dockerfile,./docker-compose.yaml,./prometheus.yaml"
           target: "circler/"
           strip_components: 1
       - name: Deployment on server

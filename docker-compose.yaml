@@ -38,7 +38,7 @@ services:
       - 9090
     volumes:
       - /tmp/prometheus:/prometheus
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
     command:
       - '--config.file=/etc/prometheus/prometheus.yaml'
     restart: on-failure
@@ -60,5 +60,4 @@ services:
 
 volumes:
   postgres_volume: {}
-  grafana_storage:
-    external: true
+  grafana_storage: {}
