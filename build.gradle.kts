@@ -1,3 +1,6 @@
+import nu.studer.gradle.jooq.JooqExtension
+import nu.studer.gradle.jooq.JooqGenerate
+import org.flywaydb.gradle.task.FlywayMigrateTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jooq.meta.jaxb.ForcedType
 import org.jooq.meta.jaxb.Logging
@@ -10,7 +13,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.15.RELEASE"
     kotlin("jvm") version "1.8.0"
     kotlin("plugin.spring") version "1.8.0"
-
+    id("org.flywaydb.flyway") version "9.8.1"
     id("nu.studer.jooq") version "7.0"
 }
 
@@ -68,21 +71,33 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+tasks.withType<JooqGenerate> {
+    dependsOn("flywayMigrate")
+}
+
+flyway {
+    url = "jdbc:postgresql://localhost:5432/postgres"
+    user = "postgres"
+    password = "postgres"
+    schemas = arrayOf("public")
+    locations = arrayOf("filesystem:${project.projectDir}/src/main/resources/db/migration")
+}
+
 jooq {
     version.set("3.16.0")  // default (can be omitted)
     edition.set(nu.studer.gradle.jooq.JooqEdition.OSS)  // default (can be omitted)
 
     configurations {
         create("main") {  // name of the jOOQ configuration
-            generateSchemaSourceOnCompilation.set(false)  // default (can be omitted)
+            generateSchemaSourceOnCompilation.set(true)  // default (can be omitted)
 
             jooqConfiguration.apply {
                 logging = Logging.WARN
                 jdbc.apply {
                     driver = "org.postgresql.Driver"
-                    url = environment["DATABASE_URL"] ?: "jdbc:postgresql://localhost:5432/postgres"
-                    user = environment["DATABASE_USER"] ?: "postgres"
-                    password = environment["DATABASE_PASSWORD"] ?: "postgres"
+                    url = "jdbc:postgresql://localhost:5432/postgres"
+                    user = "postgres"
+                    password = "postgres"
                     properties.add(Property().apply {
                         key = "ssl"
                         value = "false"
@@ -114,7 +129,7 @@ jooq {
                     }
                     target.apply {
                         packageName = "osu.salat23.circler"
-                        directory = "src/generated-src/jooq/main"  // default (can be omitted)
+                        directory = "generated/generated-src/jooq/main"  // default (can be omitted)
                     }
                     strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
                 }
@@ -122,3 +137,4 @@ jooq {
         }
     }
 }
+
