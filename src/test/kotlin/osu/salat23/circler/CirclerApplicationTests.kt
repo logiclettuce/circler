@@ -11,12 +11,5 @@ import osu.salat23.circler.service.OsuService
 @SpringBootTest
 class CirclerApplicationTests() {
 
-    @Autowired
-    lateinit var osuService: OsuService
-
-    @Test
-    fun contextLoads() {
-
-    }
 
 }
