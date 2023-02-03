@@ -11,6 +11,8 @@ services:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_URL=${DATABASE_URL}
       - SPRING_PROFILES_ACTIVE=prod
+    ports:
+      - "8080:8080"
     links:
       - "database:database"
     restart: on-failure
