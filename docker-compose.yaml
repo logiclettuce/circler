@@ -6,6 +6,10 @@ services:
     container_name: circler
     depends_on:
       - database
+    environment:
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_URL=${DATABASE_URL}
     links:
       - "database:database"
       - "prometheus:prometheus"

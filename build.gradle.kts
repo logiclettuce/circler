@@ -3,6 +3,8 @@ import org.jooq.meta.jaxb.ForcedType
 import org.jooq.meta.jaxb.Logging
 import org.jooq.meta.jaxb.Property
 
+val environment = System.getenv()
+
 plugins {
     id("org.springframework.boot") version "2.7.5"
     id("io.spring.dependency-management") version "1.0.15.RELEASE"
@@ -78,9 +80,9 @@ jooq {
                 logging = Logging.WARN
                 jdbc.apply {
                     driver = "org.postgresql.Driver"
-                    url = "jdbc:postgresql://localhost:5432/postgres"
-                    user = "postgres"
-                    password = "postgres"
+                    url = environment["DATABASE_URL"] ?: "jdbc:postgresql://localhost:5432/postgres"
+                    user = environment["DATABASE_USER"] ?: "postgres"
+                    password = environment["DATABASE_PASSWORD"] ?: "postgres"
                     properties.add(Property().apply {
                         key = "ssl"
                         value = "false"
