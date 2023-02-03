@@ -3,9 +3,9 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     scrape_interval: 2s
     static_configs:
-      - targets: ['192.168.0.194:8080']
+      - targets: ['application:8080']
         labels:
           application: 'Circler'
     basic_auth:
       username: 'salat23'
-      password: 'salat23'
+      password: '2368salat2368'
