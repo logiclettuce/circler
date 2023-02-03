@@ -31,18 +31,14 @@ jobs:
       - name: Setup gradle
         uses: gradle/gradle-build-action@v2
       - name: Execute gradle build
-        run: ./gradlew build
-
-      - name: Deploy
-        uses: appleboy/ssh-action@v0.1.7
+        run: ./gradlew clean && ./gradlew build && ./gradlew bootJar
+      - name: Copy jar to server
+        uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           passphrase: ${{ secrets.PASSPHRASE }}
-          script: |
-            chmod +x ./deploycircler.sh
-            ./deploycircler.sh
-      - name: Final
-        run: echo "Succesfully deployed"
+          source: "./build/libs/circler-ALPHA.jar"
+          target: "app.jar"
