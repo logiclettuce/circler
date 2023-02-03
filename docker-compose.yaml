@@ -59,5 +59,6 @@ services:
       - grafana_storage:/var/lib/grafana
 
 volumes:
+  postgres_volume: {}
   grafana_storage:
     external: true
