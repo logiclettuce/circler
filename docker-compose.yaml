@@ -14,12 +14,14 @@ services:
     links:
       - "database:database"
     restart: on-failure
+    volumes:
+      - /home/salat23/circler/requiredcache:/root/.cache
 
   database:
     image: 'postgres:14.0-alpine'
     container_name: circler-database
     volumes:
-      - postgres_volume:/var/lib/postgresql/data
+      - /home/salat23/circler/database:/var/lib/postgresql/data
     restart: on-failure
     environment:
       - POSTGRES_USER=postgres
@@ -39,7 +41,7 @@ services:
     expose:
       - 9090
     volumes:
-      - /tmp/prometheus:/prometheus
+      - /home/salat23/circler/prometheus:/prometheus
       - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
     command:
       - '--config.file=/etc/prometheus/prometheus.yaml'
@@ -58,8 +60,4 @@ services:
       - prometheus
     restart: on-failure
     volumes:
-      - grafana_storage:/var/lib/grafana
-
-volumes:
-  postgres_volume: {}
-  grafana_storage: {}
+      - /home/salat23/circler/grafana:/var/lib/grafana
