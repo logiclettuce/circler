@@ -58,21 +58,28 @@ class BanchoApi(
     }
 
     private inline fun <reified T> makeRequest(request: Request, printResult: Boolean = false): T {
-        if (tokenData == null) initToken()
-        val newRequest =
-            request.newBuilder().addHeader("Authorization", "${tokenData!!.tokenType} ${tokenData!!.accessToken}")
-                .build()
+        run request@{
+            if (tokenData == null) initToken()
+            val newRequest =
+                request.newBuilder().addHeader("Authorization", "${tokenData!!.tokenType} ${tokenData!!.accessToken}")
+                    .build()
 
-        client.newCall(newRequest).execute().use { response ->
-            if (!response.isSuccessful) {
-                logger.error(response.code.toString())
-                throw RequestFailedException(response.code, response.message)
+            client.newCall(newRequest).execute().use { response ->
+                if (!response.isSuccessful) {
+                    logger.error(response.code.toString())
+                    if (response.code == 401) {
+                        tokenData = null
+                        return@request
+                    }
+                    throw RequestFailedException(response.code, response.message)
+                }
+
+                val jsonBody = response.body?.string()
+                if (printResult) logger.info(jsonBody)
+                return mapper.readValue(jsonBody, T::class.java)
             }
-
-            val jsonBody = response.body?.string()
-            if (printResult) logger.info(jsonBody)
-            return mapper.readValue(jsonBody, T::class.java)
         }
+        throw RequestFailedException(-1, "Could not make the request")
     }
 
     private fun banchoBeatmap(

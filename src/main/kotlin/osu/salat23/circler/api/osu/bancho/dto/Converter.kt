@@ -63,7 +63,7 @@ object Converter {
         val joinDate = ZonedDateTime.parse(user.joinDate, DateTimeFormatter.ISO_DATE_TIME)
             .withZoneSameInstant(ZoneId.systemDefault())
         val highestRankDate = ZonedDateTime.parse(user.highestRank?.updatedAt, DateTimeFormatter.ISO_DATE_TIME)
-            .withZoneSameInstant(ZoneId.systemDefault()) ?: ZonedDateTime.now()
+            .withZoneSameInstant(ZoneId.systemDefault()) ?: ZonedDateTime.now() // todo fix npe why tf it happend idk
 
         return User(
             id =  user.id,
