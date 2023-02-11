@@ -43,6 +43,7 @@ class Vk(
     private val logger: Logger = LoggerFactory.getLogger(Vk::class.java)
 
     override fun handle(updates: MutableList<Update>?) {
+
         updates!!.forEach { update ->
             lateinit var text: String
             lateinit var chatId: String

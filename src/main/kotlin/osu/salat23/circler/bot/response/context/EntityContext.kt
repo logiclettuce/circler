@@ -10,6 +10,7 @@ import osu.salat23.circler.withDigits
 import java.text.DateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 object EntityContext {
 
@@ -72,7 +73,7 @@ object EntityContext {
         return json {
             "server" to server.displayName
             "generated_date" to LocalDate.now()
-                .format(DateTimeFormatter.ofPattern("dd L yyyy"))
+                .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)).toString()
         }
     }
 }

@@ -165,11 +165,11 @@
             <div class="ranks">
                 <div class="global cell">
                     <p>Global ranking</p>
-                    <h2>{{global_rank}}</h2>
+                    <h2>#{{global_rank}}</h2>
                 </div>
                 <div class="local cell">
                     <p>{{country_name}}</p>
-                    <h2>{{country_rank}}</h2>
+                    <h2>#{{country_rank}}</h2>
                 </div>
             </div>
 
@@ -177,7 +177,6 @@
                 <img src="https://osu.ppy.sh/assets/images/level-hexagon.2a9ccac1.svg" width="90px" height="100px">
                 <h3>{{level}}</h3>
             </div>
-
 
             <div class="stats">
                 <div class="stats-left">
@@ -197,7 +196,7 @@
                     </div>
                     <div class="2nd cell">
                         <p>max combo</p>
-                        <h1>{{max_combo}}</h1>
+                        <h1>x{{max_combo}}</h1>
                     </div>
                 </div>
             </div>
@@ -205,7 +204,7 @@
         </div>
         <div class="footertipo">
             <p style="color: #5E5558; text-align: center; font-size: 16px;">
-                @circlerosu / server: {{server}} / mode: {{mode}} / generated {{generated_date}}
+                @circlerosu / server: {{server}} / mode: {{mode}} / generated: {{generated_date}}
             </p>
         </div>
     </div>
@@ -220,19 +219,21 @@
 <script>
     let jsonContext = {{json_context}}
 
-    document.body.innerHTML = document.body.innerHTML.replace('{{username}}', jsonContext.user.username);
-    document.body.innerHTML = document.body.innerHTML.replace('{{performance}}', jsonContext.user.performance);
-    document.body.innerHTML = document.body.innerHTML.replace('{{level}}', jsonContext.user.level);
-    document.body.innerHTML = document.body.innerHTML.replace('{{global_rank}}', jsonContext.user.global_rank);
-    document.body.innerHTML = document.body.innerHTML.replace('{{country_rank}}', jsonContext.user.country_rank);
-    document.body.innerHTML = document.body.innerHTML.replace('{{playcount}}', jsonContext.user.playcount);
-    document.body.innerHTML = document.body.innerHTML.replace('{{accuracy}}', jsonContext.user.accuracy);
-    document.body.dinnerHTML = document.body.innerHTML.replace('{{max_combo}}', jsonContext.user.max_combo);
-    document.body.dinnerHTML = document.body.innerHTML.replace('{{server}}', jsonContext.meta.server);
-    document.body.dinnerHTML = document.body.innerHTML.replace('{{mode}}', jsonContext.user.mode);
-    document.body.dinnerHTML = document.body.innerHTML.replace('{{generated_date}}', jsonContext.user.generated_date);
-    document.body.dinnerHTML = document.body.innerHTML.replace('{{cover}}', jsonContext.user.cover_url);
-    document.body.dinnerHTML = document.body.innerHTML.replace('{{avatar}}', jsonContext.user.avatar_url);
+    document.body.innerHTML = document.body.innerHTML
+        .replace('{{username}}', jsonContext.user.username)
+        .replace('{{performance}}', jsonContext.user.performance)
+        .replace('{{level}}', jsonContext.user.level)
+        .replace('{{global_rank}}', jsonContext.user["global_rank"])
+        .replace('{{country_rank}}', jsonContext.user["country_rank"])
+        .replace('{{country_name}}', jsonContext.user["country_name"])
+        .replace('{{playcount}}', jsonContext.user["playcount"])
+        .replace('{{accuracy}}', jsonContext.user.accuracy)
+        .replace('{{max_combo}}', jsonContext.user["max_combo"])
+        .replace('{{server}}', jsonContext.meta.server)
+        .replace('{{mode}}', jsonContext.user.mode)
+        .replace('{{generated_date}}', jsonContext.meta["generated_date"])
+        .replace('{{cover}}', jsonContext.user["cover_url"])
+        .replace('{{avatar}}', jsonContext.user["avatar_url"])
 </script>
 </body>
 </html>
