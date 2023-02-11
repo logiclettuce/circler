@@ -46,7 +46,7 @@ dependencies {
     implementation("com.microsoft.playwright:playwright:1.28.1")
 
     runtimeOnly("org.postgresql:postgresql")
-    compileOnly("com.github.holgerbrandl:jsonbuilder:-SNAPSHOT")
+    implementation("com.github.holgerbrandl:jsonbuilder:-SNAPSHOT")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
