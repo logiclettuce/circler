@@ -1,6 +1,7 @@
 package osu.salat23.circler.osu.handlers
 
 import kotlinx.coroutines.runBlocking
+import net.kusik.coroutines.transformations.map.mapParallel
 import org.springframework.stereotype.Component
 import osu.salat23.circler.bot.ClientBotContext
 import osu.salat23.circler.bot.client.Client
@@ -9,7 +10,6 @@ import osu.salat23.circler.bot.command.commands.ChatLeaderboardCommand
 import osu.salat23.circler.bot.command.commands.Command
 import osu.salat23.circler.bot.response.templates.OldResponseTemplates
 import osu.salat23.circler.osu.domain.User
-import osu.salat23.circler.pmap
 import osu.salat23.circler.service.ChatService
 import osu.salat23.circler.service.OsuService
 
@@ -38,7 +38,7 @@ class ChatLeaderboardHandler(val chatService: ChatService, val osuService: OsuSe
 
         var users: List<User>
         runBlocking {
-            users = chatMemberIdentifiers.pmap { osuApi.user(identifier = it, gameMode) }
+            users = chatMemberIdentifiers.mapParallel { osuApi.user(identifier = it, gameMode) }
         }
 
         users = users.sortedWith(Comparator { u1, u2 ->

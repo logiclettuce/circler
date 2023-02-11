@@ -1,6 +1,8 @@
 package osu.salat23.circler.bot.response.context
 
 enum class ContextKeys(val value: String) {
+    ContextJson("context_json"),
+
     ClientUsername("client_username"),
 
     OsuServer("osu_server"),

@@ -3,6 +3,8 @@ package osu.salat23.circler.bot.telegram
 import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.DefaultBotOptions
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
+import org.telegram.telegrambots.meta.api.methods.GetFile
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto
 import org.telegram.telegrambots.meta.api.objects.InputFile
@@ -35,11 +37,30 @@ class Telegram(
         lateinit var text: String
         lateinit var chatId: String
         lateinit var userId: String
+        var isAdmin = false
+        var attachedFile = InputStream.nullInputStream()
+        val adminValues = arrayOf(
+            "creator",
+            "administrator"
+        )
         when {
-            update != null && update.message != null -> {
+            update != null && update.hasMessage() -> {
                 text = TelegramTextParsingTools.removePing(update.message.text, telegramProperties.botUserName)
                 chatId = update.message.chatId.toString()
                 userId = update.message.from.id.toString()
+                val chatMember = execute(GetChatMember.builder()
+                    .chatId(chatId)
+                    .userId(userId.toLong()).build()
+                )
+                isAdmin = adminValues.contains(chatMember.status)                   // 2mb filesize limit
+                if (update.message.hasDocument() && update.message.document.fileSize < 2000000) {
+                    val fileInfo = execute(GetFile.builder()
+                        .fileId(update.message.document.fileId)
+                        .build()
+                    )
+                    val downloadedFile = downloadFile(fileInfo)
+                    attachedFile = downloadedFile.inputStream()
+                }
             }
 //            update != null && update.inlineQuery != null -> {
 //                text = TelegramTextParsingTools.removePing(update.inlineQuery.query, telegramProperties.botUserName)
@@ -53,8 +74,11 @@ class Telegram(
         } catch (exception: NotABotCommandException) {
             return
         }
-        // todo IMPORTANT!!!! make isAdmin there (right now always false)
-        osuCommandHandler.handle(command, this, ClientBotContext(chatId, userId, ClientType.TELEGRAM, false, InputStream.nullInputStream()))
+        osuCommandHandler.handle(
+            command,
+            this,
+            ClientBotContext(chatId, userId, ClientType.TELEGRAM, isAdmin, attachedFile)
+        )
     }
 
     override fun send(clientEntity: ClientEntity) {

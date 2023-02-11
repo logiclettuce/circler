@@ -6,7 +6,8 @@ import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.bot.command.commands.Command
 import osu.salat23.circler.bot.command.commands.SetChatTemplateCommand
-import osu.salat23.circler.bot.response.templates.ResponseTemplates
+import osu.salat23.circler.bot.response.templates.TemplateFormat
+import osu.salat23.circler.bot.response.templates.TemplateType
 import osu.salat23.circler.service.ChatService
 import java.io.InputStream
 
@@ -40,13 +41,14 @@ class SetChatTemplateHandler(
             )
         }
         //todo constants and maybe logic
+        val chat = chatService.getOrCreateChat(clientBotContext.chatId, clientBotContext.clientType)
+
         when (templateType) {
             "profile" -> chatService.setChatTemplate(
-                ResponseTemplates.Profile,
-                clientBotContext.chatId,
-                clientBotContext.clientType,
-                clientBotContext.fileAttachment,
-                isHtml
+                chat = chat,
+                type = TemplateType.Profile,
+                format = if (isHtml) TemplateFormat.Html else TemplateFormat.Text,
+                templateFile = clientBotContext.fileAttachment
             )
             else -> {
                 client.send(

@@ -9,7 +9,7 @@ import osu.salat23.circler.configuration.domain.Command as ConfigCommand
 abstract class GenericCommandFactory(
     val commandConfiguration: CommandConfiguration
 ): CommandFactory() {
-    private final val configuration: ConfigCommand
+    protected val configuration: ConfigCommand
     init {
         if (!commandConfiguration.commands.containsKey(getCommandKey()))
             throw CommandIsNotDefinedException(getCommandKey())
@@ -38,12 +38,12 @@ abstract class GenericCommandFactory(
             // remove the action part
             for (actionIdentifier in configuration.identifiers) {
                 if (input.length == actionIdentifier.length) {
-                    if (input.startsWith(actionIdentifier)) {
+                    if (input.lowercase().startsWith(actionIdentifier.lowercase())) {
                         input  = input.substring(actionIdentifier.length)
                         break
                     }
                 } else {
-                    if (input.startsWith("$actionIdentifier ")) {
+                    if (input.lowercase().startsWith("${actionIdentifier.lowercase()} ")) {
                         input  = input.substring(actionIdentifier.length+1)
                         break
                     }

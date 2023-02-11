@@ -1,8 +1,9 @@
 package osu.salat23.circler.bot.response.templates
 
 
-enum class ResponseTemplates(val filename: String, val hasHtml: Boolean = false) {
+enum class TemplateType(val filename: String, val hasHtml: Boolean = false) {
     Profile("profile", true),
+//    Scores("scores", true)
 //    Score("score", true),
 //    ScoreCompact("score-compact"),
 }

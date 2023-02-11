@@ -3,19 +3,13 @@ package osu.salat23.circler.osu.handlers
 import org.springframework.stereotype.Component
 import osu.salat23.circler.api.osu.exceptions.OsuUserNotFoundException
 import osu.salat23.circler.bot.ClientBotContext
-import osu.salat23.circler.bot.client.Client
-import osu.salat23.circler.bot.client.ClientEntity
-import osu.salat23.circler.bot.client.ClientImage
-import osu.salat23.circler.bot.client.ClientMessage
+import osu.salat23.circler.bot.client.*
 import osu.salat23.circler.bot.command.commands.Command
 import osu.salat23.circler.bot.command.commands.FetchUserProfileCommand
+import osu.salat23.circler.bot.command.commands.factories.FetchUserProfileCommandFactory
 import osu.salat23.circler.bot.response.browser.BrowserClient
-import osu.salat23.circler.bot.response.context.AdditionalContext
-import osu.salat23.circler.bot.response.context.UserContext
-import osu.salat23.circler.bot.response.templates.OldResponseTemplates
-import osu.salat23.circler.bot.response.templates.ResponseTemplates
-import osu.salat23.circler.bot.response.templates.Template
-import osu.salat23.circler.bot.response.templates.TemplateFactory
+import osu.salat23.circler.bot.response.context.SpecificContext
+import osu.salat23.circler.bot.response.templates.*
 import osu.salat23.circler.osu.domain.User
 import osu.salat23.circler.service.ChatService
 import osu.salat23.circler.service.OsuService
@@ -28,6 +22,7 @@ class FetchUserProfileHandler(
     val osuService: OsuService,
     val chatService: ChatService,
     val playerIdentifierService: PlayerIdentifierService,
+    val fetchUserProfileCommandFactory: FetchUserProfileCommandFactory,
     val templateFactory: TemplateFactory,
     val userServerIdentifierService: UserServerIdentifierService) : ChainHandler() {
     override fun handleUpdate(command: Command, client: Client, clientBotContext: ClientBotContext) {
@@ -45,25 +40,33 @@ class FetchUserProfileHandler(
         try {
             user = osuApi.user(identifier = identifier, gameMode = gameMode)
             val chat = chatService.getOrCreateChat(clientBotContext.chatId, clientBotContext.clientType)
-            val customTemplate = Template(chat.textProfileTemplate, chat.htmlProfileTemplate)
-            val context = arrayOf(UserContext(user), AdditionalContext(server))
-            val template = templateFactory.applyTemplateContext(
-                templateType = ResponseTemplates.Profile,
-                customTemplate = customTemplate,
-                context = context
-            )
+            val context = SpecificContext.userProfileJson(user, server)
 
             val clientEntity: ClientEntity = if (isHtml) {
+                val htmlTemplate = chatService.getChatTemplateAndApplyContext(
+                    chat = chat,
+                    type = TemplateType.Profile,
+                    format = TemplateFormat.Html,
+                    context
+                )
+
                 ClientImage(
                     chatId = clientBotContext.chatId,
                     userId = clientBotContext.userId,
-                    image = browserClient.render(template.html)
+                    image = browserClient.render(htmlTemplate.value),
                 )
             } else {
+                val textTemplate = chatService.getChatTemplateAndApplyContext(
+                    chat = chat,
+                    type = TemplateType.Profile,
+                    format = TemplateFormat.Text,
+                    context
+                )
+
                 ClientMessage(
                     chatId = clientBotContext.chatId,
                     userId = clientBotContext.userId,
-                    text = browserClient.process(template.text)
+                    text = browserClient.process(textTemplate.value),
                 )
             }
             client.send(

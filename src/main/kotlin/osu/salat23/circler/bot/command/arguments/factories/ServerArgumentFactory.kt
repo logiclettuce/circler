@@ -11,7 +11,7 @@ import osu.salat23.circler.api.osu.Server
 @Component
 class ServerArgumentFactory(
     commandConfiguration: CommandConfiguration
-) : ArgumentFactory<ServerArgument>() {
+) : ArgumentFactory<ServerArgument>(), ArgumentCallProducer<ServerArgument> {
 
     companion object {
         private const val ARGUMENT_KEY = "server"
@@ -83,5 +83,10 @@ class ServerArgumentFactory(
 
     override fun getConfiguredArgument(): Argument {
         return configuredArgument
+    }
+
+    override fun produceCall(argument: ServerArgument): String {
+        val server = argument.value.identifiers[0]
+        return "-${getConfiguredArgument().identifiers[0]} $server"
     }
 }

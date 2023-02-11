@@ -1,14 +1,29 @@
 <content>
-[Server: {{osu_server}} | Mode: {{osu_user_mode}}]
-{{osu_user_username}}
-Performance: {{osu_user_performance}}pp
-Rank: #{{osu_user_global_rank}} ({{osu_user_country_code}}: #{{osu_user_country_rank}})
+[Server: {{server}} | Mode: {{mode}}]
+{{username}}
+Performance: {{performance}}pp
+Rank: #{{global_rank}} ({{country_code}}: #{{country_rank}})
 
-Accuracy: {{osu_user_accuracy}}%
-Max combo: {{osu_user_max_combo}}
-Playcount: {{osu_user_playcount}}
+Accuracy: {{accuracy}}%
+Max combo: {{max_combo}}
+Playcount: {{playcount}}
 
-Joined {{osu_user_joined_date}}
+Joined {{join_date}}
 
-https://osu.ppy.sh/u/{{osu_user_id}}
+https://osu.ppy.sh/u/{{user_id}}
 </content>
+<script>
+    let jsonContext = {{json_context}}
+    document.body.innerHTML = document.body.innerHTML.replace('{{performance}}', jsonContext.user.performance);
+    document.body.innerHTML = document.body.innerHTML.replace('{{server}}', jsonContext.meta.server);
+    document.body.innerHTML = document.body.innerHTML.replace('{{mode}}', jsonContext.user.mode);
+    document.body.innerHTML = document.body.innerHTML.replace('{{username}}', jsonContext.user.username);
+    document.body.innerHTML = document.body.innerHTML.replace('{{global_rank}}', jsonContext.user.global_rank);
+    document.body.innerHTML = document.body.innerHTML.replace('{{country_rank}}', jsonContext.user.country_rank);
+    document.body.innerHTML = document.body.innerHTML.replace('{{playcount}}', jsonContext.user.playcount);
+    document.body.innerHTML = document.body.innerHTML.replace('{{max_combo}}', jsonContext.user.max_combo);
+    document.body.innerHTML = document.body.innerHTML.replace('{{accuracy}}', jsonContext.user.accuracy);
+    document.body.innerHTML = document.body.innerHTML.replace('{{country_code}}', jsonContext.user.country_code);
+    document.body.innerHTML = document.body.innerHTML.replace('{{join_date}}', jsonContext.user.join_date);
+    document.body.innerHTML = document.body.innerHTML.replace('{{user_id}}', jsonContext.user.id);
+</script>

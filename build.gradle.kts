@@ -23,6 +23,7 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
+    maven(url="https://jitpack.io")
 }
 
 dependencies {
@@ -32,6 +33,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("io.micrometer:micrometer-registry-prometheus")
 
+    implementation("com.github.cvb941:kotlin-parallel-operations:1.5.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.flywaydb:flyway-core")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -44,6 +46,7 @@ dependencies {
     implementation("com.microsoft.playwright:playwright:1.28.1")
 
     runtimeOnly("org.postgresql:postgresql")
+    compileOnly("com.github.holgerbrandl:jsonbuilder:-SNAPSHOT")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")

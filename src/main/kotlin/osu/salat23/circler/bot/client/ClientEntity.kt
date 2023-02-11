@@ -2,5 +2,6 @@ package osu.salat23.circler.bot.client
 
 abstract class ClientEntity (
     var chatId: String,
-    val userId: String
+    val userId: String,
+    val furtherActions: List<FurtherAction>
 )

@@ -6,9 +6,11 @@ class ClientImage(
     chatId: String,
     userId: String,
     text: String? = null,
-    val image: InputStream
+    val image: InputStream,
+    furtherActions: List<FurtherAction> = emptyList(),
 ) : ClientMessage(
     chatId = chatId,
     userId = userId,
-    text = text ?: ""
+    text = text ?: "",
+    furtherActions = furtherActions
 )

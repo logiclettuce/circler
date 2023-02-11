@@ -1,5 +1,6 @@
 package osu.salat23.circler.bot.command.commands.factories
 
+import osu.salat23.circler.bot.command.arguments.ProvidedArgument
 import osu.salat23.circler.bot.command.commands.Command
 import java.util.*
 

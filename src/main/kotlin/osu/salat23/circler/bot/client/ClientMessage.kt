@@ -3,8 +3,10 @@ package osu.salat23.circler.bot.client
 open class ClientMessage(
     chatId: String,
     userId: String,
-    val text: String
+    val text: String,
+    furtherActions: List<FurtherAction> = emptyList(),
 ) : ClientEntity(
     chatId = chatId,
-    userId = userId
+    userId = userId,
+    furtherActions = furtherActions
 )

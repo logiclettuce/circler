@@ -1,21 +1,29 @@
 package osu.salat23.circler.bot.vk
 
 import api.longpoll.bots.LongPollBot
+import api.longpoll.bots.exceptions.VkApiException
+import api.longpoll.bots.exceptions.VkApiHttpException
 import api.longpoll.bots.exceptions.VkApiResponseException
 import api.longpoll.bots.model.events.Update
+import api.longpoll.bots.model.events.messages.MessageEvent
 import api.longpoll.bots.model.events.messages.MessageNew
+import api.longpoll.bots.model.objects.additional.EventData.ShowSnackbar
+import api.longpoll.bots.model.objects.additional.Keyboard
+import api.longpoll.bots.model.objects.additional.buttons.Button
+import api.longpoll.bots.model.objects.additional.buttons.CallbackButton
+import api.longpoll.bots.model.objects.additional.buttons.TextButton
 import api.longpoll.bots.model.objects.media.Attachment
+import com.google.gson.JsonObject
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.stereotype.Component
-import osu.salat23.circler.bot.ClientType
 import osu.salat23.circler.bot.ClientBotContext
-import osu.salat23.circler.bot.client.Client
-import osu.salat23.circler.bot.client.ClientEntity
-import osu.salat23.circler.bot.client.ClientImage
-import osu.salat23.circler.bot.client.ClientMessage
+import osu.salat23.circler.bot.ClientType
+import osu.salat23.circler.bot.client.*
 import osu.salat23.circler.bot.command.commands.Command
 import osu.salat23.circler.bot.command.commands.CommandParser
 import osu.salat23.circler.bot.command.exceptions.NotABotCommandException
@@ -23,6 +31,7 @@ import osu.salat23.circler.osu.OsuCommandHandler
 import osu.salat23.circler.properties.VkProperties
 import java.io.InputStream
 import java.net.URL
+
 
 @Component
 class Vk(
@@ -44,6 +53,9 @@ class Vk(
                 Update.Type.MESSAGE_NEW -> {
                     val messageNew = update.`object` as MessageNew
                     text = VkTextParsingTools.tryRemovePing(messageNew.message.text)
+                    if (messageNew.message.payload != null && messageNew.message.payload.asJsonObject.has("value")) {
+                        text = messageNew.message.payload.asJsonObject.get("value").asString
+                    }
                     for (attachment in messageNew.message.attachments) {
                         if (attachment.type == Attachment.Type.LINK) {
                             text += " ${attachment.link.url}"
@@ -51,14 +63,19 @@ class Vk(
                     }
                     chatId = messageNew.message.peerId.toString()
                     userId = messageNew.message.fromId.toString()
-                    val members = vk.messages.conversationMembers
-                        .setPeerId(chatId.toInt())
-                        .execute().response
-                    var isAdmin = false
-                    for (member in members.items) {
-                        if (member.memberId == userId.toInt() && member.isAdmin) isAdmin = true
+                    try {
+                        val members = vk.messages.conversationMembers
+                            .setPeerId(chatId.toInt())
+                            .execute().response
+                        var isAdmin = false
+                        for (member in members.items) {
+                            if (member.memberId == userId.toInt() && member.isAdmin) isAdmin = true
+                        }
+                        isUserAdmin = isAdmin
+                    } catch (vkException: VkApiException) {
+                        // todo maybe do something here?
                     }
-                    isUserAdmin = isAdmin
+
 
                     if (messageNew.message.hasAttachments()) {
                         for (attachment in messageNew.message.attachments) {
@@ -84,11 +101,13 @@ class Vk(
                     command,
                     this,
                     ClientBotContext(
-                        chatId= chatId,
+                        chatId = chatId,
                         userId = userId,
                         clientType = ClientType.VK,
                         isUserAdmin = isUserAdmin,
-                        fileAttachment = attachedFile ?: InputStream.nullInputStream()))
+                        fileAttachment = attachedFile ?: InputStream.nullInputStream()
+                    )
+                )
             } catch (exception: Exception) {
                 exception.printStackTrace()
             }
@@ -98,7 +117,14 @@ class Vk(
     override fun getAccessToken(): String = vkProperties.accessToken
 
     override fun run(args: ApplicationArguments?) {
-        this.startPolling()
+        while (true) {
+            try {
+                this.startPolling()
+            } catch (exception: VkApiHttpException) {
+                runBlocking { delay(5000) } // wait 5 seconds before trying to initiate connection again
+                continue
+            }
+        }
     }
 
     override fun send(clientEntity: ClientEntity) {
@@ -110,6 +136,13 @@ class Vk(
                         .setPeerId(clientEntity.chatId.toInt())
                         .setMessage(clientEntity.text)
                         .addPhoto(clientEntity.image, "preview.png")
+
+                    val keyboard = createKeyboard(clientEntity.furtherActions)
+                    if (keyboard != null)
+                        sendImage.setKeyboard(
+                            keyboard
+                        )
+
                     sendImage.execute()
                 }
 
@@ -117,11 +150,36 @@ class Vk(
                     val sendMessage = vk.messages.send()
                         .setPeerId(clientEntity.chatId.toInt())
                         .setMessage(clientEntity.text)
+
+                    val keyboard = createKeyboard(clientEntity.furtherActions)
+                    if (keyboard != null)
+                        sendMessage.setKeyboard(
+                            keyboard
+                        )
+
                     sendMessage.execute()
                 }
             }
         } catch (exception: VkApiResponseException) {
             exception.printStackTrace()
         }
+    }
+
+    private fun createKeyboard(furtherActions: List<FurtherAction>): Keyboard? {
+        if (furtherActions.isEmpty()) return null
+        val buttons = mutableListOf<Button>()
+        furtherActions.forEach {
+            val payload = JsonObject()
+            payload.addProperty("value", it.value)
+            buttons.add(
+                TextButton(
+                    Button.Color.POSITIVE, TextButton.Action(
+                        it.displayName,
+                        payload
+                    )
+                )
+            )
+        }// this is basically list of lists, ok? be careful
+        return Keyboard(listOf(buttons)).setInline(true)
     }
 }

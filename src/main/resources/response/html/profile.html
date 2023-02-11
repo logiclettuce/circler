@@ -6,97 +6,233 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Profile</title>
-</head>
-<body>
 <style>
-    :root {
-        --width: 760px;
-        --height: 500px;
-        @import url('https://fonts.googleapis.com/css2?family=Sofia+Sans&display=swap');
-        font-family: 'Sofia Sans', sans-serif;
-        font-size: 30px;
-    }
-    html {
-        height: var(--height);
-        width: var(--width);
-    }
-
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;900&display=swap');
     * {
         padding: 0;
         margin: 0;
-        box-sizing: border-box;
+        font-family: 'Montserrat', sans-serif;
+        color: #fff;
+        font-weight: 600;
+        font-size: 30px;
     }
 
-    .background {
-        position: relative;
+    html {
+        height: 600px;
+        width: 800px;
     }
-    .image {
+
+    p {
+        font-size: 20px;
+    }
+
+    h1 {
+        font-size: 50px;
+    }
+
+    h2 {
+        font-size: 40px;
+    }
+
+    h3 {
+        font-size: 30px;
+    }
+
+    .back {
         position: absolute;
-        top: 0;
-        left: 0;
-        object-fit: cover;
-        width: var(--width);
-        height: var(--height);
+        width: 800px;
+        height: 600px;
+        background-color: #1C1719;
     }
-    .content {
-        top: 0;
-        left: 0;
+
+    .block {
         position: absolute;
-        backdrop-filter: blur(15px);
-        height: var(--height);
-        width: var(--width);
-        background: rgba(0, 0, 0, 0.8);
-        z-index: 1;
+        width: 750px;
+        height: 575px;
+        left: 25px;
+        top: 0px;
+        background: #382E32;
+        border-radius: 0px 0px 50px 50px;
     }
-    .topbar {
+
+    .backimage {
+        position: absolute;
+        width: 800px;
+        height: 170px;
+        object-fit: cover;        
+        clip-path: url(#clipping)
+    }
+
+    .avatar {
+        position: absolute;
+        left: 325px;
+        top: 92px;
+        border-radius: 50px;
+    }
+
+    .nickname {
+        text-align: center;
+        max-width: 250px;
+        min-width: 100px;
+        padding-top: 250px;
+        margin-left: auto;
+        margin-right: auto;
+        overflow-wrap: break-word;
+    }
+
+    .ranks {
+        position: absolute;
+        top: 205px;
+    }
+
+    .ranks .cell {
+        width: 225px;
+        height: 75px;
+        margin: 8px 0px;
+    }
+
+    .ranks .global {
+        position: absolute;
+        text-align: right;
+        left: 0;
+    }
+    
+    .ranks .local {
+        position: absolute;
+        text-align: left;
+        left: 525px;
+    }
+
+    .ranks h2 {
+        color: #F0DBE4;
+    }
+
+    .level {
         display: flex;
-        align-content: center;
-        justify-content: space-between;
-        padding: 60px;
-        color: white;
-        background: rgb(46, 45, 45);
+        text-align: center;
+        position: relative;
+        margin-top: 8px;
+        justify-content: center;
+    }
+
+    .level h3 {
+        position: absolute;
+        font-weight: 900;
+        top: 32%;
     }
 
     .stats {
-        padding: 10px;
-        display: flex;
-        gap: 40px;
-        color: white;
+        position: absolute;
+        top: 300px;    
     }
-    .stats .avatar {
-        height: 280px;
-        aspect-ratio: 1/1;
-        object-fit: contain;
+
+    .stats .cell {
+        width: 200px;
+        height: 100px;
+        margin: 8px 0px;
     }
-    .stats .main_stats {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: flex-start;
-        padding: 10px;
+
+    .stats-left {
+        position: absolute;
+        left: 82px;
+        text-align: right;
+    }
+
+    .stats-right {
+        position: absolute;
+        left: 469px;
+        text-align: left;
+    }
+
+    .stats h1 {
+        color: #F0DBE4;
+    }
+
+    .footertipo {
+        position: absolute;
+        bottom: 1px;
+        width: 100%;
     }
 </style>
+</head>
+<body>
+<div>
+    <div class="back">
+        <div class="block">
 
-<div class="background">
-    <img class="image" src="{{osu_cover}}">
-    <div class="content">
-        <div class="topbar">
-        <div>Server: {{osu_server}}</div>
-        <div>Mode: {{osu_mode}}</div>
-        </div>
-        <div class="stats">
-            <img class="avatar" src="{{osu_avatar}}">
-            <div class="main_stats">
-                <div>{{osu_accuracy}}% acc</div>
-                <div>{{osu_performance}} pp</div>
-                <div>{{osu_playcount}} playcount</div>
-                <div>{{osu_max_combo}} maximum combo</div>
-                <div>{{osu_playtime}} playtime</div>
-                <div>joined {{osu_joined_date}}</div>
+            <div class="nickname">{{username}}</div>
+
+            <div class="ranks">
+                <div class="global cell">
+                    <p>Global ranking</p>
+                    <h2>{{global_rank}}</h2>
+                </div>
+                <div class="local cell">
+                    <p>{{country_name}}</p>
+                    <h2>{{country_rank}}</h2>
+                </div>
             </div>
+
+            <div class="level">
+                <img src="https://osu.ppy.sh/assets/images/level-hexagon.2a9ccac1.svg" width="90px" height="100px">
+                <h3>{{level}}</h3>
+            </div>
+
+
+            <div class="stats">
+                <div class="stats-left">
+                    <div class="1st cell">
+                        <p>pp</p>
+                        <h1>{{performance}}</h1>
+                    </div>
+                    <div class="2nd cell">
+                        <p>playcount</p>
+                        <h1>{{playcount}}</h1>
+                    </div>
+                </div>
+                <div class="stats-right">
+                    <div class="1st cell">
+                        <p>accuracy</p>
+                        <h1>{{accuracy}}%</h1>
+                    </div>
+                    <div class="2nd cell">
+                        <p>max combo</p>
+                        <h1>{{max_combo}}</h1>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="footertipo">
+            <p style="color: #5E5558; text-align: center; font-size: 16px;">
+                @circlerosu / server: {{server}} / mode: {{mode}} / generated {{generated_date}}
+            </p>
         </div>
     </div>
+    <img class="backimage" src="{{cover}}">
+    <svg height="170" width="800">
+        <clipPath id="clipping">
+            <ellipse cx="400" cy="0" rx="625" ry="170" style="fill:rgb(255, 255, 255)"></ellipse>
+        </clipPath>
+    </svg>
+    <img class="avatar" src="{{avatar}}" height="150px" width="150px">
 </div>
+<script>
+    let jsonContext = {{json_context}}
 
+    document.body.innerHTML = document.body.innerHTML.replace('{{username}}', jsonContext.user.username);
+    document.body.innerHTML = document.body.innerHTML.replace('{{performance}}', jsonContext.user.performance);
+    document.body.innerHTML = document.body.innerHTML.replace('{{level}}', jsonContext.user.level);
+    document.body.innerHTML = document.body.innerHTML.replace('{{global_rank}}', jsonContext.user.global_rank);
+    document.body.innerHTML = document.body.innerHTML.replace('{{country_rank}}', jsonContext.user.country_rank);
+    document.body.innerHTML = document.body.innerHTML.replace('{{playcount}}', jsonContext.user.playcount);
+    document.body.innerHTML = document.body.innerHTML.replace('{{accuracy}}', jsonContext.user.accuracy);
+    document.body.dinnerHTML = document.body.innerHTML.replace('{{max_combo}}', jsonContext.user.max_combo);
+    document.body.dinnerHTML = document.body.innerHTML.replace('{{server}}', jsonContext.meta.server);
+    document.body.dinnerHTML = document.body.innerHTML.replace('{{mode}}', jsonContext.user.mode);
+    document.body.dinnerHTML = document.body.innerHTML.replace('{{generated_date}}', jsonContext.user.generated_date);
+    document.body.dinnerHTML = document.body.innerHTML.replace('{{cover}}', jsonContext.user.cover_url);
+    document.body.dinnerHTML = document.body.innerHTML.replace('{{avatar}}', jsonContext.user.avatar_url);
+</script>
 </body>
 </html>

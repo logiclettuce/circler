@@ -1,33 +1,20 @@
 package osu.salat23.circler.bot.response.templates
 
+import org.json.JSONObject
 import org.springframework.stereotype.Component
-import osu.salat23.circler.bot.response.context.TemplateContext
+import osu.salat23.circler.configuration.TypeFormat
 
 @Component
 class TemplateFactory(
-    val responseTemplates: Map<ResponseTemplates, Template>
+    val templateType: Map<TypeFormat, Template>
 ) {
-    fun applyTemplateContext(templateType: ResponseTemplates, customTemplate: Template, vararg context: TemplateContext): Template {
-        val rawTemplate = responseTemplates[templateType]!!
-        val contextMap = getContextMap(context.toList())
-        val text = applyContextToString(customTemplate.text.ifEmpty { rawTemplate.text }, contextMap)
-        val html = applyContextToString(customTemplate.html.ifEmpty { rawTemplate.html }, contextMap)
-        return Template(text, html)
+    fun applyTemplateContext(templateType: TemplateType, templateFormat: TemplateFormat, customTemplate: Template, jsonContext: JSONObject): Template {
+        val rawTemplate = this.templateType[templateType to templateFormat]!!
+        val bakedTemplateValue = applyContextToString(customTemplate.value.ifEmpty { rawTemplate.value }, jsonContext)
+        return Template(customTemplate, bakedTemplateValue)
     }
 
-    private fun applyContextToString(input: String, contextMap: Map<String, String>): String {
-        var input = input
-        for (entry in contextMap.entries) {
-            input = input.replace("{{${entry.key}}}", entry.value)
-        }
-        return input
-    }
-
-    private fun getContextMap(vararg context: TemplateContext): Map<String, String> {
-        return context.map { it.map }.reduce { acc, map -> map + acc}
-    }
-
-    private fun getContextMap(templateContexts: List<TemplateContext>): Map<String, String> {
-        return templateContexts.map { it.map }.reduce { acc, map -> map + acc}
+    private fun applyContextToString(input: String, jsonContext: JSONObject): String {
+        return input.replace("{{json_context}}", jsonContext.toString())
     }
 }

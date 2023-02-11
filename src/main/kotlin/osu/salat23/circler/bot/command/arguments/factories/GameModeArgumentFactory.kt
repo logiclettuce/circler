@@ -11,7 +11,7 @@ import osu.salat23.circler.osu.domain.Mode
 @Component
 class GameModeArgumentFactory(
     commandConfiguration: CommandConfiguration
-) : ArgumentFactory<GameModeArgument>() {
+) : ArgumentFactory<GameModeArgument>(), ArgumentCallProducer<GameModeArgument> {
     companion object {
         private const val ARGUMENT_KEY = "gameMode"
     }
@@ -76,5 +76,10 @@ class GameModeArgumentFactory(
 
     override fun getConfiguredArgument(): Argument {
         return configuredArgument
+    }
+
+    override fun produceCall(argument: GameModeArgument): String {
+        val mode = argument.mode
+        return "${getConfiguredArgument().identifiers[0]} ${mode.identifiers[0]}"
     }
 }

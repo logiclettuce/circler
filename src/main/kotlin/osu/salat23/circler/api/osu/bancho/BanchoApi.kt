@@ -2,6 +2,8 @@ package osu.salat23.circler.api.osu.bancho
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import kotlinx.coroutines.runBlocking
+import net.kusik.coroutines.transformations.map.mapParallel
 import okhttp3.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -135,21 +137,27 @@ class BanchoApi(
                 showFailed = showFailed
             )).get().build()
         val scoresBancho = makeRequest<Array<BanchoScore>>(request)
-        val scores = scoresBancho.map { banchoScore ->
-            val banchoBeatmap = banchoBeatmap(banchoScore.beatmap!!.id.toString())
-            val banchoBeatmapAttributes = banchoBeatmapAttributes(
-                beatmapId = banchoScore.beatmap.id.toString(),
-                gameMode = gameMode,
-                mods = Mod.fromStringList(banchoScore.mods))
-            val beatmap = Converter.convertToBeatmap(
-                beatmap = banchoBeatmap,
-                beatmapAttributes = banchoBeatmapAttributes,
-                beatmapSet = banchoBeatmap.beatmapset)
-            val score = Converter.convertToScore(
-                score = banchoScore,
-                beatmap = beatmap,
-                performanceCalculator = performanceCalculator)
-            return@map score
+        val scores: List<Score>
+        runBlocking {
+            scores = scoresBancho.mapParallel { banchoScore ->
+                val banchoBeatmap = banchoBeatmap(banchoScore.beatmap!!.id.toString())
+                val banchoBeatmapAttributes = banchoBeatmapAttributes(
+                    beatmapId = banchoScore.beatmap.id.toString(),
+                    gameMode = gameMode,
+                    mods = Mod.fromStringList(banchoScore.mods)
+                )
+                val beatmap = Converter.convertToBeatmap(
+                    beatmap = banchoBeatmap,
+                    beatmapAttributes = banchoBeatmapAttributes,
+                    beatmapSet = banchoBeatmap.beatmapset
+                )
+                val score = Converter.convertToScore(
+                    score = banchoScore,
+                    beatmap = beatmap,
+                    performanceCalculator = performanceCalculator
+                )
+                return@mapParallel score
+            }
         }
         return scores
     }
