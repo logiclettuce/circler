@@ -28,8 +28,6 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-    expose:
-      - 5436
 
   prometheus:
     image: prom/prometheus:latest
