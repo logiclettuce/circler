@@ -48,6 +48,24 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yaml'
     restart: on-failure
+    
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: circles-node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9100
+    ports:
+      - "127.0.0.1:9100:9100"
 
   grafana:
     depends_on:
