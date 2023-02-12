@@ -7,8 +7,8 @@ scrape_configs:
         labels:
           application: 'Circler'
     basic_auth:
-      username: ${APPLICATION_ADMIN_USER}
-      password: ${APPLICATION_ADMIN_PASSWORD}
+      username: "salat23"
+      password: "2368salat2368"
   - job_name: 'Server'
     scrape_interval: 2s
     static_configs:

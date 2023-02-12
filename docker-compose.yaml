@@ -19,7 +19,7 @@ services:
       - APPLICATION_ADMIN_PASSWORD=${APPLICATION_ADMIN_PASSWORD}
       - SPRING_PROFILES_ACTIVE=prod
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     links:
       - "database:database"
     restart: on-failure
