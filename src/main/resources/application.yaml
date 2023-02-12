@@ -1,0 +1,66 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+---
+spring.config.activate.on-profile: dev
+spring.datasource.password: postgres
+spring.datasource.username: postgres
+spring.datasource.url: jdbc:postgresql://localhost:5432/postgres
+spring.security.user.name: salat23
+spring.security.user.password: salat23
+spring.security.user.roles: admin
+osu:
+  clientId: ${OSU_CLIENT_ID}
+  clientSecret: ${OSU_CLIENT_SECRET}
+
+vk:
+  groupId: ${VK_GROUP_ID}
+  accessToken: ${VK_ACCESS_TOKEN}
+telegram:
+  token: ${TELEGRAM_TOKEN}
+  botUserName: circler_osu_bot
+---
+spring.config.activate.on-profile: prod
+spring.datasource.password: ${DATABASE_PASSWORD}
+spring.datasource.url: ${DATABASE_URL}
+spring.datasource.username: ${DATABASE_USER}
+spring.security.user.name: ${APPLICATION_ADMIN_USER}
+spring.security.user.password: ${APPLICATION_ADMIN_PASSWORD}
+spring.security.user.roles: admin
+osu:
+  clientId: ${OSU_CLIENT_ID}
+  clientSecret: ${OSU_CLIENT_SECRET}
+
+vk:
+  groupId: ${VK_GROUP_ID}
+  accessToken: ${VK_ACCESS_TOKEN}
+telegram:
+  token: ${TELEGRAM_TOKEN}
+  botUserName: circler_osu_bot
+---
+
+# metrics settings
+management:
+  security:
+    enabled: false
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
+    shutdown:
+      enabled: true
+    info:
+      env:
+        enabled: true
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, metrics, info, health, shutdown, beans
