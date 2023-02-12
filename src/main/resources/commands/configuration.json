@@ -2,7 +2,7 @@
   "arguments": {
     "template": {
       "name": "Template type",
-      "description": "",
+      "description": "Template type for customizing bot responses. Available template types can be found here: wikilink.here",
       "identifiers": [
         "template",
         "tmpl",
@@ -12,7 +12,7 @@
     },
     "actor": {
       "name": "Actor",
-      "description": "",
+      "description": "Specify nickname of player.",
       "identifiers": [
         "nickname",
         "nick",
@@ -22,17 +22,19 @@
         "т"
       ]
     },
-    "isHtml": {
-      "name": "Is html",
-      "description": "",
+    "doRender": {
+      "name": "Render response",
+      "description": "Renders response in png format.",
       "identifiers": [
-        "isHtml",
-        "шыРеьд"
+        "render",
+        "кут",
+        "кутвук",
+        "кут"
       ]
     },
     "server": {
       "name": "Server",
-      "description": "",
+      "description": "Specify server. Available servers can be found here: wikilink.here",
       "identifiers": [
         "server",
         "s",
@@ -42,7 +44,7 @@
     },
     "gameMode": {
       "name": "Game mode",
-      "description": "",
+      "description": "Specify game mode.",
       "identifiers": [
         "gamemode",
         "mode",
@@ -52,7 +54,7 @@
     },
     "mods": {
       "name": "Mods",
-      "description": "",
+      "description": "Specify mods.",
       "identifiers": [
         "mods",
         "m",
@@ -62,7 +64,7 @@
     },
     "pageSize": {
       "name": "Page size",
-      "description": "",
+      "description": "Specify page size. Can be used for commands which return a lot of elements.",
       "identifiers": [
         "size",
         "sz",
@@ -72,7 +74,7 @@
     },
     "pageNumber": {
       "name": "Page number",
-      "description": "",
+      "description": "Specify page number. Used when page size is less than total amount of elements.",
       "identifiers": [
         "page",
         "p",
@@ -82,7 +84,7 @@
     },
     "beatmapId": {
       "name": "Beatmap Id",
-      "description": "",
+      "description": "Specify beatmap id. Url with the beatmap can be used, as well as plain id.",
       "identifiers": [
         "beatmap",
         "bmp",
@@ -94,7 +96,7 @@
   "commands": {
     "fetchUserProfile": {
       "name": "User profile",
-      "description": "",
+      "description": "Gets user profile.",
       "availableArguments": [
         "actor",
         "server"
@@ -107,7 +109,7 @@
       ]
     },
     "fetchUserTopScores": {
-      "name": "User top scores",
+      "name": "Gets user top scores.",
       "description": "",
       "availableArguments": [
         "actor",
@@ -123,7 +125,7 @@
       ]
     },
     "fetchUserRecentScores": {
-      "name": "User recent scores",
+      "name": "Gets user recent scores.",
       "description": "",
       "availableArguments": [
         "actor",
@@ -139,8 +141,8 @@
       ]
     },
     "chatLeaderboard": {
-      "name": "Player leaderboard in current chat",
-      "description": "",
+      "name": "Chat leaderboard",
+      "description": "Player leaderboard in current chat.",
       "availableArguments": [
         "server"
       ],
@@ -152,8 +154,8 @@
       ]
     },
     "chatMapLeaderboard": {
-      "name": "Player leaderboard on specific map in current chat",
-      "description": "",
+      "name": "Map chat leaderboard",
+      "description": "Player leaderboard in current chat on the specified map.",
       "availableArguments": [
         "server"
       ],
@@ -165,8 +167,8 @@
       ]
     },
     "setChatTemplate": {
-      "name": "Sets the specified template for rendering",
-      "description": "",
+      "name": "Set chat template",
+      "description": "Sets attached file as the specified custom template.",
       "availableArguments": [
         "template"
       ],
@@ -178,8 +180,8 @@
       ]
     },
     "setChatMemberIdentifier": {
-      "name": "Sets the user identifier for specified server",
-      "description": "",
+      "name": "Set identifier",
+      "description": "Sets the user identifier for specified server.",
       "availableArguments": [
         "server",
         "actor"
@@ -194,21 +196,21 @@
       ]
     },
     "fetchBeatmap": {
-      "name": "Get information about particular beatmap",
-      "description": "",
+      "name": "Fetch beatmap info",
+      "description": "Get information about particular beatmap.",
       "availableArguments": [
         "beatmapId"
       ],
       "identifiers": [
         "beatmap",
-        "bmp",
+        "b",
         "иуфеьфз",
-        "иьз"
+        "и"
       ]
     },
     "fetchBeatmapScore": {
-      "name": "Get user scores on specified beatmap",
-      "description": "",
+      "name": "Fetch beatmap score",
+      "description": "Get user scores on specified beatmap",
       "availableArguments": [
         "actor",
         "beatmapId",

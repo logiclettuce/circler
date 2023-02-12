@@ -7,5 +7,6 @@ class FetchBeatmapScoreCommand(
     val serverArgument: ProvidedArgument<ServerArgument>,
     val beatmapIdArgument: ProvidedArgument<BeatmapIdArgument>,
     val pageSizeArgument: ProvidedArgument<NumberArgument>,
-    val pageNumberArgument: ProvidedArgument<NumberArgument>
+    val pageNumberArgument: ProvidedArgument<NumberArgument>,
+    val modsArgument: ProvidedArgument<ModsArgument>
 ): Command()

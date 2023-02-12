@@ -10,6 +10,5 @@ import osu.salat23.circler.service.OsuService
 @ExtendWith(SpringExtension::class)
 @SpringBootTest
 class CirclerApplicationTests() {
-
-
+    
 }

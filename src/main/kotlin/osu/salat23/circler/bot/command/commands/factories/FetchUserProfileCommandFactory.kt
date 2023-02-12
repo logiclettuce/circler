@@ -8,7 +8,7 @@ import osu.salat23.circler.configuration.domain.CommandConfiguration
 import osu.salat23.circler.api.osu.Server
 import osu.salat23.circler.bot.command.arguments.*
 import osu.salat23.circler.bot.command.arguments.factories.GameModeArgumentFactory
-import osu.salat23.circler.bot.command.arguments.factories.IsHtmlArgumentFactory
+import osu.salat23.circler.bot.command.arguments.factories.DoRenderArgumentFactory
 import osu.salat23.circler.osu.domain.Mode
 
 @Component
@@ -17,7 +17,7 @@ class FetchUserProfileCommandFactory(
     private val actorArgumentFactory: osu.salat23.circler.bot.command.arguments.factories.ActorArgumentFactory,
     private val serverArgumentFactory: ServerArgumentFactory,
     private val gameModeArgumentFactory: GameModeArgumentFactory,
-    private val isHtmlArgumentFactory: IsHtmlArgumentFactory
+    private val doRenderArgumentFactory: DoRenderArgumentFactory
 ): GenericCommandFactory(commandConfiguration) {
     override fun getCommandKey(): String = "fetchUserProfile"
     override fun create(input: String): Command {
@@ -28,7 +28,7 @@ class FetchUserProfileCommandFactory(
             )
         )
         val gameModeArgument = gameModeArgumentFactory.create(input)
-        val isHtmlArgument = isHtmlArgumentFactory.create(input)
+        val isHtmlArgument = doRenderArgumentFactory.create(input)
 
         return FetchUserProfileCommand(
             actorArgument = actorArgument,
@@ -44,7 +44,7 @@ class FetchUserProfileCommandFactory(
         commandText += "${commandActionIdentifiers[0]} "
 
         commandText += actorArgumentFactory.produceCall(StringArgument(actor)) + " "
-        commandText += isHtmlArgumentFactory.produceCall(BooleanArgument(isHtml)) + " "
+        commandText += doRenderArgumentFactory.produceCall(BooleanArgument(isHtml)) + " "
         commandText += gameModeArgumentFactory.produceCall(GameModeArgument(mode)) + " "
         commandText += serverArgumentFactory.produceCall(ServerArgument(server)) + " "
 

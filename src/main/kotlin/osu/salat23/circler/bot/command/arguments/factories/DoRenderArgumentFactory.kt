@@ -7,11 +7,11 @@ import osu.salat23.circler.configuration.domain.Argument
 import osu.salat23.circler.configuration.domain.CommandConfiguration
 
 @Component
-class IsHtmlArgumentFactory(
+class DoRenderArgumentFactory(
     private final val commandConfiguration: CommandConfiguration
 ): BooleanArgumentFactory(), ArgumentCallProducer<BooleanArgument> {
     companion object {
-        private const val ARGUMENT_KEY = "isHtml"
+        private const val ARGUMENT_KEY = "doRender"
     }
 
     private final val configuredArgument = commandConfiguration.arguments[ARGUMENT_KEY]
@@ -22,9 +22,9 @@ class IsHtmlArgumentFactory(
     }
 
     override fun produceCall(argument: BooleanArgument): String {
-        val isHtml = argument.value
+        val doRender = argument.value
         var res = ""
-        if (isHtml) res += "-${getConfiguredArgument().identifiers[0]}"
+        if (doRender) res += "-${getConfiguredArgument().identifiers[0]}"
         return res
     }
 }

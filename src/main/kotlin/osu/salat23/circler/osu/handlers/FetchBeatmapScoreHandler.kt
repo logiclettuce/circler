@@ -14,7 +14,12 @@ class FetchBeatmapScoreHandler(
     val playerIdentifierService: PlayerIdentifierService
 ): ChainHandler() {
     override fun handleUpdate(command: Command, client: Client, clientBotContext: ClientBotContext) {
+        val command = command as FetchBeatmapScoreCommand
 
+
+
+        val server = command.serverArgument.getArgument()
+        val beatmapId = command.beatmapIdArgument.getArgument()
     }
 
     override fun canHandle(command: Command, clientBotContext: ClientBotContext): Boolean {

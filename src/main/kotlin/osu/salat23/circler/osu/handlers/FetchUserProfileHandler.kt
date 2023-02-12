@@ -30,7 +30,7 @@ class FetchUserProfileHandler(
 
         val server = command.serverArgument.getArgument().value
         val gameMode = command.gameModeArgument.getArgument().mode
-        val isHtml = command.isHtmlArgument.getArgument().value
+        val doRender = command.isHtmlArgument.getArgument().value
 
         // todo uhh maybe move out the logic from service to handler?
         val identifier = playerIdentifierService.getIdentifier(command.actorArgument, command.serverArgument, clientBotContext, client)
@@ -42,7 +42,7 @@ class FetchUserProfileHandler(
             val chat = chatService.getOrCreateChat(clientBotContext.chatId, clientBotContext.clientType)
             val context = SpecificContext.userProfileJson(user, server)
 
-            val clientEntity: ClientEntity = if (isHtml) {
+            val clientEntity: ClientEntity = if (doRender) {
                 val htmlTemplate = chatService.getChatTemplateAndApplyContext(
                     chat = chat,
                     type = TemplateType.Profile,
