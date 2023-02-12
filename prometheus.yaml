@@ -9,3 +9,7 @@ scrape_configs:
     basic_auth:
       username: 'salat23'
       password: '2368salat2368'
+  - job_name: 'Server'
+    scrape_interval: 2s
+    static_configs:
+      - targets: ["circles-node-exporter:9100"]
