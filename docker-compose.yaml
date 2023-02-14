@@ -25,6 +25,8 @@ services:
     restart: on-failure
     volumes:
       - /home/salat23/circler/requiredcache:/root/.cache
+    networks:
+      - circler-app-network
 
   database:
     image: 'postgres:14.0-alpine'
@@ -35,6 +37,8 @@ services:
     environment:
       - POSTGRES_USER=${DATABASE_USER}
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    networks:
+      - circler-app-network
 
   prometheus:
     image: prom/prometheus:latest
@@ -53,6 +57,8 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yaml'
     restart: on-failure
+    networks:
+      - circler-app-network
     
   node-exporter:
     image: prom/node-exporter:latest
@@ -71,3 +77,9 @@ services:
       - 9100
     ports:
       - "127.0.0.1:9100:9100"
+    networks:
+      - circler-app-network
+
+networks:
+  circler-app-network:
+    external: true
