@@ -1,5 +1,6 @@
 package osu.salat23.circler.bot.command
 
+import osu.salat23.circler.api.osu.Server
 import osu.salat23.circler.bot.command.annotations.Argument
 import osu.salat23.circler.bot.command.annotations.Command
 import osu.salat23.circler.bot.command.annotations.Default
@@ -24,7 +25,7 @@ class UserProfileCommand (
         identifiers = ["server", "s", "ыукмук", "ы"],
     )
     @Default("bancho")
-    val server: String,
+    val server: Server,
 
     @Argument(
         name = "Mode",

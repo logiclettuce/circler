@@ -3,13 +3,14 @@ package osu.salat23.circler.bot.command
 import org.reflections.Reflections
 import org.springframework.stereotype.Component
 import osu.salat23.circler.bot.command.annotations.Argument
+import osu.salat23.circler.bot.command.annotations.ArgumentSerialized
 import osu.salat23.circler.bot.command.annotations.Command
 import osu.salat23.circler.bot.command.annotations.Default
 import java.lang.reflect.Field
 import kotlin.streams.toList
 
 @Component
-class CommandParserV1: CommandParser {
+class CommandParserV1 : CommandParser {
 
     private val identifierToCommandClass = mutableMapOf<String, Class<*>>()
 
@@ -22,6 +23,19 @@ class CommandParserV1: CommandParser {
             val commandData: Command = commandClass.getAnnotation(Command::class.java)
                 ?: throw IllegalStateException("Could not get command metadata in class: ${commandClass.javaClass.canonicalName}")
 
+            val identifierToArgumentField = mutableMapOf<String, Field>()
+            for (field in commandClass.declaredFields) {
+                val argumentMetadata = field.getDeclaredAnnotation(Argument::class.java)
+                    ?: throw IllegalStateException("Could not read field metadata: ${field.name} in class: ${commandClass.canonicalName}")
+                argumentMetadata.identifiers.forEach {
+                    if (identifierToArgumentField.contains(it))
+                        throw IllegalStateException(
+                            "Duplicate argument identifier found: $it in ${field.name} and ${identifierToArgumentField[it]!!.name}"
+                        )
+                    // todo type check for argument (only number, string, boolean and enum)
+                    identifierToArgumentField[it] = field
+                }
+            }
 
             identifierToCommandClass.putAll(commandData.identifiers.associateWith { commandClass })
         }
@@ -48,7 +62,7 @@ class CommandParserV1: CommandParser {
         val commandClass = identifierToCommandClass[commandToken]!!
         val commandMetadata = commandClass.getAnnotation(Command::class.java)
         val argumentIdentifierToField = mutableMapOf<String, Field>()
-        val fieldNamesToDefaultArgumentValues = mutableMapOf<String, String>()
+        val fieldToDefaultArgument = mutableMapOf<Field, String>()
         val argumentsMetadata = mutableListOf<Argument>()
         commandClass.fields.forEach { field ->
             // continue if field has no Argument annotation
@@ -59,7 +73,7 @@ class CommandParserV1: CommandParser {
             // assign a default value for this field in case it is not explicitly provided
             val defaultMetadata = field.getDeclaredAnnotation(Default::class.java)
             if (defaultMetadata != null) {
-                fieldNamesToDefaultArgumentValues[field.name] = defaultMetadata.value
+                fieldToDefaultArgument[field] = defaultMetadata.value
             }
         }
 
@@ -114,13 +128,52 @@ class CommandParserV1: CommandParser {
                     val booleanValue = tokens[1]
                     entriesToRemoveAmount++
 
-                    if (booleanValue != "true" && booleanValue != "false")
+
+                    try {
+                        instantiationArguments[argumentField.name] = convertStringValueToArgumentValue(booleanValue, argumentType)
+                    } catch (exception: IllegalStateException) {
                         throw CommandParsingException(
                             "Could not determine boolean value: $booleanValue for argument: $currentToken",
                             CommandParsingErrorType.ArgumentValueTypeIsWrong
                         )
+                    }
+                }
 
-                    instantiationArguments[argumentField.name] = booleanValue.toBoolean()
+
+                if (argumentType == String::class.java) {
+                    // if there is no tokens left, that means value is not provided
+                    if (tokens.size - entriesToRemoveAmount < 1) {
+                        throw CommandParsingException(
+                            "Argument -$argumentName value is not provided!",
+                            CommandParsingErrorType.ArgumentValueIsNotProvided
+                        )
+                    }
+
+                    // even if the next token starts with -, we still count it as a value
+                    // not the new argument name
+
+                    val stringValue = tokens[1]
+                    entriesToRemoveAmount++
+
+                    instantiationArguments[argumentField.name] = convertStringValueToArgumentValue(stringValue, argumentType)
+                }
+
+                if (argumentType.isEnum) {
+                    // if there is no tokens left, that means value is not provided
+                    if (tokens.size - entriesToRemoveAmount < 1) {
+                        throw CommandParsingException(
+                            "Argument -$argumentName value is not provided!",
+                            CommandParsingErrorType.ArgumentValueIsNotProvided
+                        )
+                    }
+
+                    // even if the next token starts with -, we still count it as a value
+                    // not the new argument name
+
+                    val enumValue = tokens[1]
+                    entriesToRemoveAmount++
+
+                    instantiationArguments[argumentField.name] = convertStringValueToArgumentValue(enumValue, argumentType)
                 }
             }
 
@@ -134,13 +187,14 @@ class CommandParserV1: CommandParser {
         // prepare field in the right order for creating an instance
         val allArgumentsNeededPrepared = mutableListOf<Any>()
         for (field in commandClass.declaredFields) {
+            val fieldType = field.type
             val providedArgument =
                 instantiationArguments[field.name]
-                    ?: fieldNamesToDefaultArgumentValues[field.name]
-                    ?: throw CommandParsingException(
-                        "Could not create command because default argument is missing: ${field.name}",
-                        CommandParsingErrorType.CouldNotGetDefaultArgumentValue
-                    )
+                    ?: convertStringValueToArgumentValue(fieldToDefaultArgument[field]
+                        ?: throw CommandParsingException(
+                            "Could not create command because default argument is missing: ${field.name}",
+                            CommandParsingErrorType.CouldNotGetDefaultArgumentValue
+                        ), fieldType)
             allArgumentsNeededPrepared.add(providedArgument)
         }
 
@@ -153,5 +207,54 @@ class CommandParserV1: CommandParser {
         val instance = commandClassConstructor.newInstance(*allArgumentsNeededPrepared.toTypedArray())
         // instance containing all arguments is now created
         return instance
+    }
+
+    private val booleanTruthIdentifiers = listOf("true", "екгу", "t", "е")
+    private val booleanFalseIdentifiers = listOf("false", "афдыу", "f", "а")
+    private fun convertStringValueToArgumentValue(value: String, targetType: Class<*>): Any {
+        if (targetType == Boolean::class.java) {
+            if (booleanTruthIdentifiers.contains(value)) return true
+            if (booleanFalseIdentifiers.contains(value)) return false
+            throw IllegalStateException("Cant parse boolean value")
+        }
+
+        if (targetType == String::class.java) {
+            return value
+        }
+
+        if (targetType.isEnum) {
+            val stringValue = value
+            val identifierToEnumConstantField = mutableMapOf<String, Field>()
+            val enumConstantFieldToOrdinal = mutableMapOf<Field, Int>()
+            val enumConstantFields = targetType.declaredFields.filter { field ->
+                field.isEnumConstant && field.getDeclaredAnnotation(ArgumentSerialized::class.java) != null
+            }
+
+            var currentOrdinal = 0
+            enumConstantFields.forEach { constantField ->
+                val identifiers =
+                    constantField.getDeclaredAnnotation(ArgumentSerialized::class.java)!!.identifiers
+
+                identifierToEnumConstantField.putAll(identifiers.associateWith { constantField })
+
+                enumConstantFieldToOrdinal[constantField] = currentOrdinal
+                currentOrdinal++
+            }
+
+
+
+            if (!identifierToEnumConstantField.containsKey(stringValue))
+                throw CommandParsingException(
+                    "No such value available: $stringValue", CommandParsingErrorType.NoSuchValueInEnum
+                )
+
+            val selectedField = identifierToEnumConstantField[stringValue]!!
+            val ordinalIndex = enumConstantFieldToOrdinal[selectedField]!!
+            val enumValue = targetType.enumConstants[ordinalIndex]!!
+
+            return enumValue
+        }
+
+        throw IllegalStateException("Unsupported type")
     }
 }
