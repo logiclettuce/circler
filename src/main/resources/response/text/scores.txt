@@ -1,0 +1,32 @@
+<content>
+{{list}}
+</content>
+<script>
+    let jsonContext = {{json_context}}
+
+    let scores = ""
+    let scoresArray = jsonContext.scores
+
+    for (let i = 0; i < scoresArray.length; i++) {
+        let score = scoresArray[i]
+
+        let singleScoreTemplate = `
+            [Server: {{server}}]
+            [{{status}}] {{artist}} - {{songname}} [{{beatmap}}] by {{mapper}}
+            AR:{{ar}} CS:{{cs}} OD:{{od}} HP:{{hp}} {{bpm}}BPM | {{difficulty}}✩ +{{mods}}
+            Score: {{score}} | Combo: {{achieved_combo}}/{{max_combo}}x
+            {{great}}/{{ok}}/{{meh}}/{{miss}} | Grade: {{rank}} ({{completion_perc}}%)
+            Accuracy: {{accuracy}}% | pp: {{performance}} -> FC: {{fc_performance}}
+        `
+            .replace("{{status}}", score.beatmap.status)
+            .replace("{{artist}}", score.beatmap.beatmap_set.artist)
+            .replace("{{songname}}", score.beatmap.beatmap_set.title)
+            .replace("{{mapper}}", score.beatmap.beatmap_set.creator)
+            .replace("{{mods}}", score.mods)
+            .replace("{{server}}", jsonContext.meta.server)
+
+        scores += singleScoreTemplate + "\n"
+    }
+    document.body.innerHTML = document.body.innerHTML.replace("{{list}}", scores)
+
+</script>

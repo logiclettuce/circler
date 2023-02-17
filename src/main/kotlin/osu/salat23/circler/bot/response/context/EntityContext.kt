@@ -3,8 +3,7 @@ package osu.salat23.circler.bot.response.context
 import com.github.holgerbrandl.jsonbuilder.json
 import org.json.JSONObject
 import osu.salat23.circler.api.osu.Server
-import osu.salat23.circler.osu.domain.Score
-import osu.salat23.circler.osu.domain.User
+import osu.salat23.circler.osu.domain.*
 import osu.salat23.circler.roundTo
 import osu.salat23.circler.withDigits
 import java.text.DateFormat
@@ -50,7 +49,7 @@ object EntityContext {
     ): JSONObject {
         return json {
             "id" to score.id
-            "score" to score.score.toString()
+            "score" to score.score
             "performance" to score.performance.withDigits(2)
             "accuracy" to score.accuracy.withDigits(2)
             "max_combo" to score.maxCombo
@@ -64,6 +63,47 @@ object EntityContext {
             "hit_meh" to score.hitMeh
             "hit_miss" to score.hitMiss
             "mods" to score.mods.sortedBy { it.id }.map { it.alternativeName }.toTypedArray()
+            "beatmap" to beatmapJson(score.beatmap)
+        }
+    }
+
+    fun beatmapJson(
+        beatmap: Beatmap
+    ): JSONObject {
+        return json {
+            "id" to beatmap.id
+            "approach_rate" to beatmap.approachRate
+            "circle_size" to beatmap.circleSize
+            "hp_drain" to beatmap.hpDrain
+            "circle_count" to beatmap.circleCount
+            "slider_count" to beatmap.sliderCount
+            "spinner_count" to beatmap.spinnerCount
+            "max_combo" to beatmap.maxCombo
+            "difficulty_rating" to beatmap.difficultyRating
+            "aim_difficulty" to beatmap.aimDifficulty
+            "speed_difficulty" to beatmap.speedDifficulty
+            "speed_note_count" to beatmap.speedNoteCount
+            "slider_factor" to beatmap.sliderFactor
+            "overall_difficulty" to beatmap.overallDifficulty
+            "flashlight_difficulty" to beatmap.flashlightDifficulty
+            "mode" to beatmap.mode.displayName
+            "status" to beatmap.status
+            "url" to beatmap.url
+            if (beatmap.beatmapSet != null)
+                "beatmap_set" to beatmapSetJson(beatmap.beatmapSet)
+        }
+    }
+
+    fun beatmapSetJson(
+        beatmapSet: BeatmapSet
+    ): JSONObject {
+        return json {
+            "id" to beatmapSet.id
+            "title" to beatmapSet.title
+            "artist" to beatmapSet.artist
+            "creator" to beatmapSet.creator
+            "cover_url" to beatmapSet.coverUrl
+            "status" to beatmapSet.status
         }
     }
 

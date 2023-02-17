@@ -5,7 +5,7 @@ import osu.salat23.circler.api.osu.exceptions.OsuUserNotFoundException
 import osu.salat23.circler.bot.ClientBotContext
 import osu.salat23.circler.bot.client.*
 import osu.salat23.circler.bot.command.commands.Command
-import osu.salat23.circler.bot.command.commands.FetchUserProfileCommand
+import osu.salat23.circler.bot.command.commands.UserProfileCommand
 import osu.salat23.circler.bot.command.commands.factories.FetchUserProfileCommandFactory
 import osu.salat23.circler.bot.response.browser.BrowserClient
 import osu.salat23.circler.bot.response.context.SpecificContext
@@ -26,7 +26,7 @@ class FetchUserProfileHandler(
     val templateFactory: TemplateFactory,
     val userServerIdentifierService: UserServerIdentifierService) : ChainHandler() {
     override fun handleUpdate(command: Command, client: Client, clientBotContext: ClientBotContext) {
-        val command = command as FetchUserProfileCommand
+        val command = command as UserProfileCommand
 
         val server = command.serverArgument.getArgument().value
         val gameMode = command.gameModeArgument.getArgument().mode
@@ -84,7 +84,7 @@ class FetchUserProfileHandler(
     }
 
     override fun canHandle(command: Command, clientBotContext: ClientBotContext): Boolean {
-        return command is FetchUserProfileCommand
+        return command is UserProfileCommand
     }
 
 }

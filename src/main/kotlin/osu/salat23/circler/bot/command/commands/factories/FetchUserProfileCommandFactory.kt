@@ -3,7 +3,7 @@ package osu.salat23.circler.bot.command.commands.factories
 import org.springframework.stereotype.Component
 import osu.salat23.circler.bot.command.arguments.factories.ServerArgumentFactory
 import osu.salat23.circler.bot.command.commands.Command
-import osu.salat23.circler.bot.command.commands.FetchUserProfileCommand
+import osu.salat23.circler.bot.command.commands.UserProfileCommand
 import osu.salat23.circler.configuration.domain.CommandConfiguration
 import osu.salat23.circler.api.osu.Server
 import osu.salat23.circler.bot.command.arguments.*
@@ -30,7 +30,7 @@ class FetchUserProfileCommandFactory(
         val gameModeArgument = gameModeArgumentFactory.create(input)
         val isHtmlArgument = doRenderArgumentFactory.create(input)
 
-        return FetchUserProfileCommand(
+        return UserProfileCommand(
             actorArgument = actorArgument,
             serverArgument = serverArgument,
             gameModeArgument = gameModeArgument,

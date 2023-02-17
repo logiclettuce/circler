@@ -1,7 +1,7 @@
 package osu.salat23.circler.bot.response.templates
 
 import osu.salat23.circler.bot.command.commands.Command
-import osu.salat23.circler.bot.command.commands.FetchUserProfileCommand
+import osu.salat23.circler.bot.command.commands.UserProfileCommand
 import osu.salat23.circler.bot.command.commands.FetchUserTopScoresCommand
 import osu.salat23.circler.osu.domain.Beatmap
 import osu.salat23.circler.osu.domain.Mode
@@ -14,7 +14,7 @@ import java.text.DecimalFormat
 object OldResponseTemplates {
     private const val USER_LINK_TEMPLATE = "https://osu.ppy.sh/u/"
 
-    fun osuUserTemplate(user: User, command: FetchUserProfileCommand, gameMode: Mode): String {
+    fun osuUserTemplate(user: User, command: UserProfileCommand, gameMode: Mode): String {
         val playstyle = ""
         var highestRank = ""
 

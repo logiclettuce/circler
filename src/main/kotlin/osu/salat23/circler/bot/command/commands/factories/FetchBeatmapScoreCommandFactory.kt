@@ -16,7 +16,8 @@ class FetchBeatmapScoreCommandFactory(
     val beatmapIdArgumentFactory: BeatmapIdArgumentFactory,
     val pageSizeArgumentFactory: PageSizeArgumentFactory,
     val pageNumberArgumentFactory: PageNumberArgumentFactory,
-    val modsArgumentFactory: ModsArgumentFactory
+    val modsArgumentFactory: ModsArgumentFactory,
+    val gameModeArgumentFactory: GameModeArgumentFactory
 ): GenericCommandFactory(commandConfiguration) {
     override fun getCommandKey(): String = "fetchBeatmapScore"
     override fun create(input: String): Command {
@@ -26,6 +27,7 @@ class FetchBeatmapScoreCommandFactory(
         val pageSizeArgument = pageSizeArgumentFactory.create(input)
         val pageNumberArgument = pageNumberArgumentFactory.create(input)
         val modsArgument = modsArgumentFactory.create(input)
+        val gameModeArgument = gameModeArgumentFactory.create(input)
 
         return FetchBeatmapScoreCommand(
             beatmapIdArgument = beatmapIdArgument,
@@ -33,7 +35,8 @@ class FetchBeatmapScoreCommandFactory(
             serverArgument = serverArgument,
             pageSizeArgument = pageSizeArgument,
             pageNumberArgument = pageNumberArgument,
-            modsArgument = modsArgument
+            modsArgument = modsArgument,
+            gameModeArgument = gameModeArgument
         )
     }
 }

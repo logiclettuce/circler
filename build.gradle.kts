@@ -1,6 +1,4 @@
-import nu.studer.gradle.jooq.JooqExtension
 import nu.studer.gradle.jooq.JooqGenerate
-import org.flywaydb.gradle.task.FlywayMigrateTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jooq.meta.jaxb.ForcedType
 import org.jooq.meta.jaxb.Logging
@@ -44,6 +42,8 @@ dependencies {
     implementation("org.telegram:telegrambots-spring-boot-starter:6.3.0")
     implementation("com.microsoft.playwright:driver-bundle:1.28.1")
     implementation("com.microsoft.playwright:playwright:1.28.1")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.10")
+    implementation("org.reflections:reflections:0.10.2")
 
     runtimeOnly("org.postgresql:postgresql")
     implementation("com.github.holgerbrandl:jsonbuilder:-SNAPSHOT")
