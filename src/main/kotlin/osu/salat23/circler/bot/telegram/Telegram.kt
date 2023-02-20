@@ -9,14 +9,15 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto
 import org.telegram.telegrambots.meta.api.objects.InputFile
 import org.telegram.telegrambots.meta.api.objects.Update
-import osu.salat23.circler.bot.ClientType
 import osu.salat23.circler.bot.ClientBotContext
+import osu.salat23.circler.bot.ClientType
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientEntity
 import osu.salat23.circler.bot.client.ClientImage
 import osu.salat23.circler.bot.client.ClientMessage
-import osu.salat23.circler.bot.command.commands.Command
-import osu.salat23.circler.bot.command.commands.CommandParser
+import osu.salat23.circler.bot.command.CommandParser
+import osu.salat23.circler.bot.command.CommandParsingErrorType
+import osu.salat23.circler.bot.command.CommandParsingException
 import osu.salat23.circler.bot.command.exceptions.NotABotCommandException
 import osu.salat23.circler.osu.OsuCommandHandler
 import osu.salat23.circler.properties.TelegramProperties
@@ -68,10 +69,13 @@ class Telegram(
 //            }
             else -> return
         }
-        val command: Command
+        val command: Any
         try { // todo normal input stream handling
             command = commandParser.parse(text)
-        } catch (exception: NotABotCommandException) {
+        } catch (exception: CommandParsingException) {
+            if (exception.type == CommandParsingErrorType.CommandNotFound
+                || exception.type == CommandParsingErrorType.CommandNotPresent) return
+            exception.printStackTrace()
             return
         }
         osuCommandHandler.handle(

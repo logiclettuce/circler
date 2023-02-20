@@ -51,5 +51,18 @@ enum class Mod(val alternativeName: String, val id: Long) {
             }
             return mods
         }
+
+        fun fromString(modsString: String): List<Mod> {
+            if (modsString.length < 2) return emptyList()
+            val modNames = modsString.chunked(2)
+            val modNameToMod =  Mod.values().associateBy { it.alternativeName }
+            val mods = mutableListOf<Mod>()
+
+            modNames.forEach{ modName ->
+                if (modName in modNameToMod) mods.add(modNameToMod[modName]!!)
+            }
+
+            return mods
+        }
     }
 }

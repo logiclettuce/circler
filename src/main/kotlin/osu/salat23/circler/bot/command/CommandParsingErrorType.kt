@@ -10,5 +10,6 @@ enum class CommandParsingErrorType {
     ArgumentValueTypeIsWrong,
     CouldNotGetDefaultArgumentValue,
     ArgumentValueIsNotProvided, // when argument is present in command but no value provided (excl boolean)
-    NoSuchValueInEnum
+    NoSuchValueInEnum,
+    CantParseNumberValue
 }

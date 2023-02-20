@@ -1,12 +1,9 @@
-package osu.salat23.circler.bot.command.commands
+package osu.salat23.circler.bot.command.impl
 
 import osu.salat23.circler.bot.command.annotations.Argument
 import osu.salat23.circler.bot.command.annotations.Command
 import osu.salat23.circler.bot.command.annotations.Default
-import osu.salat23.circler.bot.command.arguments.BeatmapIdArgument
-import osu.salat23.circler.bot.command.arguments.GameModeArgument
-import osu.salat23.circler.bot.command.arguments.ModsArgument
-import osu.salat23.circler.bot.command.arguments.ProvidedArgument
+import osu.salat23.circler.osu.domain.Mode
 
 @Command(
     name = "Fetch beatmap",
@@ -18,10 +15,10 @@ class FetchBeatmapCommand(
         name = "Beatmap Id",
         description = "Specify beatmap id. Url with the beatmap can be used, as well as plain id.",
         identifiers = ["beatmap", "bmp", "иуфеьфз", "иьз"],
-        implicit = true,
         required = true
     )
-    val beatmapId: String,
+    @Default("")
+    var beatmapId: String,
 
     @Argument(
         name = "Game mode",
@@ -29,6 +26,13 @@ class FetchBeatmapCommand(
         identifiers = ["gamemode", "mode", "пфьуьщву", "ьщву"]
     )
     @Default("default")
-    val gameMode: String,
-    val mods: String
+    var gameMode: Mode,
+
+    @Argument(
+        name = "Mods",
+        description = "Specify mods. Example: HDDTHR",
+        identifiers = ["mods", "md", "ьщвы", "ьв"]
+    )
+    @Default("")
+    var mods: String
 )

@@ -4,11 +4,10 @@ import org.springframework.stereotype.Component
 import osu.salat23.circler.bot.ClientBotContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientMessage
-import osu.salat23.circler.bot.command.commands.Command
 
 @Component
 class HelpHandler : ChainHandler() {
-    override fun handleUpdate(command: Command, client: Client, clientBotContext: ClientBotContext) {
+    override fun handleUpdate(command: Any, client: Client, clientBotContext: ClientBotContext) {
 
         client.send(
             ClientMessage(
@@ -19,7 +18,7 @@ class HelpHandler : ChainHandler() {
         )
     }
 
-    override fun canHandle(command: Command, clientBotContext: ClientBotContext): Boolean {
+    override fun canHandle(command: Any, clientBotContext: ClientBotContext): Boolean {
         return false
     }
 }

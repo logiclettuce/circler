@@ -1,8 +1,10 @@
-package osu.salat23.circler.bot.command.commands
+package osu.salat23.circler.bot.command.impl
 
+import osu.salat23.circler.api.osu.Server
 import osu.salat23.circler.bot.command.annotations.Argument
 import osu.salat23.circler.bot.command.annotations.Command
 import osu.salat23.circler.bot.command.annotations.Default
+import osu.salat23.circler.osu.domain.Mode
 
 @Command(
     name = "User profile",
@@ -12,27 +14,28 @@ import osu.salat23.circler.bot.command.annotations.Default
 class UserProfileCommand (
     @Argument(
         name = "Player",
-        description = "Something written here",
+        description = "Specify player username.",
         identifiers = ["nick", "nickname", "тшсл", "тшслтфьу"],
-        required = true
+        required = true,
     )
-    val actor: String,
+    @Default("")
+    var actor: String,
 
     @Argument(
         name = "Server",
-        description = "Something written here",
+        description = "Specify game server.",
         identifiers = ["server", "s", "ыукмук", "ы"],
     )
     @Default("bancho")
-    val server: String,
+    var server: Server,
 
     @Argument(
         name = "Mode",
-        description = "Something written here",
+        description = "Specify game mode.",
         identifiers = ["mode", "m", "ьщву", "ь"],
     )
     @Default("default")
-    val mode: String,
+    var gameMode: Mode,
 
     @Argument(
         name = "Render mode",
@@ -40,5 +43,5 @@ class UserProfileCommand (
         identifiers = ["render", "r", "кутвук", "к"]
     )
     @Default("false")
-    val isRenderMode: Boolean
+    var isRenderMode: Boolean
 )

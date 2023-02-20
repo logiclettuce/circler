@@ -5,12 +5,9 @@ import api.longpoll.bots.exceptions.VkApiException
 import api.longpoll.bots.exceptions.VkApiHttpException
 import api.longpoll.bots.exceptions.VkApiResponseException
 import api.longpoll.bots.model.events.Update
-import api.longpoll.bots.model.events.messages.MessageEvent
 import api.longpoll.bots.model.events.messages.MessageNew
-import api.longpoll.bots.model.objects.additional.EventData.ShowSnackbar
 import api.longpoll.bots.model.objects.additional.Keyboard
 import api.longpoll.bots.model.objects.additional.buttons.Button
-import api.longpoll.bots.model.objects.additional.buttons.CallbackButton
 import api.longpoll.bots.model.objects.additional.buttons.TextButton
 import api.longpoll.bots.model.objects.media.Attachment
 import com.google.gson.JsonObject
@@ -24,8 +21,9 @@ import org.springframework.stereotype.Component
 import osu.salat23.circler.bot.ClientBotContext
 import osu.salat23.circler.bot.ClientType
 import osu.salat23.circler.bot.client.*
-import osu.salat23.circler.bot.command.commands.Command
-import osu.salat23.circler.bot.command.commands.CommandParser
+import osu.salat23.circler.bot.command.CommandParser
+import osu.salat23.circler.bot.command.CommandParsingErrorType
+import osu.salat23.circler.bot.command.CommandParsingException
 import osu.salat23.circler.bot.command.exceptions.NotABotCommandException
 import osu.salat23.circler.osu.OsuCommandHandler
 import osu.salat23.circler.properties.VkProperties
@@ -89,10 +87,13 @@ class Vk(
 
                 else -> return
             }
-            val command: Command
+            val command: Any
             try {
                 command = commandParser.parse(text)
-            } catch (exception: NotABotCommandException) {
+            } catch (exception: CommandParsingException) {
+                if (exception.type == CommandParsingErrorType.CommandNotFound
+                    || exception.type == CommandParsingErrorType.CommandNotPresent) return
+                exception.printStackTrace()
                 return
             }
             try {

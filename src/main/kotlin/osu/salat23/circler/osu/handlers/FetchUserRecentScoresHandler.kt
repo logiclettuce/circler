@@ -6,8 +6,7 @@ import osu.salat23.circler.bot.ClientBotContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientImage
 import osu.salat23.circler.bot.client.ClientMessage
-import osu.salat23.circler.bot.command.commands.Command
-import osu.salat23.circler.bot.command.commands.FetchUserRecentScoresCommand
+import osu.salat23.circler.bot.command.impl.FetchUserRecentScoresCommand
 import osu.salat23.circler.bot.response.templates.OldResponseTemplates
 import osu.salat23.circler.service.OsuService
 import osu.salat23.circler.service.PlayerIdentifierService
@@ -19,43 +18,27 @@ class FetchUserRecentScoresHandler(
     val playerIdentifierService: PlayerIdentifierService
 ) : ChainHandler() {
 
-    override fun handleUpdate(command: Command, client: Client, clientBotContext: ClientBotContext) {
+    override fun handleUpdate(command: Any, client: Client, clientBotContext: ClientBotContext) {
         val command = command as FetchUserRecentScoresCommand
 
-        if (!command.serverArgument.isPresent()) {
-            client.send(
-                ClientMessage(
-                    chatId = clientBotContext.chatId,
-                    userId = clientBotContext.userId,
-                    text = "No server provided!"
-                )
-            )
-            return
-        }
-        val server = command.serverArgument.getArgument().value
-        val gameMode = command.gameModeArgument.getArgument().mode
-        val pageSize = command.pageSizeArgument.getArgument().value
-        val pageNumber = command.pageArgument.getArgument().value
-
         val identifier =
-            playerIdentifierService.getIdentifier(command.actorArgument, command.serverArgument, clientBotContext, client)
-        val osuApi = osuService.getOsuApiByServer(server)
-        val user = osuApi.user(identifier = identifier, gameMode = gameMode)
+            playerIdentifierService.getIdentifier(command.actor, command.server, clientBotContext, client)
+        val osuApi = osuService.getOsuApiByServer(command.server)
+        val user = osuApi.user(identifier = identifier, gameMode = command.gameMode)
         val scores =
             osuApi.userScores(
                 identifier = identifier,
-                gameMode = gameMode,
+                gameMode = command.gameMode,
                 type = ScoreType.Recent,
-                pageSize = pageSize,
-                pageNumber = pageNumber,
+                pageSize = command.pageSize,
+                pageNumber = command.pageNumber,
                 showFailed = true // todo option here
             )
         val text = if (scores.isEmpty()) "No recent scores found" else OldResponseTemplates.osuUserRecentScores(
             user,
-            command,
             scores
         )
-        if (pageSize == 1L && scores.isNotEmpty()) {
+        if (command.pageSize == 1L && scores.isNotEmpty()) {
             val imageUrl = scores[0].beatmap.beatmapSet?.coverUrl ?: ""
             client.send(
                 ClientImage(
@@ -76,7 +59,7 @@ class FetchUserRecentScoresHandler(
         )
     }
 
-    override fun canHandle(command: Command, clientBotContext: ClientBotContext): Boolean {
+    override fun canHandle(command: Any, clientBotContext: ClientBotContext): Boolean {
         return command is FetchUserRecentScoresCommand
     }
 }

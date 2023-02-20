@@ -1,10 +1,7 @@
 package osu.salat23.circler.bot.command.annotations
 
-import kotlin.reflect.KClass
-
-@Target(
-    AnnotationTarget.PROPERTY
-)
+@Target(AnnotationTarget.FIELD)
+@Retention(AnnotationRetention.RUNTIME)
 annotation class Default(
     val value: String
 )

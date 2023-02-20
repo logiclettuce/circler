@@ -1,38 +1,65 @@
 package osu.salat23.circler.bot.command
 
 import org.reflections.Reflections
+import org.reflections.scanners.Scanners
+import org.reflections.util.ClasspathHelper
+import org.reflections.util.ConfigurationBuilder
 import org.springframework.stereotype.Component
 import osu.salat23.circler.bot.command.annotations.Argument
 import osu.salat23.circler.bot.command.annotations.ArgumentSerialized
 import osu.salat23.circler.bot.command.annotations.Command
 import osu.salat23.circler.bot.command.annotations.Default
+import osu.salat23.circler.bot.command.impl.CommandClasspath
 import java.lang.reflect.Field
+import java.net.URLClassLoader
+import java.nio.file.Paths
+import java.util.*
+import kotlin.reflect.full.isSubclassOf
 import kotlin.streams.toList
+
 
 @Component
 class CommandParserV1 : CommandParser {
 
+    /*
+        In order for this parser to work, it has to be inside package where all annotated commands are located.
+        It will scan its current package and find every configured command and its arguments.
+    */
+
     private val identifierToCommandClass = mutableMapOf<String, Class<*>>()
 
     init {
-        val reflection = Reflections(this::class.java.`package`)
+        val paths = arrayOf(
+            Paths.get(CommandClasspath::class.java.getResource("CommandClasspath.class")!!.toURI()).parent.toUri().toURL(),
+        )
+        val commandAnnotationClassLoader = URLClassLoader(paths, ClassLoader.getSystemClassLoader())
+        // this will make sure that classloader loads all command classes before creating our reflections instance
+
+
+        val reflection = Reflections(
+            ConfigurationBuilder()
+                .setUrls(Collections.singletonList(ClasspathHelper.forClass(CommandClasspath::class.java)))
+                .setScanners(Scanners.TypesAnnotated, Scanners.Resources, Scanners.SubTypes)
+                .setUrls(ClasspathHelper.forClassLoader(commandAnnotationClassLoader)).addClassLoaders(commandAnnotationClassLoader)
+        )
+
         val allAnnotatedClasses = reflection.getTypesAnnotatedWith(Command::class.java)
-        // todo check if some command identifiers collide with each other
-        // todo add limited argument type (for developer)
         for (commandClass in allAnnotatedClasses) {
+            // todo rewrite for kotlin classes using Class<>.kotlin to convert
             val commandData: Command = commandClass.getAnnotation(Command::class.java)
                 ?: throw IllegalStateException("Could not get command metadata in class: ${commandClass.javaClass.canonicalName}")
 
             val identifierToArgumentField = mutableMapOf<String, Field>()
             for (field in commandClass.declaredFields) {
-                val argumentMetadata = field.getDeclaredAnnotation(Argument::class.java)
-                    ?: throw IllegalStateException("Could not read field metadata: ${field.name} in class: ${commandClass.canonicalName}")
+                val argumentMetadata = field.getAnnotation(Argument::class.java)//field.getDeclaredAnnotation(Argument::class.java)
+                    ?: throw IllegalStateException("Could not get field metadata: ${field.name} in class: ${commandClass.canonicalName}")
                 argumentMetadata.identifiers.forEach {
                     if (identifierToArgumentField.contains(it))
                         throw IllegalStateException(
                             "Duplicate argument identifier found: $it in ${field.name} and ${identifierToArgumentField[it]!!.name}"
                         )
-                    // todo type check for argument (only number, string, boolean and enum)
+                    // todo add number argument
+                    // todo make every check case insensitive
                     identifierToArgumentField[it] = field
                 }
             }
@@ -47,8 +74,8 @@ class CommandParserV1 : CommandParser {
         val argumentPrefix = "-"
         val splitRegex = "\\s(?=(?:[^\"]*\"[^\"]*\")*[^\"]*\$)".toRegex()
         // if amount of quotes is odd then throw exception
-        if (input.chars().filter { it.toChar() == '"' }.toList().size % 2 != 0)
-            throw CommandParsingException("Odd amount of quotes", CommandParsingErrorType.OddAmountOfQuotes)
+        //if (input.chars().filter { it.toChar() == '"' }.toList().size % 2 != 0)
+
         // split everything by white spaces and remove all quotes afterwards
         val tokens = input.split(splitRegex).map { it.replace("\"", "") }.toMutableList()
 
@@ -57,23 +84,23 @@ class CommandParserV1 : CommandParser {
             CommandParsingErrorType.CommandNotPresent
         )
         val commandToken = tokens[0]
-        if (!identifierToCommandClass.containsKey(commandToken))
+        if (!identifierToCommandClass.any { it.key.lowercase() == commandToken.lowercase() })
             throw CommandParsingException("Command not found: $commandToken", CommandParsingErrorType.CommandNotFound)
         val commandClass = identifierToCommandClass[commandToken]!!
         val commandMetadata = commandClass.getAnnotation(Command::class.java)
         val argumentIdentifierToField = mutableMapOf<String, Field>()
         val fieldToDefaultArgument = mutableMapOf<Field, String>()
         val argumentsMetadata = mutableListOf<Argument>()
-        commandClass.fields.forEach { field ->
+        commandClass.declaredFields.forEach { field ->
             // continue if field has no Argument annotation
             val argumentMetadata = field.getDeclaredAnnotation(Argument::class.java) ?: return@forEach
             // add this to arguments and associate its identifiers with the field
             argumentsMetadata.add(argumentMetadata)
             argumentIdentifierToField.putAll(argumentMetadata.identifiers.map { Pair(it, field) })
             // assign a default value for this field in case it is not explicitly provided
-            val defaultMetadata = field.getDeclaredAnnotation(Default::class.java)
-            if (defaultMetadata != null) {
-                fieldToDefaultArgument[field] = defaultMetadata.value
+            val defaultArgumentMetadata = field.getDeclaredAnnotation(Default::class.java)
+            if (defaultArgumentMetadata != null) {
+                fieldToDefaultArgument[field] = defaultArgumentMetadata.value
             }
         }
 
@@ -95,7 +122,9 @@ class CommandParserV1 : CommandParser {
                 )
 
             val argumentName = currentToken.substring(1)
-            val argumentMetadata = argumentsMetadata.firstOrNull { it.identifiers.contains(argumentName) }
+            val argumentMetadata = argumentsMetadata.firstOrNull {
+                it.identifiers.any { identifier -> identifier.lowercase() == argumentName.lowercase() }
+            }
                 ?: throw CommandParsingException(
                     "Could not parse argument: $currentToken",
                     CommandParsingErrorType.NoSuchArgumentName
@@ -158,6 +187,25 @@ class CommandParserV1 : CommandParser {
                     instantiationArguments[argumentField.name] = convertStringValueToArgumentValue(stringValue, argumentType)
                 }
 
+                if (argumentType::class.isSubclassOf(Number::class)) {
+                    // if there is no tokens left, that means value is not provided
+                    if (tokens.size - entriesToRemoveAmount < 1) {
+                        throw CommandParsingException(
+                            "Argument -$argumentName value is not provided!",
+                            CommandParsingErrorType.ArgumentValueIsNotProvided
+                        )
+                    }
+
+                    // even if the next token starts with -, we still count it as a value
+                    // not the new argument name
+
+                    val numberValue = tokens[1]
+                    entriesToRemoveAmount++
+
+
+
+                }
+
                 if (argumentType.isEnum) {
                     // if there is no tokens left, that means value is not provided
                     if (tokens.size - entriesToRemoveAmount < 1) {
@@ -215,15 +263,30 @@ class CommandParserV1 : CommandParser {
         if (targetType == Boolean::class.java) {
             if (booleanTruthIdentifiers.contains(value)) return true
             if (booleanFalseIdentifiers.contains(value)) return false
-            throw IllegalStateException("Cant parse boolean value")
+            throw IllegalStateException("Can't parse boolean value")
         }
 
         if (targetType == String::class.java) {
             return value
         }
 
+
+        try {
+            when (targetType) {
+                Double::class.java -> return value.toDouble()
+                Float::class.java -> return value.toFloat()
+                Long::class.java -> return value.toLong()
+                Int::class.java -> return value.toInt()
+                Short::class.java -> return value.toShort()
+                Byte::class.java -> return value.toByte()
+            }
+        } catch (exception: NumberFormatException) {
+            throw CommandParsingException(
+                "Can't parse number value: $value for type ${targetType.name}", CommandParsingErrorType.CantParseNumberValue
+            )
+        }
+
         if (targetType.isEnum) {
-            val stringValue = value
             val identifierToEnumConstantField = mutableMapOf<String, Field>()
             val enumConstantFieldToOrdinal = mutableMapOf<Field, Int>()
             val enumConstantFields = targetType.declaredFields.filter { field ->
@@ -243,12 +306,12 @@ class CommandParserV1 : CommandParser {
 
 
 
-            if (!identifierToEnumConstantField.containsKey(stringValue))
+            if (!identifierToEnumConstantField.containsKey(value))
                 throw CommandParsingException(
-                    "No such value available: $stringValue", CommandParsingErrorType.NoSuchValueInEnum
+                    "No such value available: $value", CommandParsingErrorType.NoSuchValueInEnum
                 )
 
-            val selectedField = identifierToEnumConstantField[stringValue]!!
+            val selectedField = identifierToEnumConstantField[value]!!
             val ordinalIndex = enumConstantFieldToOrdinal[selectedField]!!
             val enumValue = targetType.enumConstants[ordinalIndex]!!
 

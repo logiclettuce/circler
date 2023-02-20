@@ -5,9 +5,9 @@ import org.springframework.stereotype.Component
 import osu.salat23.circler.bot.ClientBotContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientMessage
-import osu.salat23.circler.bot.command.commands.Command
-import osu.salat23.circler.bot.command.commands.MapChatLeaderboardCommand
+import osu.salat23.circler.bot.command.impl.MapChatLeaderboardCommand
 import osu.salat23.circler.bot.response.templates.OldResponseTemplates
+import osu.salat23.circler.osu.domain.Mod
 import osu.salat23.circler.osu.domain.Score
 import osu.salat23.circler.osu.domain.User
 import osu.salat23.circler.service.ChatService
@@ -18,45 +18,31 @@ class MapChatLeaderboardHandler(
     val osuService: OsuService,
     val chatService: ChatService
 ) : ChainHandler() {
-    override fun handleUpdate(command: Command, client: Client, clientBotContext: ClientBotContext) {
+    override fun handleUpdate(command: Any, client: Client, clientBotContext: ClientBotContext) {
         val command = command as MapChatLeaderboardCommand
-        if (!command.beatmapIdArgument.isPresent()) {
-            client.send(
-                ClientMessage(
-                    chatId = clientBotContext.chatId,
-                    userId = clientBotContext.userId,
-                    text = "No beatmap provided!"
-                )
-            )
-            return
-        }
 
-        val server = command.serverArgument.getArgument().value
-        val beatmapId = command.beatmapIdArgument.getArgument().id
-        val gameMode = command.gameModeArgument.getArgument().mode
+        val mods = Mod.fromString(command.mods)
 
-        val modsArgument = command.modsArgument.getArgument()
+        val osuApi = osuService.getOsuApiByServer(command.server)
 
-        val osuApi = osuService.getOsuApiByServer(server)
-
-        val map = osuApi.beatmap(id = beatmapId, gameMode = gameMode, mods = modsArgument.mods)
+        val map = osuApi.beatmap(id = command.beatmapId, gameMode = command.gameMode, mods = mods)
 
         val identifiers = chatService.getChatMemberIdentifiers(
             clientId = clientBotContext.chatId,
             clientType = clientBotContext.clientType,
-            server = server
+            server = command.server
         )
         // todo IMPORTANT! fix values presentation (probably convert problem)
         val userScorePairs: MutableList<Pair<User, Score>> = mutableListOf()
         runBlocking {
             // todo implement filtering by mods logic
             identifiers.parallelStream().forEach { identifier ->
-                val user = osuApi.user(identifier = identifier, gameMode = gameMode)
+                val user = osuApi.user(identifier = identifier, gameMode = command.gameMode)
                 val userBeatmapScores = osuApi.userBeatmapScores(
                     identifier = user.username,
-                    gameMode = gameMode,
+                    gameMode = command.gameMode,
                     beatmapId = map.id,
-                    requiredMods = modsArgument.mods // todo mods filtering logic
+                    requiredMods = mods // todo mods filtering logic
                 )
                 if (userBeatmapScores.isNotEmpty()) {
                     val bestScore: Score = userBeatmapScores.reduce { acc, score ->
@@ -84,7 +70,7 @@ class MapChatLeaderboardHandler(
 
     }
 
-    override fun canHandle(command: Command, clientBotContext: ClientBotContext): Boolean {
+    override fun canHandle(command: Any, clientBotContext: ClientBotContext): Boolean {
         return command is MapChatLeaderboardCommand
     }
 }
