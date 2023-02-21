@@ -28,10 +28,10 @@ class CommandParserV1 : CommandParser {
     private val identifierToCommandClass = mutableMapOf<String, Class<*>>()
 
     init {
-        val paths = arrayOf(
-            Paths.get(CommandClasspath::class.java.getResource("CommandClasspath.class")!!.toURI()).parent.toUri().toURL(),
-        )
-        val commandAnnotationClassLoader = URLClassLoader(paths, this.javaClass.classLoader)
+//        val paths = arrayOf(
+//            Paths.get(CommandClasspath::class.java.getResource("CommandClasspath.class")!!.toURI()).parent.toUri().toURL(),
+//        )
+//        val commandAnnotationClassLoader = URLClassLoader(paths, this.javaClass.classLoader)
         // this will make sure that classloader loads all command classes before creating our reflections instance
 
 
@@ -39,7 +39,7 @@ class CommandParserV1 : CommandParser {
             ConfigurationBuilder()
                 .setUrls(Collections.singletonList(ClasspathHelper.forClass(CommandClasspath::class.java)))
                 .setScanners(Scanners.TypesAnnotated, Scanners.Resources, Scanners.SubTypes)
-                .setUrls(ClasspathHelper.forClassLoader(commandAnnotationClassLoader)).addClassLoaders(commandAnnotationClassLoader)
+//                .setUrls(ClasspathHelper.forClassLoader(commandAnnotationClassLoader)).addClassLoaders(commandAnnotationClassLoader)
         )
 
         val allAnnotatedClasses = reflection.getTypesAnnotatedWith(Command::class.java)
