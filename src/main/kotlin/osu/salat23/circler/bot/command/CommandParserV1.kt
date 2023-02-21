@@ -31,7 +31,7 @@ class CommandParserV1 : CommandParser {
         val paths = arrayOf(
             Paths.get(CommandClasspath::class.java.getResource("CommandClasspath.class")!!.toURI()).parent.toUri().toURL(),
         )
-        val commandAnnotationClassLoader = URLClassLoader(paths, ClassLoader.getSystemClassLoader())
+        val commandAnnotationClassLoader = URLClassLoader(paths, this.javaClass.classLoader)
         // this will make sure that classloader loads all command classes before creating our reflections instance
 
 
