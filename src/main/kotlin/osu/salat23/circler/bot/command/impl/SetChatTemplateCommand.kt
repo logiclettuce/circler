@@ -15,6 +15,7 @@ class SetChatTemplateCommand(
         description = "The type of the template you want to set.",
         identifiers = ["template", "tmpl", "еуьздфеу", "еьзд"],
         required = true,
+        implicit = true
     )
     var template: String,
     @Argument(

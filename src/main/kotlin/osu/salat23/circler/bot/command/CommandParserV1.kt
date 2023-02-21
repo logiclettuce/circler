@@ -15,7 +15,6 @@ import java.net.URLClassLoader
 import java.nio.file.Paths
 import java.util.*
 import kotlin.reflect.full.isSubclassOf
-import kotlin.streams.toList
 
 
 @Component
@@ -91,9 +90,13 @@ class CommandParserV1 : CommandParser {
         val argumentIdentifierToField = mutableMapOf<String, Field>()
         val fieldToDefaultArgument = mutableMapOf<Field, String>()
         val argumentsMetadata = mutableListOf<Argument>()
+        var implicitArgument: Pair<Field, Argument>? = null
         commandClass.declaredFields.forEach { field ->
             // continue if field has no Argument annotation
             val argumentMetadata = field.getDeclaredAnnotation(Argument::class.java) ?: return@forEach
+            if (argumentMetadata.implicit) { // todo create checks while creating app about default values and what not
+                implicitArgument = field to argumentMetadata
+            }
             // add this to arguments and associate its identifiers with the field
             argumentsMetadata.add(argumentMetadata)
             argumentIdentifierToField.putAll(argumentMetadata.identifiers.map { Pair(it, field) })
@@ -114,14 +117,29 @@ class CommandParserV1 : CommandParser {
             val currentToken = tokens.first()
             entriesToRemoveAmount++
 
+
             // check if argument name starts with '-'. throw exception if not
-            if (!currentToken.startsWith(argumentPrefix))
+            if (!currentToken.startsWith(argumentPrefix) && implicitArgument == null)
                 throw CommandParsingException(
                     "Unexpected argument name format: $currentToken",
                     CommandParsingErrorType.ArgumentWrongNameFormat
                 )
 
-            val argumentName = currentToken.substring(1)
+            // this pizdec decides if we should use implicit argument name or do usual logic
+            var addFakeToken = false
+            val argumentName = if (
+                    currentToken.first().toString() != argumentPrefix && implicitArgument != null
+                ) {
+                    addFakeToken = true
+                    implicitArgument!!.second.identifiers.first() // return
+                } else {
+                    currentToken.substring(1) // return
+                }
+
+            if (implicitArgument != null && addFakeToken) {
+                tokens.add(1, tokens.first())
+            }
+
             val argumentMetadata = argumentsMetadata.firstOrNull {
                 it.identifiers.any { identifier -> identifier.lowercase() == argumentName.lowercase() }
             }

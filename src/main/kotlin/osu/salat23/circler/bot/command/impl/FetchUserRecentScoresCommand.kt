@@ -16,6 +16,7 @@ class FetchUserRecentScoresCommand(
         name = "Player",
         description = "Specify player username.",
         identifiers = ["nick", "nickname", "тшсл", "тшслтфьу"],
+        implicit = true
     )
     @Default("")
     var actor: String,

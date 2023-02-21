@@ -15,7 +15,8 @@ class MapChatLeaderboardCommand(
     @Argument(
         name = "Beatmap id",
         description = "Specify beatmap id. You can use beatmap link instead of plain id.",
-        identifiers = ["beatmap", "bmp", "b", "иуфеьфз", "иьз", "и"]
+        identifiers = ["beatmap", "bmp", "b", "иуфеьфз", "иьз", "и"],
+        implicit = true
     )
     var beatmapId: String,
 

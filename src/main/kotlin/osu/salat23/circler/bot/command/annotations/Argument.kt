@@ -7,5 +7,5 @@ annotation class Argument(
     val description: String,
     vararg val identifiers: String,
     val required: Boolean = false,
-//    val implicit: Boolean = false
+    val implicit: Boolean = false
 )

@@ -16,6 +16,7 @@ class ChatLeaderboardCommand(
         name = "Server",
         description = "Specify game server.",
         identifiers = ["server", "s", "ыукмук", "ы"],
+        implicit = true
     )
     @Default("bancho")
     var server: Server,

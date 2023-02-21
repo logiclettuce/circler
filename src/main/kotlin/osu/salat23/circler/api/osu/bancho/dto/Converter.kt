@@ -57,8 +57,7 @@ object Converter {
     }
 
     fun convertToUser(
-        user: OsuUser,
-        gameMode: Mode
+        user: OsuUser
     ): User {
         val joinDate = ZonedDateTime.parse(user.joinDate, DateTimeFormatter.ISO_DATE_TIME)
             .withZoneSameInstant(ZoneId.systemDefault())
@@ -74,7 +73,7 @@ object Converter {
             coverUrl = user.coverUrl,
             country = Country(name = user.country.name, code = user.country.code),
             joinDate = joinDate.toLocalDate(),
-            playMode = gameMode, //todo add user default playmode
+            playMode = Mode.from(user.playmode), //todo add user default playmode
             performance = if (user.statistics != null) user.statistics.pp else 0,
             globalRank = if (user.statistics != null) user.statistics.globalRank else 0,
             countryRank = if (user.statistics != null) user.statistics.countryRank else 0,

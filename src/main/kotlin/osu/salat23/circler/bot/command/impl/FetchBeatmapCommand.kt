@@ -15,7 +15,8 @@ class FetchBeatmapCommand(
         name = "Beatmap Id",
         description = "Specify beatmap id. Url with the beatmap can be used, as well as plain id.",
         identifiers = ["beatmap", "bmp", "иуфеьфз", "иьз"],
-        required = true
+        required = true,
+        implicit = true
     )
     @Default("")
     var beatmapId: String,

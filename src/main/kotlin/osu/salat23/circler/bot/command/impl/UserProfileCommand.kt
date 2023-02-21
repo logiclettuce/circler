@@ -15,8 +15,9 @@ class UserProfileCommand (
     @Argument(
         name = "Player",
         description = "Specify player username.",
-        identifiers = ["nick", "nickname", "тшсл", "тшслтфьу"],
+        identifiers = ["nick", "nickname", "n", "тшсл", "тшслтфьу", "т"],
         required = true,
+        implicit = true
     )
     @Default("")
     var actor: String,
