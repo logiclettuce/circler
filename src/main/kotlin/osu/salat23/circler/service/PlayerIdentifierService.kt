@@ -1,12 +1,10 @@
 package osu.salat23.circler.service
 
 import org.springframework.stereotype.Service
+import osu.salat23.circler.api.osu.Server
 import osu.salat23.circler.bot.ClientBotContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientMessage
-import osu.salat23.circler.bot.command.arguments.ProvidedArgument
-import osu.salat23.circler.bot.command.arguments.ServerArgument
-import osu.salat23.circler.bot.command.arguments.StringArgument
 import osu.salat23.circler.bot.response.templates.OldResponseTemplates
 import osu.salat23.circler.osu.exceptions.NoServerProvidedException
 import osu.salat23.circler.osu.exceptions.UserNotDefinedException
@@ -17,14 +15,14 @@ class PlayerIdentifierService(
 ) {
 
     fun getIdentifier(
-        providedActor: ProvidedArgument<StringArgument>,
-        providedServer: ProvidedArgument<ServerArgument>,
+        actor: String,
+        server: Server,
         clientBotContext: ClientBotContext,
         client: Client
     ): String {
         var identifier = ""
-        if (providedActor.isPresent()) {
-            identifier = providedActor.getArgument().value
+        if (actor.isNotEmpty()) {
+            identifier = actor
         }
         if (identifier.isEmpty()) {
             val persistedIdentifier =
@@ -32,7 +30,7 @@ class PlayerIdentifierService(
                     .getUserServerIdentifier(
                         clientBotContext.userId,
                         clientBotContext.chatId,
-                        if (providedServer.isPresent()) providedServer.getArgument().value else throw NoServerProvidedException(),
+                        server,
                         clientBotContext.clientType
                     )
 

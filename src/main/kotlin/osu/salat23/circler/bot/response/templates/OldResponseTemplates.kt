@@ -1,8 +1,7 @@
 package osu.salat23.circler.bot.response.templates
 
-import osu.salat23.circler.bot.command.commands.Command
-import osu.salat23.circler.bot.command.commands.FetchUserProfileCommand
-import osu.salat23.circler.bot.command.commands.FetchUserTopScoresCommand
+import osu.salat23.circler.bot.command.impl.UserProfileCommand
+import osu.salat23.circler.bot.command.impl.FetchUserTopScoresCommand
 import osu.salat23.circler.osu.domain.Beatmap
 import osu.salat23.circler.osu.domain.Mode
 import osu.salat23.circler.osu.domain.Score
@@ -14,7 +13,7 @@ import java.text.DecimalFormat
 object OldResponseTemplates {
     private const val USER_LINK_TEMPLATE = "https://osu.ppy.sh/u/"
 
-    fun osuUserTemplate(user: User, command: FetchUserProfileCommand, gameMode: Mode): String {
+    fun osuUserTemplate(user: User, command: UserProfileCommand, gameMode: Mode): String {
         val playstyle = ""
         var highestRank = ""
 
@@ -25,7 +24,7 @@ object OldResponseTemplates {
         }
 
         return """
-    [Server: ${command.serverArgument.getArgument().value}]
+    [Server: ${command.server.displayName}]
     [Mode: ${if (gameMode == Mode.Default) user.playMode.name else gameMode.name}]
     👤Player: ${user.username} ${if (user.isOnline) """🟢""" else ""}
     🌐: ${user.country.name}
@@ -43,7 +42,7 @@ object OldResponseTemplates {
     fun osuUserTopScores(user: User, command: FetchUserTopScoresCommand, scores: List<Score>): String {
         val decimalFormat = DecimalFormat("#.##")
         val headerString = """
-            [Server: ${command.serverArgument.getArgument().value}]
+            [Server: ${command.server.displayName}]
             [Mode: ${user.playMode}]
             Top scores for ${user.username}:${"\n"}
             
@@ -94,7 +93,7 @@ object OldResponseTemplates {
         return result
     }
 
-    fun osuUserRecentScores(user: User, command: Command, scores: List<Score>): String {
+    fun osuUserRecentScores(user: User, scores: List<Score>): String {
         val stringBuilder = StringBuilder()
         scores.forEach {
             stringBuilder.append("""${it.beatmap.beatmapSet?.title} - ${it.beatmap.beatmapSet?.artist} | ${it.beatmap.difficultyRating}⭐ | ${it.performance}pp""")

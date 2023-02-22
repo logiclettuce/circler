@@ -20,7 +20,7 @@ object SpecificContext {
     fun userScoresJson(
         user: User,
         server: Server,
-        scores: Collection<Score>
+        scores: List<Score>
     ): JSONObject {
         val scoresJson = scores.map { EntityContext.scoreJson(it) }.toTypedArray()
         return json {

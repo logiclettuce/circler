@@ -113,7 +113,7 @@ class BanchoApi(
         gameMode: Mode
     ): User {
         val request = Request.Builder().url(BanchoEndpoints.usersUrl(identifier = identifier, mode = gameMode)).get().build()
-        return Converter.convertToUser(makeRequest(request), gameMode)
+        return Converter.convertToUser(makeRequest(request))
     }
 
     override fun userScores(

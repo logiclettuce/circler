@@ -1,16 +1,14 @@
 package osu.salat23.circler.api.osu
 
+import osu.salat23.circler.bot.command.annotations.ArgumentSerialized
+
 enum class Server(
-    val identifiers: Array<String>,
     val displayName: String,
     val beatmapsetUrl: Regex) {
 
-    // todo either remove config files completely or make servers configurable
+    @ArgumentSerialized("b", "s", "bancho", "standard", "std",
+        "и", "ы", "ифтсрщ", "ыефтвфкв", "ыев")
     Bancho(
-        arrayOf(
-            "b", "s", "bancho", "standard", "std",
-            "и", "ы", "ифтсрщ", "ыефтвфкв", "ыев"
-        ),
         "Bancho",
         Regex("https?:\\/\\/osu.ppy.sh\\/beatmapsets\\/[\\d]+(#[\\w]+)?\\/[\\d]+")
     ),
