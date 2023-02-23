@@ -9,13 +9,13 @@ import osu.salat23.circler.osu.domain.Mode
 @Command(
     name = "Chat leaderboard",
     description = "Player leaderboard in the current chat.",
-    identifiers = ["leaderboard", "lb", "дуфвукищфкв", "ди"]
+    identifiers = ["leaderboard", "lb"]
 )
 class ChatLeaderboardCommand(
     @Argument(
         name = "Server",
         description = "Specify game server.",
-        identifiers = ["server", "s", "ыукмук", "ы"],
+        identifiers = ["server", "s"],
         implicit = true
     )
     @Default("bancho")
@@ -24,7 +24,7 @@ class ChatLeaderboardCommand(
     @Argument(
         name = "Mode",
         description = "Specify game mode.",
-        identifiers = ["mode", "m", "ьщву", "ь"],
+        identifiers = ["mode", "m"],
     )
     @Default("default")
     var gameMode: Mode,

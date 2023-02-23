@@ -73,7 +73,7 @@ object Converter {
             coverUrl = user.coverUrl,
             country = Country(name = user.country.name, code = user.country.code),
             joinDate = joinDate.toLocalDate(),
-            playMode = Mode.from(user.playmode), //todo add user default playmode
+            playMode = Mode.from(user.playmode),
             performance = if (user.statistics != null) user.statistics.pp else 0,
             globalRank = if (user.statistics != null) user.statistics.globalRank else 0,
             countryRank = if (user.statistics != null) user.statistics.countryRank else 0,
@@ -91,7 +91,6 @@ object Converter {
         )
     }
 
-    // todo overload with beatmapAttributes instead of just beatmap??
     fun convertToScore(
         score: BanchoScore,
         beatmap: Beatmap,
@@ -103,7 +102,7 @@ object Converter {
             performance = score.pp,
             accuracy = score.accuracy,
             maxCombo = score.maxCombo,
-            date = LocalDate.now() /*.parse(score.created_at)*/,
+            date = LocalDate.parse(score.created_at) /*.parse(score.created_at)*/,
             mode = Mode.from(score.mode),
             rank = Rank.valueOf(score.rank),
             globalRank = score.rankGlobal,

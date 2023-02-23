@@ -15,15 +15,16 @@ class MapChatLeaderboardCommand(
     @Argument(
         name = "Beatmap id",
         description = "Specify beatmap id. You can use beatmap link instead of plain id.",
-        identifiers = ["beatmap", "bmp", "b", "иуфеьфз", "иьз", "и"],
-        implicit = true
+        identifiers = ["beatmap", "bmp", "b"],
+        implicit = true,
+        required = true
     )
     var beatmapId: String,
 
     @Argument(
         name = "Server",
         description = "Specify game server.",
-        identifiers = ["server", "s", "ыукмук", "ы"],
+        identifiers = ["server", "s"],
     )
     @Default("bancho")
     var server: Server,
@@ -31,7 +32,7 @@ class MapChatLeaderboardCommand(
     @Argument(
         name = "Mode",
         description = "Specify game mode.",
-        identifiers = ["mode", "m", "ьщву", "ь"],
+        identifiers = ["mode", "m"],
     )
     @Default("default")
     var gameMode: Mode,
@@ -39,7 +40,8 @@ class MapChatLeaderboardCommand(
     @Argument(
         name = "Mods",
         description = "Specify mods. Example: HDDTHR",
-        identifiers = ["mods", "md", "ьщвы", "ьв"]
+        identifiers = ["mods", "md"]
     )
+    @Default("")
     var mods: String
 )

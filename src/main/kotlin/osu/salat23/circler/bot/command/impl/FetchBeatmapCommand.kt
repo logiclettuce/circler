@@ -8,13 +8,13 @@ import osu.salat23.circler.osu.domain.Mode
 @Command(
     name = "Fetch beatmap",
     description = "Get information about particular beatmap",
-    identifiers = ["beatmap", "b", "иуфеьфз", "и"]
+    identifiers = ["beatmap", "b"]
 )
 class FetchBeatmapCommand(
     @Argument(
         name = "Beatmap Id",
         description = "Specify beatmap id. Url with the beatmap can be used, as well as plain id.",
-        identifiers = ["beatmap", "bmp", "иуфеьфз", "иьз"],
+        identifiers = ["beatmap", "bmp"],
         required = true,
         implicit = true
     )
@@ -24,7 +24,7 @@ class FetchBeatmapCommand(
     @Argument(
         name = "Game mode",
         description = "Specify game mode.",
-        identifiers = ["gamemode", "mode", "пфьуьщву", "ьщву"]
+        identifiers = ["gamemode", "mode"]
     )
     @Default("default")
     var gameMode: Mode,
@@ -32,7 +32,7 @@ class FetchBeatmapCommand(
     @Argument(
         name = "Mods",
         description = "Specify mods. Example: HDDTHR",
-        identifiers = ["mods", "md", "ьщвы", "ьв"]
+        identifiers = ["mods", "md"]
     )
     @Default("")
     var mods: String

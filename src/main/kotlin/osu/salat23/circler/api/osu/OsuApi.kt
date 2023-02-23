@@ -8,7 +8,7 @@ interface OsuApi {
     // todo some work of standardizing method signatures
     fun user(
         identifier: String,
-        gameMode: Mode
+        gameMode: Mode = Mode.Default
     ): User
     fun userScores(
         identifier: String,
@@ -31,6 +31,5 @@ interface OsuApi {
     ): List<Score>
     fun playerExists(
         identifier: String,
-        gameMode: Mode
     ): Boolean
 }

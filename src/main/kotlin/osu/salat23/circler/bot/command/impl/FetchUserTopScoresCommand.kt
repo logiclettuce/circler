@@ -9,13 +9,13 @@ import osu.salat23.circler.osu.domain.Mode
 @Command(
     name = "User top scores",
     description = "Gets a list of user top scores.",
-    identifiers = ["top", "t", "ещз", "е"]
+    identifiers = ["top", "t"]
 )
 class FetchUserTopScoresCommand(
     @Argument(
         name = "Player",
         description = "Specify player username.",
-        identifiers = ["nick", "nickname", "тшсл", "тшслтфьу"],
+        identifiers = ["nick", "nickname"],
         implicit = true
     )
     @Default("")
@@ -24,7 +24,7 @@ class FetchUserTopScoresCommand(
     @Argument(
         name = "Server",
         description = "Specify game server.",
-        identifiers = ["server", "s", "ыукмук", "ы"],
+        identifiers = ["server", "s"],
     )
     @Default("bancho")
     var server: Server,
@@ -32,7 +32,7 @@ class FetchUserTopScoresCommand(
     @Argument(
         name = "Mode",
         description = "Specify game mode.",
-        identifiers = ["mode", "m", "ьщву", "ь"],
+        identifiers = ["mode", "m"],
     )
     @Default("default")
     var gameMode: Mode,
@@ -40,7 +40,7 @@ class FetchUserTopScoresCommand(
     @Argument(
         name = "Page size",
         description = "Specify amount of elements that result can contain at once.",
-        identifiers = ["page", "p", "зфпу", "з"],
+        identifiers = ["page", "p"],
     )
     @Default("5")
     var pageSize: Long,
@@ -48,7 +48,7 @@ class FetchUserTopScoresCommand(
     @Argument(
         name = "Page number",
         description = "Specify the number of page. Used to cycle through large result lists. Starts at 1.",
-        identifiers = ["number", "n", "тгьиук", "т"],
+        identifiers = ["number", "n"],
     )
     @Default("1")
     var pageNumber: Long

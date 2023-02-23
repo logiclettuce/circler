@@ -7,13 +7,13 @@ import osu.salat23.circler.bot.command.annotations.Default
 @Command(
     name = "Set template",
     description = "Set your custom specified template.",
-    identifiers = ["template", "tmpl", "еуьздфеу", "еьзд"]
+    identifiers = ["template", "tmpl"]
 )
 class SetChatTemplateCommand(
     @Argument(
         name = "Template type",
         description = "The type of the template you want to set.",
-        identifiers = ["template", "tmpl", "еуьздфеу", "еьзд"],
+        identifiers = ["template", "tmpl"],
         required = true,
         implicit = true
     )
@@ -21,7 +21,7 @@ class SetChatTemplateCommand(
     @Argument(
         name = "For render",
         description = "Set this template for render or not.",
-        identifiers = ["render", "r", "кутвук", "к"],
+        identifiers = ["render", "r"],
     )
     @Default("false")
     var forRender: Boolean

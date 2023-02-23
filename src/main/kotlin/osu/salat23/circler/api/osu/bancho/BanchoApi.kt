@@ -207,12 +207,10 @@ class BanchoApi(
 
     override fun playerExists(
         identifier: String,
-        gameMode: Mode
     ): Boolean {
         try {
             user(
-                identifier = identifier,
-                gameMode = gameMode
+                identifier = identifier
             )
         } catch (exception: RequestFailedException) {
             if (exception.code == 404) {

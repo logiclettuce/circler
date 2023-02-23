@@ -15,7 +15,7 @@ class SetChatMemberIdentifierHandler(val osuService: OsuService, val userServerI
         val command = command as SetChatMemberIdentifierCommand
 
         val osuApi = osuService.getOsuApiByServer(command.server)
-        val exists = osuApi.playerExists(identifier = command.actor, gameMode = command.gameMode)
+        val exists = osuApi.playerExists(identifier = command.actor)
         if (exists) {
             userServerIdentifierService.setUserServerIdentifier(
                 identifier = command.actor,
@@ -28,7 +28,7 @@ class SetChatMemberIdentifierHandler(val osuService: OsuService, val userServerI
                 ClientMessage(
                     chatId = clientBotContext.chatId,
                     userId = clientBotContext.userId,
-                    text = "Nickname has been set $command.actor"
+                    text = "Nickname has been set ${command.actor}"
                 )
             )
             return
@@ -37,7 +37,7 @@ class SetChatMemberIdentifierHandler(val osuService: OsuService, val userServerI
             ClientMessage(
                 chatId = clientBotContext.chatId,
                 userId = clientBotContext.userId,
-                text = "User does not exist $command.actor"
+                text = "User does not exist ${command.actor}"
             )
         )
     }

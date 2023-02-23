@@ -1,72 +1,17 @@
 package osu.salat23.circler.bot.command
 
-import org.reflections.Reflections
-import org.reflections.scanners.Scanners
-import org.reflections.util.ClasspathHelper
-import org.reflections.util.ConfigurationBuilder
 import org.springframework.stereotype.Component
-import osu.salat23.circler.bot.command.annotations.Argument
 import osu.salat23.circler.bot.command.annotations.ArgumentSerialized
-import osu.salat23.circler.bot.command.annotations.Command
-import osu.salat23.circler.bot.command.annotations.Default
-import osu.salat23.circler.bot.command.impl.CommandClasspath
-import java.lang.reflect.Field
-import java.net.URLClassLoader
-import java.nio.file.Paths
-import java.util.*
+import osu.salat23.circler.bot.command.keymap.KeymapTranslator
+import osu.salat23.circler.bot.command.keymap.LayoutKeymap
 import kotlin.reflect.full.isSubclassOf
 
 
 @Component
-class CommandParserV1 : CommandParser {
-
-    /*
-        In order for this parser to work, it has to be inside package where all annotated commands are located.
-        It will scan its current package and find every configured command and its arguments.
-    */
-
-    private val identifierToCommandClass = mutableMapOf<String, Class<*>>()
-
-    init {
-//        val paths = arrayOf(
-//            Paths.get(CommandClasspath::class.java.getResource("CommandClasspath.class")!!.toURI()).parent.toUri().toURL(),
-//        )
-//        val commandAnnotationClassLoader = URLClassLoader(paths, this.javaClass.classLoader)
-        // this will make sure that classloader loads all command classes before creating our reflections instance
-
-
-        val reflection = Reflections(
-            ConfigurationBuilder()
-                .setUrls(Collections.singletonList(ClasspathHelper.forClass(CommandClasspath::class.java)))
-                .setScanners(Scanners.TypesAnnotated, Scanners.Resources, Scanners.SubTypes)
-//                .setUrls(ClasspathHelper.forClassLoader(commandAnnotationClassLoader)).addClassLoaders(commandAnnotationClassLoader)
-        )
-
-        val allAnnotatedClasses = reflection.getTypesAnnotatedWith(Command::class.java)
-        for (commandClass in allAnnotatedClasses) {
-            // todo rewrite for kotlin classes using Class<>.kotlin to convert
-            val commandData: Command = commandClass.getAnnotation(Command::class.java)
-                ?: throw IllegalStateException("Could not get command metadata in class: ${commandClass.javaClass.canonicalName}")
-
-            val identifierToArgumentField = mutableMapOf<String, Field>()
-            for (field in commandClass.declaredFields) {
-                val argumentMetadata = field.getAnnotation(Argument::class.java)//field.getDeclaredAnnotation(Argument::class.java)
-                    ?: throw IllegalStateException("Could not get field metadata: ${field.name} in class: ${commandClass.canonicalName}")
-                argumentMetadata.identifiers.forEach {
-                    if (identifierToArgumentField.contains(it))
-                        throw IllegalStateException(
-                            "Duplicate argument identifier found: $it in ${field.name} and ${identifierToArgumentField[it]!!.name}"
-                        )
-                    // todo add number argument
-                    // todo make every check case insensitive
-                    identifierToArgumentField[it] = field
-                }
-            }
-
-            identifierToCommandClass.putAll(commandData.identifiers.associateWith { commandClass })
-        }
-    }
-
+class CommandParserV1(
+    private final val commandContext: CommandContext,
+    private final val keymaps: List<LayoutKeymap>
+) : CommandParser {
 
     // user salat23 -render -page 1
     override fun parse(input: String): Any {
@@ -83,29 +28,28 @@ class CommandParserV1 : CommandParser {
             CommandParsingErrorType.CommandNotPresent
         )
         val commandToken = tokens[0]
-        if (!identifierToCommandClass.any { it.key.lowercase() == commandToken.lowercase() })
+        if (!commandContext.identifierToCommandInfo.any { it.key.lowercase() == commandToken.lowercase() })
             throw CommandParsingException("Command not found: $commandToken", CommandParsingErrorType.CommandNotFound)
-        val commandClass = identifierToCommandClass[commandToken]!!
-        val commandMetadata = commandClass.getAnnotation(Command::class.java)
-        val argumentIdentifierToField = mutableMapOf<String, Field>()
-        val fieldToDefaultArgument = mutableMapOf<Field, String>()
-        val argumentsMetadata = mutableListOf<Argument>()
-        var implicitArgument: Pair<Field, Argument>? = null
-        commandClass.declaredFields.forEach { field ->
-            // continue if field has no Argument annotation
-            val argumentMetadata = field.getDeclaredAnnotation(Argument::class.java) ?: return@forEach
-            if (argumentMetadata.implicit) { // todo create checks while creating app about default values and what not
-                implicitArgument = field to argumentMetadata
-            }
-            // add this to arguments and associate its identifiers with the field
-            argumentsMetadata.add(argumentMetadata)
-            argumentIdentifierToField.putAll(argumentMetadata.identifiers.map { Pair(it, field) })
-            // assign a default value for this field in case it is not explicitly provided
-            val defaultArgumentMetadata = field.getDeclaredAnnotation(Default::class.java)
-            if (defaultArgumentMetadata != null) {
-                fieldToDefaultArgument[field] = defaultArgumentMetadata.value
-            }
-        }
+        val commandInfo = commandContext.identifierToCommandInfo[commandToken.lowercase()]!!
+        val commandClass = commandInfo.`class`.java
+        val commandMetadata = commandInfo.metadata
+
+//        var implicitArgument: Pair<Field, Argument>? = null
+//        commandClass.declaredFields.forEach { field ->
+//            // continue if field has no Argument annotation
+//            val argumentMetadata = field.getDeclaredAnnotation(Argument::class.java) ?: return@forEach
+//            if (argumentMetadata.implicit) { // todo create checks while creating app about default values and what not
+//                implicitArgument = field to argumentMetadata
+//            }
+//            // add this to arguments and associate its identifiers with the field
+//            argumentsMetadata.add(argumentMetadata)
+//            argumentIdentifierToField.putAll(argumentMetadata.identifiers.map { Pair(it, field) })
+//            // assign a default value for this field in case it is not explicitly provided
+//            val defaultArgumentMetadata = field.getDeclaredAnnotation(Default::class.java)
+//            if (defaultArgumentMetadata != null) {
+//                fieldToDefaultArgument[field] = defaultArgumentMetadata.value
+//            }
+//        }
 
         // remove the command token afterwards
         tokens.removeFirst()
@@ -119,40 +63,37 @@ class CommandParserV1 : CommandParser {
 
 
             // check if argument name starts with '-'. throw exception if not
-            if (!currentToken.startsWith(argumentPrefix) && implicitArgument == null)
+            if (!currentToken.lowercase().startsWith(argumentPrefix.lowercase()) && commandInfo.implicitArgument == null)
                 throw CommandParsingException(
                     "Unexpected argument name format: $currentToken",
                     CommandParsingErrorType.ArgumentWrongNameFormat
                 )
 
             // this pizdec decides if we should use implicit argument name or do usual logic
+            // ================================
             var addFakeToken = false
-            val argumentName = if (
-                    currentToken.first().toString() != argumentPrefix && implicitArgument != null
-                ) {
+            val argumentIdentifier = if (
+                    currentToken.first().toString() != argumentPrefix && commandInfo.implicitArgument != null
+                ) { // if argument is actually implicit
                     addFakeToken = true
-                    implicitArgument!!.second.identifiers.first() // return
+                    commandInfo.implicitArgument.primaryIdentifier // return
                 } else {
+                    // remove prefix which is always 1 character long
                     currentToken.substring(1) // return
                 }
 
-            if (implicitArgument != null && addFakeToken) {
+            if (commandInfo.implicitArgument != null && addFakeToken) {
                 tokens.add(1, tokens.first())
             }
+            // =================
 
-            val argumentMetadata = argumentsMetadata.firstOrNull {
-                it.identifiers.any { identifier -> identifier.lowercase() == argumentName.lowercase() }
-            }
-                ?: throw CommandParsingException(
-                    "Could not parse argument: $currentToken",
-                    CommandParsingErrorType.NoSuchArgumentName
-                )
-            val argumentField = argumentIdentifierToField[argumentMetadata.identifiers[0]]
-                ?: throw CommandParsingException(
-                    "Could not obtain argument field: $currentToken",
-                    CommandParsingErrorType.CouldNotObtainArgumentField
-                )
-
+            val argumentInfo = commandInfo.identifierToArgument[argumentIdentifier]
+            ?: throw CommandParsingException(
+                "Could not parse argument: $currentToken",
+                CommandParsingErrorType.NoSuchArgumentName
+            )
+            val argumentMetadata = argumentInfo.metadata
+            val argumentField = argumentInfo.field
             val argumentType = argumentField.type
 
 
@@ -191,7 +132,7 @@ class CommandParserV1 : CommandParser {
                     // if there is no tokens left, that means value is not provided
                     if (tokens.size - entriesToRemoveAmount < 1) {
                         throw CommandParsingException(
-                            "Argument -$argumentName value is not provided!",
+                            "Argument -$argumentIdentifier value is not provided!",
                             CommandParsingErrorType.ArgumentValueIsNotProvided
                         )
                     }
@@ -209,7 +150,7 @@ class CommandParserV1 : CommandParser {
                     // if there is no tokens left, that means value is not provided
                     if (tokens.size - entriesToRemoveAmount < 1) {
                         throw CommandParsingException(
-                            "Argument -$argumentName value is not provided!",
+                            "Argument -$argumentIdentifier value is not provided!",
                             CommandParsingErrorType.ArgumentValueIsNotProvided
                         )
                     }
@@ -228,7 +169,7 @@ class CommandParserV1 : CommandParser {
                     // if there is no tokens left, that means value is not provided
                     if (tokens.size - entriesToRemoveAmount < 1) {
                         throw CommandParsingException(
-                            "Argument -$argumentName value is not provided!",
+                            "Argument -$argumentIdentifier value is not provided!",
                             CommandParsingErrorType.ArgumentValueIsNotProvided
                         )
                     }
@@ -252,14 +193,14 @@ class CommandParserV1 : CommandParser {
 
         // prepare field in the right order for creating an instance
         val allArgumentsNeededPrepared = mutableListOf<Any>()
-        for (field in commandClass.declaredFields) {
-            val fieldType = field.type
+        for (argument in commandInfo.arguments) {
+            val fieldType = argument.field.type
             val providedArgument =
-                instantiationArguments[field.name]
-                    ?: convertStringValueToArgumentValue(fieldToDefaultArgument[field]
+                instantiationArguments[argument.field.name]
+                    ?: convertStringValueToArgumentValue(argument.defaultValue
                         ?: throw CommandParsingException(
-                            "Could not create command because default argument is missing: ${field.name}",
-                            CommandParsingErrorType.CouldNotGetDefaultArgumentValue
+                            "Could not create command because required argument is missing: ${argument.metadata.name}",
+                            CommandParsingErrorType.RequiredArgumentNotProvided
                         ), fieldType)
             allArgumentsNeededPrepared.add(providedArgument)
         }
@@ -275,8 +216,8 @@ class CommandParserV1 : CommandParser {
         return instance
     }
 
-    private val booleanTruthIdentifiers = listOf("true", "екгу", "t", "е")
-    private val booleanFalseIdentifiers = listOf("false", "афдыу", "f", "а")
+    private val booleanTruthIdentifiers = KeymapTranslator.translate(listOf("true", "t"), keymaps, true)
+    private val booleanFalseIdentifiers = KeymapTranslator.translate(listOf("false", "f"), keymaps, true)
     private fun convertStringValueToArgumentValue(value: String, targetType: Class<*>): Any {
         if (targetType == Boolean::class.java) {
             if (booleanTruthIdentifiers.contains(value)) return true
@@ -287,7 +228,6 @@ class CommandParserV1 : CommandParser {
         if (targetType == String::class.java) {
             return value
         }
-
 
         try {
             when (targetType) {
@@ -305,32 +245,14 @@ class CommandParserV1 : CommandParser {
         }
 
         if (targetType.isEnum) {
-            val identifierToEnumConstantField = mutableMapOf<String, Field>()
-            val enumConstantFieldToOrdinal = mutableMapOf<Field, Int>()
-            val enumConstantFields = targetType.declaredFields.filter { field ->
-                field.isEnumConstant && field.getDeclaredAnnotation(ArgumentSerialized::class.java) != null
-            }
+            val identifierToEnumOrdinalIndex = ArgumentSerialized.getEnumIdentifierToOrdinalMap(targetType, keymaps)
 
-            var currentOrdinal = 0
-            enumConstantFields.forEach { constantField ->
-                val identifiers =
-                    constantField.getDeclaredAnnotation(ArgumentSerialized::class.java)!!.identifiers
-
-                identifierToEnumConstantField.putAll(identifiers.associateWith { constantField })
-
-                enumConstantFieldToOrdinal[constantField] = currentOrdinal
-                currentOrdinal++
-            }
-
-
-
-            if (!identifierToEnumConstantField.containsKey(value))
+            if (!identifierToEnumOrdinalIndex.containsKey(value))
                 throw CommandParsingException(
                     "No such value available: $value", CommandParsingErrorType.NoSuchValueInEnum
                 )
 
-            val selectedField = identifierToEnumConstantField[value]!!
-            val ordinalIndex = enumConstantFieldToOrdinal[selectedField]!!
+            val ordinalIndex = identifierToEnumOrdinalIndex[value]!!
             val enumValue = targetType.enumConstants[ordinalIndex]!!
 
             return enumValue

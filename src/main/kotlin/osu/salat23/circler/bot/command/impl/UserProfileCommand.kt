@@ -9,14 +9,13 @@ import osu.salat23.circler.osu.domain.Mode
 @Command(
     name = "User profile",
     description = "Fetches user profile",
-    identifiers = ["user", "u", "гыук", "г"]
+    identifiers = ["user", "u"]
 )
 class UserProfileCommand (
     @Argument(
         name = "Player",
         description = "Specify player username.",
-        identifiers = ["nick", "nickname", "n", "тшсл", "тшслтфьу", "т"],
-        required = true,
+        identifiers = ["nick", "nickname", "n"],
         implicit = true
     )
     @Default("")
@@ -25,7 +24,7 @@ class UserProfileCommand (
     @Argument(
         name = "Server",
         description = "Specify game server.",
-        identifiers = ["server", "s", "ыукмук", "ы"],
+        identifiers = ["server", "s"],
     )
     @Default("bancho")
     var server: Server,
@@ -33,7 +32,7 @@ class UserProfileCommand (
     @Argument(
         name = "Mode",
         description = "Specify game mode.",
-        identifiers = ["mode", "m", "ьщву", "ь"],
+        identifiers = ["mode", "m"],
     )
     @Default("default")
     var gameMode: Mode,
@@ -41,7 +40,7 @@ class UserProfileCommand (
     @Argument(
         name = "Render mode",
         description = "Enables render mode",
-        identifiers = ["render", "r", "кутвук", "к"]
+        identifiers = ["render", "r"]
     )
     @Default("false")
     var isRenderMode: Boolean
