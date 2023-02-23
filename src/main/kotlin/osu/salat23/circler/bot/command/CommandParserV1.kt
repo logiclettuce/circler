@@ -9,6 +9,7 @@ import kotlin.reflect.full.isSubclassOf
 
 @Component
 class CommandParserV1(
+    private final val preprocessor: CommandPreprocessor,
     private final val commandContext: CommandContext,
     private final val keymaps: List<LayoutKeymap>
 ) : CommandParser {
@@ -21,7 +22,7 @@ class CommandParserV1(
         //if (input.chars().filter { it.toChar() == '"' }.toList().size % 2 != 0)
 
         // split everything by white spaces and remove all quotes afterwards
-        val tokens = input.split(splitRegex).map { it.replace("\"", "") }.toMutableList()
+        val tokens = preprocessor.process(input).split(splitRegex).map { it.replace("\"", "") }.toMutableList()
 
         if (tokens.isEmpty()) throw CommandParsingException(
             "Command is not present",

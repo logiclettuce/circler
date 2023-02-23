@@ -24,7 +24,7 @@ class CommandPreprocessorV1(
                     value += char
                 }
 
-                partsToReplace.add(value to matchedResult.range)
+                partsToReplace.add(value.reversed() to matchedResult.range)
             }
         }
 

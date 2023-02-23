@@ -100,7 +100,7 @@ class BanchoApi(
         val modsValue = if (mods.isNotEmpty()) mods.map { mod -> mod.id }.reduce { acc, id -> acc.or(id) } else 0
         val bodyParameters: RequestBody = FormBody.Builder()
             .add("mods", "$modsValue")
-            .add("ruleset", gameMode.alternativeName)
+            .apply { if (gameMode != Mode.Default) this.add("ruleset", gameMode.alternativeName) }
             .build()
         val request = Request.Builder().url(BanchoEndpoints.beatmapAttributesUrl(beatmapId)).post(
             bodyParameters

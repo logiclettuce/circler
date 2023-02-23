@@ -39,7 +39,6 @@ data class BanchoScore(
 // todo hash code for mods and other fields
     val passed: Boolean,
     val perfect: Boolean,
-
     val pp: Double,
     @JsonProperty("rank_global")
     val rankGlobal: Long,

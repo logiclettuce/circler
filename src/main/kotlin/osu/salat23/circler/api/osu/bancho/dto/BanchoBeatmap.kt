@@ -26,6 +26,7 @@ data class BanchoBeatmap (
     @JsonProperty("deteled_at")
     val deletedAt: String?,
     val drain: Double,
+    val version: String,
     @JsonProperty("difficulty_rating")
     val difficultyRating: Double,
     @JsonProperty("hit_length")

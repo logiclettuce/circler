@@ -4,26 +4,44 @@
 <script>
     let jsonContext = {{json_context}}
 
-    let scores = ""
+    let scores = "[Server: {{server}}]\n".replace("{{server}}", jsonContext.meta.server)
     let scoresArray = jsonContext.scores
 
     for (let i = 0; i < scoresArray.length; i++) {
         let score = scoresArray[i]
 
         let singleScoreTemplate = `
-            [Server: {{server}}]
             [{{status}}] {{artist}} - {{songname}} [{{beatmap}}] by {{mapper}}
             AR:{{ar}} CS:{{cs}} OD:{{od}} HP:{{hp}} {{bpm}}BPM | {{difficulty}}✩ +{{mods}}
             Score: {{score}} | Combo: {{achieved_combo}}/{{max_combo}}x
-            {{great}}/{{ok}}/{{meh}}/{{miss}} | Grade: {{rank}} ({{completion_perc}}%)
-            Accuracy: {{accuracy}}% | pp: {{performance}} -> FC: {{fc_performance}}
-        `
+            {{great}}/{{ok}}/{{meh}}/{{miss}} | Grade: {{rank}}
+            Accuracy: {{accuracy}}% | pp: {{performance}} -> FC: {{fc_performance}} -> SS: {{ss_performance}}`
+
             .replace("{{status}}", score.beatmap.status)
             .replace("{{artist}}", score.beatmap.beatmap_set.artist)
             .replace("{{songname}}", score.beatmap.beatmap_set.title)
             .replace("{{mapper}}", score.beatmap.beatmap_set.creator)
+            .replace("{{beatmap}}", score.beatmap.version)
             .replace("{{mods}}", score.mods)
-            .replace("{{server}}", jsonContext.meta.server)
+            .replace("{{status}}", score.beatmap.status)
+            .replace("{{score}}", score.score)
+            .replace("{{max_combo}}", score.beatmap.max_combo)
+            .replace("{{achieved_combo}}", score.achieved_combo)
+            .replace("{{ar}}", score.beatmap.approach_rate)
+            .replace("{{cs}}", score.beatmap.circle_size)
+            .replace("{{od}}", score.beatmap.overall_difficulty)
+            .replace("{{hp}}", score.beatmap.hp_drain)
+            .replace("{{bpm}}", score.beatmap.speed_note_count)
+            .replace("{{difficulty}}", score.beatmap.difficulty_rating)
+            .replace("{{great}}", score.hit_perfect)
+            .replace("{{ok}}", score.hit_ok)
+            .replace("{{meh}}", score.hit_meh)
+            .replace("{{miss}}", score.hit_miss)
+            .replace("{{rank}}", score.rank)
+            .replace("{{accuracy}}", score.accuracy)
+            .replace("{{performance}}", score.performance)
+            .replace("{{fc_performance}}", score.performanceIdeal)
+            .replace("{{ss_performance}}", score.performancePerfect)
 
         scores += singleScoreTemplate + "\n"
     }

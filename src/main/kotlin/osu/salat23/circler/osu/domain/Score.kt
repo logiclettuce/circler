@@ -1,14 +1,16 @@
 package osu.salat23.circler.osu.domain
 
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class Score(
     val id: String,
     val score: Long,
     var performance: Double,
+    var performanceIdeal: Double,
+    var performancePerfect: Double,
     val accuracy: Double,
     val maxCombo: Long,
-    val date: LocalDate,
+    val date: LocalDateTime,
     val mode: Mode,
     val rank: Rank,
     val globalRank: Long,

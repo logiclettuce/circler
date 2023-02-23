@@ -2,7 +2,7 @@ package osu.salat23.circler.api.osu.bancho.dto
 
 import osu.salat23.circler.osu.domain.*
 import osu.salat23.circler.osu.formula.performance.PerformanceCalculator
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -52,6 +52,7 @@ object Converter {
             mode = Mode.from(beatmap.mode),
             status = Status.from(beatmap.status ?: Status.Graveyard.alternativeName),
             url = beatmap.url,
+            version = beatmap.version,
             beatmapSet = if (beatmapSet != null) convertToBeatmapSet(beatmapSet) else null
         )
     }
@@ -100,9 +101,12 @@ object Converter {
             id = score.id,
             score = score.score,
             performance = score.pp,
+            performanceIdeal = score.pp,
+            performancePerfect = score.pp,
             accuracy = score.accuracy,
             maxCombo = score.maxCombo,
-            date = LocalDate.parse(score.created_at) /*.parse(score.created_at)*/,
+            date = LocalDateTime.parse(score.created_at, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(
+                ZoneId.of("UTC"))),
             mode = Mode.from(score.mode),
             rank = Rank.valueOf(score.rank),
             globalRank = score.rankGlobal,
@@ -119,6 +123,18 @@ object Converter {
             performanceCalculator.calculate(
                 score = resultScore,
                 beatmap = beatmap
+            )
+        resultScore.performanceIdeal =
+            performanceCalculator.calculate(
+                score = resultScore,
+                beatmap = beatmap,
+                PerformanceCalculator.CalculationType.Ideal
+            )
+        resultScore.performancePerfect =
+            performanceCalculator.calculate(
+                score = resultScore,
+                beatmap = beatmap,
+                PerformanceCalculator.CalculationType.Perfect
             )
 
         return resultScore

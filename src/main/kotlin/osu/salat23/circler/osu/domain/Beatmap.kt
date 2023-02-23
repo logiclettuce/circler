@@ -19,5 +19,6 @@ data class Beatmap(
     val mode: Mode,
     val status: Status,
     val url: String,
+    val version: String,
     val beatmapSet: BeatmapSet? = null
 )

@@ -5,7 +5,6 @@ import osu.salat23.circler.clamp
 import osu.salat23.circler.osu.domain.Beatmap
 import osu.salat23.circler.osu.domain.Mod
 import osu.salat23.circler.osu.domain.Score
-import kotlin.math.pow
 
 @Component
 class PerformanceCalculatorV1 : PerformanceCalculator {
@@ -23,18 +22,43 @@ class PerformanceCalculatorV1 : PerformanceCalculator {
         val countMiss: Long,
     )
 
+    private fun calculateAccuracy(hitPerfect: Long, hitOk: Long, hitMeh: Long, hitMiss: Long): Double {
+        val totalHits = (hitPerfect + hitOk + hitMeh + hitMiss).toDouble()
+        val upper = (hitPerfect*300 + hitOk*100 + hitMeh*50 + hitMiss*0).toDouble()
+        val calculatedAccuracy = upper / totalHits
+        return calculatedAccuracy
+    }
+
     override fun calculate(
-        score: Score, beatmap: Beatmap
+        score: Score, beatmap: Beatmap, type: PerformanceCalculator.CalculationType
     ): Double {
 
-        val scoreAttributes = ScoreAttributes(
-            score.accuracy,
-            score.maxCombo,
-            score.hitPerfect,
-            score.hitOk,
-            score.hitMeh,
-            score.hitMiss,
-        )
+        val scoreAttributes = when(type) {
+            PerformanceCalculator.CalculationType.Default -> ScoreAttributes(
+                score.accuracy,
+                score.maxCombo,
+                score.hitPerfect,
+                score.hitOk,
+                score.hitMeh,
+                score.hitMiss,
+            )
+            PerformanceCalculator.CalculationType.Ideal -> ScoreAttributes(
+                calculateAccuracy(score.hitPerfect + score.hitMiss, score.hitOk, score.hitMeh, 0),
+                beatmap.maxCombo,
+                score.hitPerfect + score.hitMiss,
+                score.hitOk,
+                score.hitMeh,
+                0,
+            )
+            PerformanceCalculator.CalculationType.Perfect -> ScoreAttributes(
+                1.0,
+                beatmap.maxCombo,
+                score.hitPerfect + score.hitOk + score.hitMeh + score.hitMiss,
+                0,
+                0,
+                0,
+            )
+        }
         val totalHits =
             scoreAttributes.countMiss +
                     scoreAttributes.countMeh +

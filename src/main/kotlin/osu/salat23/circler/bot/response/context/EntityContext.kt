@@ -5,7 +5,7 @@ import org.json.JSONObject
 import osu.salat23.circler.api.osu.Server
 import osu.salat23.circler.osu.domain.*
 import osu.salat23.circler.roundTo
-import osu.salat23.circler.withDigits
+import osu.salat23.circler.roundTo
 import java.text.DateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -50,9 +50,11 @@ object EntityContext {
         return json {
             "id" to score.id
             "score" to score.score
-            "performance" to score.performance.withDigits(2)
-            "accuracy" to score.accuracy.withDigits(2)
-            "max_combo" to score.maxCombo
+            "performance" to score.performance.roundTo(2)
+            "performanceIdeal" to score.performanceIdeal.roundTo(2)
+            "performancePerfect" to score.performancePerfect.roundTo(2)
+            "accuracy" to (score.accuracy*100).roundTo(2)
+            "achieved_combo" to score.maxCombo
             "date" to score.date
             "mode" to score.mode.displayName
             "rank" to score.rank.name
@@ -72,23 +74,24 @@ object EntityContext {
     ): JSONObject {
         return json {
             "id" to beatmap.id
-            "approach_rate" to beatmap.approachRate
-            "circle_size" to beatmap.circleSize
-            "hp_drain" to beatmap.hpDrain
+            "approach_rate" to beatmap.approachRate.roundTo(2)
+            "circle_size" to beatmap.circleSize.roundTo(2)
+            "hp_drain" to beatmap.hpDrain.roundTo(2)
             "circle_count" to beatmap.circleCount
             "slider_count" to beatmap.sliderCount
             "spinner_count" to beatmap.spinnerCount
             "max_combo" to beatmap.maxCombo
-            "difficulty_rating" to beatmap.difficultyRating
-            "aim_difficulty" to beatmap.aimDifficulty
-            "speed_difficulty" to beatmap.speedDifficulty
-            "speed_note_count" to beatmap.speedNoteCount
+            "difficulty_rating" to beatmap.difficultyRating.roundTo(2)
+            "aim_difficulty" to beatmap.aimDifficulty.roundTo(2)
+            "speed_difficulty" to beatmap.speedDifficulty.roundTo(2)
+            "speed_note_count" to beatmap.speedNoteCount.roundTo(2)
             "slider_factor" to beatmap.sliderFactor
-            "overall_difficulty" to beatmap.overallDifficulty
-            "flashlight_difficulty" to beatmap.flashlightDifficulty
+            "overall_difficulty" to beatmap.overallDifficulty.roundTo(2)
+            "flashlight_difficulty" to beatmap.flashlightDifficulty.roundTo(2)
             "mode" to beatmap.mode.displayName
             "status" to beatmap.status
             "url" to beatmap.url
+            "version" to beatmap.version
             if (beatmap.beatmapSet != null)
                 "beatmap_set" to beatmapSetJson(beatmap.beatmapSet)
         }
