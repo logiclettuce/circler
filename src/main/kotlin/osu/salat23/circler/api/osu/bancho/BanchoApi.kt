@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import osu.salat23.circler.api.osu.BanchoEndpoints
 import osu.salat23.circler.api.osu.OsuApi
-import osu.salat23.circler.api.osu.OsuGameMode
 import osu.salat23.circler.api.osu.ScoreType
 import osu.salat23.circler.api.osu.bancho.dto.*
 import osu.salat23.circler.api.osu.exceptions.RequestFailedException
@@ -96,7 +95,7 @@ class BanchoApi(
         beatmapId: String,
         gameMode: Mode,
         mods: List<Mod>,
-    ): BanchoBeatmapAttributes {
+    ): BanchoOsuBeatmapAttributes {
         val modsValue = if (mods.isNotEmpty()) mods.map { mod -> mod.id }.reduce { acc, id -> acc.or(id) } else 0
         val bodyParameters: RequestBody = FormBody.Builder()
             .add("mods", "$modsValue")

@@ -2,16 +2,14 @@ package osu.salat23.circler.api.osu.bancho.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonUnwrapped
-import com.fasterxml.jackson.annotation.JsonValue
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class BanchoBeatmapAttributesWrapper(
     @JsonProperty("attributes")
-    val banchoBeatmapAttributes: BanchoBeatmapAttributes
+    val banchoBeatmapAttributes: BanchoOsuBeatmapAttributes
 )
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class BanchoBeatmapAttributes(
+data class BanchoOsuBeatmapAttributes(
     val max_combo: Long,
     @JsonProperty("star_rating")
     val starRating: Double,

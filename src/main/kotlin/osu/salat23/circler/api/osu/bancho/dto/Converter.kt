@@ -26,7 +26,7 @@ object Converter {
 
     fun convertToBeatmap(
         beatmap: BanchoBeatmap,
-        beatmapAttributes: BanchoBeatmapAttributes,
+        beatmapAttributes: BanchoOsuBeatmapAttributes,
         beatmapSet: BanchoBeatmapSet? = null
         ): Beatmap {
         return Beatmap(
