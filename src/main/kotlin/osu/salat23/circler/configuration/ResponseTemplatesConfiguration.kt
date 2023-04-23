@@ -22,7 +22,7 @@ class ResponseTemplatesConfiguration {
         val htmlTemplatesPath = "response/html/"
         val htmlTemplatesExtension = ".html"
         val textTemplatesPath = "response/text/"
-        val textTemplatesExtension = ".txt"
+        val textTemplatesExtension = ".html"
         val classLoader = javaClass.classLoader
 
         val resultMap = mutableMapOf<TypeFormat, Template>()

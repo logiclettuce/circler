@@ -7,7 +7,12 @@ import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientImage
 import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.bot.command.impl.FetchUserRecentScoresCommand
+import osu.salat23.circler.bot.response.browser.BrowserClient
+import osu.salat23.circler.bot.response.context.SpecificContext
 import osu.salat23.circler.bot.response.templates.OldResponseTemplates
+import osu.salat23.circler.bot.response.templates.TemplateFormat
+import osu.salat23.circler.bot.response.templates.TemplateType
+import osu.salat23.circler.service.ChatService
 import osu.salat23.circler.service.OsuService
 import osu.salat23.circler.service.PlayerIdentifierService
 import java.net.URL
@@ -15,7 +20,9 @@ import java.net.URL
 @Component
 class FetchUserRecentScoresHandler(
     val osuService: OsuService,
-    val playerIdentifierService: PlayerIdentifierService
+    val playerIdentifierService: PlayerIdentifierService,
+    val chatService: ChatService,
+    val browserClient: BrowserClient
 ) : ChainHandler() {
 
     override fun handleUpdate(command: Any, client: Client, clientBotContext: ClientBotContext) {
@@ -34,29 +41,17 @@ class FetchUserRecentScoresHandler(
                 pageNumber = command.pageNumber,
                 showFailed = true // todo option here
             )
-        val text = if (scores.isEmpty()) "No recent scores found" else OldResponseTemplates.osuUserRecentScores(
-            user,
-            scores
+        val chat = chatService.getOrCreateChat(clientBotContext.chatId, clientBotContext.clientType)
+        val context = SpecificContext.userScoresJson(user, command.server, scores)
+        val textTemplate = chatService.getChatTemplateAndApplyContext(chat, TemplateType.Scores, TemplateFormat.Text, context)
+        val clientEntity = ClientMessage(
+            chatId = clientBotContext.chatId,
+            userId = clientBotContext.userId,
+            text = browserClient.process(textTemplate.value),
         )
-        if (command.pageSize == 1L && scores.isNotEmpty()) {
-            val imageUrl = scores[0].beatmap.beatmapSet?.coverUrl ?: ""
-            client.send(
-                ClientImage(
-                    chatId = clientBotContext.chatId,
-                    userId = clientBotContext.userId,
-                    text = text,
-                    image = URL(imageUrl).openStream()
-                )
-            )
-            return
-        }
-        client.send(
-            ClientMessage(
-                chatId = clientBotContext.chatId,
-                userId = clientBotContext.userId,
-                text = text
-            )
-        )
+
+        // todo render image of the map if it is the only map in the list
+        client.send(clientEntity)
     }
 
     override fun canHandle(command: Any, clientBotContext: ClientBotContext): Boolean {

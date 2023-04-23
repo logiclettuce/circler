@@ -143,11 +143,10 @@ class CommandParserV1(
 
                     val stringValue = tokens[1]
                     entriesToRemoveAmount++
-
                     instantiationArguments[argumentField.name] = convertStringValueToArgumentValue(stringValue, argumentType)
                 }
 
-                if (argumentType::class.isSubclassOf(Number::class)) {
+                if (argumentType.kotlin.isSubclassOf(Number::class)) {
                     // if there is no tokens left, that means value is not provided
                     if (tokens.size - entriesToRemoveAmount < 1) {
                         throw CommandParsingException(
@@ -162,8 +161,7 @@ class CommandParserV1(
                     val numberValue = tokens[1]
                     entriesToRemoveAmount++
 
-
-
+                    instantiationArguments[argumentField.name] = convertStringValueToArgumentValue(numberValue, argumentType)
                 }
 
                 if (argumentType.isEnum) {
