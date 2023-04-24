@@ -93,6 +93,10 @@ class Vk(
             } catch (exception: CommandParsingException) {
                 if (exception.type == CommandParsingErrorType.CommandNotFound
                     || exception.type == CommandParsingErrorType.CommandNotPresent) return
+                if (exception.type == CommandParsingErrorType.NoSuchArgumentName) {
+                    send(ClientMessage(chatId, userId, "Could not parse argument"))
+                    return
+                }
                 exception.printStackTrace()
                 return
             }

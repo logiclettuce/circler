@@ -23,8 +23,8 @@ class PerformanceCalculatorV1 : PerformanceCalculator {
     )
 
     private fun calculateAccuracy(hitPerfect: Long, hitOk: Long, hitMeh: Long, hitMiss: Long): Double {
-        val totalHits = (hitPerfect + hitOk + hitMeh + hitMiss).toDouble()
-        val upper = (hitPerfect*300 + hitOk*100 + hitMeh*50 + hitMiss*0).toDouble()
+        val totalHits = (hitPerfect + hitOk + hitMeh + hitMiss).toDouble() * 300
+        val upper = (hitPerfect*300 + hitOk*100 + hitMeh*50).toDouble()
         val calculatedAccuracy = upper / totalHits
         return calculatedAccuracy
     }

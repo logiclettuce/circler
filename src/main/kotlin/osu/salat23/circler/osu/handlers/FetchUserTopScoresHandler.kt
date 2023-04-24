@@ -6,8 +6,13 @@ import osu.salat23.circler.bot.ClientBotContext
 import osu.salat23.circler.bot.client.Client
 import osu.salat23.circler.bot.client.ClientMessage
 import osu.salat23.circler.bot.command.impl.FetchUserTopScoresCommand
+import osu.salat23.circler.bot.response.browser.BrowserClient
+import osu.salat23.circler.bot.response.context.SpecificContext
 import osu.salat23.circler.bot.response.templates.OldResponseTemplates
 import osu.salat23.circler.bot.response.templates.TemplateFactory
+import osu.salat23.circler.bot.response.templates.TemplateFormat
+import osu.salat23.circler.bot.response.templates.TemplateType
+import osu.salat23.circler.service.ChatService
 import osu.salat23.circler.service.OsuService
 import osu.salat23.circler.service.PlayerIdentifierService
 
@@ -15,6 +20,8 @@ import osu.salat23.circler.service.PlayerIdentifierService
 class FetchUserTopScoresHandler(
     val osuService: OsuService,
     val playerIdentifierService: PlayerIdentifierService,
+    val chatService: ChatService,
+    val browserClient: BrowserClient,
     // todo make creatable commands
     val templateFactory: TemplateFactory
 ) : ChainHandler() {
@@ -25,6 +32,7 @@ class FetchUserTopScoresHandler(
 
         val osuApi = osuService.getOsuApiByServer(command.server)
         val user = osuApi.user(identifier = identifier, gameMode = command.gameMode)
+        val chat = chatService.getOrCreateChat(clientBotContext.chatId, clientBotContext.clientType)
         val scores =
             osuApi.userScores(
                 identifier = identifier,
@@ -35,21 +43,15 @@ class FetchUserTopScoresHandler(
                 showFailed = true // todo make option for this
             )
 
-        val text = OldResponseTemplates.osuUserTopScores(user, command, scores)
-//        val profileCommandCall = fetchUserProfileCommandFactory.produceCall(
-//            actor = user.username,
-//            server = server,
-//            mode = gameMode,
-//            isHtml = false // <============= change this
-//        )
-        client.send(
-            ClientMessage(
-                chatId = clientBotContext.chatId,
-                userId = clientBotContext.userId,
-                text = text,
-               // furtherActions = listOf(FurtherAction(profileCommandCall, "Profile"))
-            )
+        val context = SpecificContext.userScoresJson(user, command.server, scores)
+
+        val textTemplate = chatService.getChatTemplateAndApplyContext(chat, TemplateType.Scores, TemplateFormat.Text, context)
+        val clientEntity = ClientMessage(
+            chatId = clientBotContext.chatId,
+            userId = clientBotContext.userId,
+            text = browserClient.process(textTemplate.value),
         )
+        client.send(clientEntity)
     }
 
     override fun canHandle(command: Any, clientBotContext: ClientBotContext): Boolean {

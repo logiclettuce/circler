@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import osu.salat23.circler.api.osu.BanchoEndpoints
 import osu.salat23.circler.api.osu.OsuApi
-import osu.salat23.circler.api.osu.OsuGameMode
 import osu.salat23.circler.api.osu.ScoreType
 import osu.salat23.circler.api.osu.bancho.dto.*
 import osu.salat23.circler.api.osu.exceptions.RequestFailedException
@@ -46,8 +45,12 @@ class BanchoApi(
 
     private fun initToken() {
         val request = Request.Builder().url(BanchoEndpoints.TOKEN_URL).post(
-            FormBody.Builder().add("client_id", properties.clientId).add("client_secret", properties.clientSecret)
-                .add("grant_type", "client_credentials").add("scope", "public").build()
+            FormBody.Builder()
+                .add("client_id", properties.clientId)
+                .add("client_secret", properties.clientSecret)
+                .add("grant_type", "client_credentials")
+                .add("scope", "public")
+                .build()
         ).build()
 
         client.newCall(request).execute().use { response ->
@@ -96,15 +99,25 @@ class BanchoApi(
         beatmapId: String,
         gameMode: Mode,
         mods: List<Mod>,
-    ): BanchoBeatmapAttributes {
-        val modsValue = if (mods.isNotEmpty()) mods.map { mod -> mod.id }.reduce { acc, id -> acc.or(id) } else 0
-        val bodyParameters: RequestBody = FormBody.Builder()
+    ): BanchoOsuBeatmapAttributes {
+        val modsValue =
+            if (mods.isNotEmpty()) mods
+                .map { mod -> mod.id }
+                .reduce { acc, id -> acc.or(id) }
+            else 0
+
+        val bodyParameters: RequestBody =
+            FormBody.Builder()
             .add("mods", "$modsValue")
             .apply { if (gameMode != Mode.Default) this.add("ruleset", gameMode.alternativeName) }
             .build()
-        val request = Request.Builder().url(BanchoEndpoints.beatmapAttributesUrl(beatmapId)).post(
-            bodyParameters
-        ).build()
+
+        val request =
+            Request.Builder()
+            .url(BanchoEndpoints.beatmapAttributesUrl(beatmapId))
+            .post(bodyParameters)
+            .build()
+
         return makeRequest<BanchoBeatmapAttributesWrapper>(request).banchoBeatmapAttributes
     }
 
